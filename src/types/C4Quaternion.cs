@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using m2lib_csharp.interfaces;
+using m2lib_csharp.m2;
 
 namespace m2lib_csharp.types
 {
@@ -10,7 +11,7 @@ namespace m2lib_csharp.types
     {
         public float X, Y, Z, W;
 
-        public C4Quaternion(float p1 = 0, float p2 = 0, float p3 = 0, float p4 = 1)
+        public C4Quaternion(float p1, float p2, float p3, float p4)
         {
             X = p1;
             Y = p2;
@@ -18,7 +19,11 @@ namespace m2lib_csharp.types
             W = p4;
         }
 
-        public void Load(BinaryReader stream, int version = -1)
+        public C4Quaternion() : this(0,0,0,1)
+        {
+        }
+
+        public void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown)
         {
             X = stream.ReadSingle();
             Y = stream.ReadSingle();
@@ -26,7 +31,7 @@ namespace m2lib_csharp.types
             W = stream.ReadSingle();
         }
 
-        public void Save(BinaryWriter stream, int version = -1)
+        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
         {
             stream.Write(X);
             stream.Write(Y);

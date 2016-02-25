@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -47,8 +48,12 @@
     <Compile Include="src\interfaces\IMarshalable.cs" />
     <Compile Include="src\interfaces\IReferencer.cs" />
     <Compile Include="src\io\Substream.cs" />
+    <Compile Include="src\m2\Bone.cs" />
+    <Compile Include="src\m2\PlayableRecord.cs" />
     <Compile Include="src\m2\M2.cs" />
-    <Compile Include="src\Program.cs" />
+    <Compile Include="src\m2\Sequence.cs" />
+    <Compile Include="src\DebugProgram.cs" />
+    <Compile Include="src\m2\Track.cs" />
     <Compile Include="src\types\ArrayRef.cs" />
     <Compile Include="src\types\C2Vector.cs" />
     <Compile Include="src\types\C33Matrix.cs" />
@@ -66,7 +71,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="src\csv\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

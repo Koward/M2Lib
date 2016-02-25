@@ -1,4 +1,4 @@
-# M2Lib - C\#
+# M2Lib - .NET
 World of Warcraft M2 library - C#;  
 
 Work in progress port of github/m2lib-java .

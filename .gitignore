@@ -61,5 +61,6 @@ UAll
 /latex/
 /bin/
 /lib/
+/obj/
 .classpath
 /.settings/

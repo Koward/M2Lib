@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using m2lib_csharp.interfaces;
+using m2lib_csharp.m2;
 
 namespace m2lib_csharp.types
 {
@@ -18,7 +19,7 @@ namespace m2lib_csharp.types
             A = p4;
         }
 
-        public void Load(BinaryReader stream, int version = -1)
+        public void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown)
         {
             R = stream.ReadByte();
             G = stream.ReadByte();
@@ -26,7 +27,7 @@ namespace m2lib_csharp.types
             A = stream.ReadByte();
         }
 
-        public void Save(BinaryWriter stream, int version = -1)
+        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
         {
             stream.Write(R);
             stream.Write(G);

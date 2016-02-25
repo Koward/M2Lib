@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using m2lib_csharp.interfaces;
+using m2lib_csharp.m2;
 
 namespace m2lib_csharp.types
 {
@@ -17,18 +20,28 @@ namespace m2lib_csharp.types
             _offset = 0;
         }
 
-        public void Load(BinaryReader stream, int version = -1)
+        /// <summary>
+        /// Build ArrayRef from string.
+        /// </summary>
+        /// <param name="str">String that will be converted in bytes.</param>
+        public ArrayRef(string str) : this()
+        {
+            if (!typeof (byte).IsAssignableFrom(typeof (T))) throw new NotSupportedException();
+            AddRange((IEnumerable<T>) (object) Encoding.UTF8.GetBytes(str + "\0"));
+        } 
+
+        public void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown)
         {
             _n = stream.ReadUInt32();
             _offset = stream.ReadUInt32();
         }
 
-        public void LoadContent(BinaryReader stream, int version = -1, BinaryReader[] animFiles = null)
+        public void LoadContent(BinaryReader stream, M2.Format version = M2.Format.Unknown, BinaryReader[] animFiles = null)
         {
             if (_n == 0) return;
-            long currentOfs = stream.BaseStream.Position;
+            var currentOfs = stream.BaseStream.Position;
             stream.BaseStream.Seek(_offset, SeekOrigin.Begin);
-            for (int i = 0; i < _n; i++)
+            for (var i = 0; i < _n; i++)
             {
                 if (typeof(IMarshalable).IsAssignableFrom(typeof(T)))
                 {
@@ -61,12 +74,12 @@ namespace m2lib_csharp.types
                 }
                 else
                 {
-                    throw new System.NotImplementedException(typeof(T) + "type is not supported and cannot be read.");
+                    throw new NotImplementedException(typeof(T) + "type is not supported and cannot be read.");
                 }
             }
             if (typeof(IReferencer).IsAssignableFrom(typeof(T)))
             {
-                for (int i = 0; i < _n; i++)
+                for (var i = 0; i < _n; i++)
                 {
                     if (typeof(ArrayRef<>).IsAssignableFrom(typeof(T)) && animFiles != null)
                         ((IReferencer) this[i]).LoadContent(animFiles[i], version, animFiles);
@@ -77,14 +90,14 @@ namespace m2lib_csharp.types
             stream.BaseStream.Seek(currentOfs, SeekOrigin.Begin);
         }
 
-        public void Save(BinaryWriter stream, int version = -1)
+        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
         {
             _startOffset = stream.BaseStream.Position;
             stream.Write(Count);
             stream.Write(_offset);
         }
 
-        public void SaveContent(BinaryWriter stream, int version = -1, BinaryWriter[] animFiles = null)
+        public void SaveContent(BinaryWriter stream, M2.Format version = M2.Format.Unknown, BinaryWriter[] animFiles = null)
         {
             if (Count == 0) return;
             // Rewrites offset
@@ -125,19 +138,22 @@ namespace m2lib_csharp.types
                 }
                 else
                 {
-                    throw new System.NotImplementedException(typeof(T) + "type is not supported and cannot be written.");
+                    throw new NotImplementedException(typeof(T) + "type is not supported and cannot be written.");
                 }
             }
-            if (typeof (IReferencer).IsAssignableFrom(typeof (T))) 
+            if (!typeof (IReferencer).IsAssignableFrom(typeof (T))) return;
+            for (var i = 0; i < _n; i++)
             {
-                for (int i = 0; i < _n; i++)
-                {
-                    if (typeof(ArrayRef<>).IsAssignableFrom(typeof(T)) && animFiles != null)
-                        ((IReferencer) this[i]).SaveContent(animFiles[i], version, animFiles);
-                    else
-                        ((IReferencer) this[i]).SaveContent(stream, version, animFiles);
-                }
+                if (typeof(ArrayRef<>).IsAssignableFrom(typeof(T)) && animFiles != null)
+                    ((IReferencer) this[i]).SaveContent(animFiles[i], version, animFiles);
+                else
+                    ((IReferencer) this[i]).SaveContent(stream, version, animFiles);
             }
+        }
+
+        public string ToNameString()
+        {
+            return Encoding.UTF8.GetString((byte[]) (object) ToArray()).Trim('\0');
         }
     }
 }
