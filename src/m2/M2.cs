@@ -17,6 +17,8 @@ namespace m2lib_csharp.m2
         public GlobalFlags GlobalModelFlags { get; set; } = 0;
         public ArrayRef<int> GlobalSequences { get; set; } = new ArrayRef<int>();
         public ArrayRef<Sequence> Sequences { get; set; } = new ArrayRef<Sequence>();
+        public ArrayRef<Bone> Bones { get; set; } = new ArrayRef<Bone>();
+        public ArrayRef<Vertex> Vertices { get; set; } = new ArrayRef<Vertex>();
 
         public void Load(BinaryReader stream, Format version = Format.Unknown)
         {
@@ -38,16 +40,23 @@ namespace m2lib_csharp.m2
             Sequences.Load(stream, version);
             new ArrayRef<short>().Load(stream);
             if(version <= Format.BurningCrusade) new ArrayRef<short>().Load(stream);
+            Bones.Load(stream, version);
+            new ArrayRef<short>().Load(stream);
+            Vertices.Load(stream, version);
             //TODO Everything
 
             nameArrayRef.LoadContent(stream);
             Name = nameArrayRef.ToNameString();
             GlobalSequences.LoadContent(stream);
             Sequences.LoadContent(stream, version);
+            SetSequences();
+            Bones.LoadContent(stream, version);
+            Vertices.LoadContent(stream, version);
         }
 
         public void Save(BinaryWriter stream, Format version = Format.Unknown)
         {
+            SetSequences();
             stream.Write(Encoding.UTF8.GetBytes("MD20"));
             if(version == Format.Unknown) version = Version;
             stream.Write((uint) version);
@@ -56,10 +65,14 @@ namespace m2lib_csharp.m2
             stream.Write((uint) GlobalModelFlags);
             GlobalSequences.Save(stream);
             Sequences.Save(stream, version);
-            var sequenceLookup = Sequence.BuildLookup(Sequences);
+            var sequenceLookup = Sequence.GenerateAnimationLookup(Sequences);
             sequenceLookup.Save(stream);
             ArrayRef<short> playableLookup = null;
-            if(version <= Format.BurningCrusade) playableLookup = Sequence.BuildLookup(Sequences);
+            if(version <= Format.BurningCrusade) playableLookup = Sequence.GenerateAnimationLookup(Sequences);
+            Bones.Save(stream, version);
+            var keyBoneLookup = Bone.GenerateKeyBoneLookup(Bones);
+            keyBoneLookup.Save(stream);
+            Vertices.Save(stream, version);
             //TODO Everything
 
             nameArrayRef.SaveContent(stream);
@@ -76,6 +89,14 @@ namespace m2lib_csharp.m2
             Sequences.SaveContent(stream, version);
             sequenceLookup.SaveContent(stream);
             playableLookup?.SaveContent(stream);
+            Bones.SaveContent(stream, version);
+            keyBoneLookup.SaveContent(stream);
+            Vertices.SaveContent(stream, version);
+        }
+
+        private void SetSequences()
+        {
+            Bones.SetSequences(Sequences);
         }
 
         /// <summary>
@@ -86,6 +107,7 @@ namespace m2lib_csharp.m2
             Unknown = -1,
             Classic = 256,
             BurningCrusade = 260,
+            LateBurningCrusade = 263,
             LichKing = 264,
             Cataclysm = 272,
             Pandaria = 272,

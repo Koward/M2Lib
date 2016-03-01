@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using m2lib_csharp.interfaces;
 using m2lib_csharp.types;
 using Microsoft.VisualBasic.FileIO;
@@ -114,12 +115,32 @@ namespace m2lib_csharp.m2
             Looped = 0x20,
             HasNext = 0x40,
             Blended = 0x80,
-            Stored = 0x100
+            Stored = 0x100,
+            AnimFile = LowPriority + Looped + Stored
+        }
+
+        public string GetAnimFilePath(string path)
+        {
+            var pathDirectory = Path.GetDirectoryName(path);
+            var pathWithoutExt = Path.GetFileNameWithoutExtension(path);
+            string animFileName = $"{pathWithoutExt}{AnimationId:0000}-{SubAnimationId:00}.anim";
+            Debug.Assert(pathDirectory != null, "pathDirectory != null");
+            return Path.Combine(pathDirectory, animFileName);
+        }
+
+        /// <summary>
+        /// Return the animation that's really implemented (handle aliases).
+        /// </summary>
+        /// <param name="sequences">List of sequences to navigate in.</param>
+        /// <returns></returns>
+        public Sequence GetRealSequence(IReadOnlyList<Sequence> sequences)
+        {
+            return Flags.HasFlag(SequenceFlags.HasNext) ? sequences[AliasNext].GetRealSequence(sequences) : this;
         }
 
         // ANIMATION LOOKUP
 
-        public static ArrayRef<short> BuildLookup(ArrayRef<Sequence> sequences)
+        public static ArrayRef<short> GenerateAnimationLookup(ArrayRef<Sequence> sequences)
         {
             var lookup = new ArrayRef<short>();
             var maxId = sequences.Max(x => x.AnimationId);
@@ -139,7 +160,9 @@ namespace m2lib_csharp.m2
 
             static AnimationData()
             {
-                var csvParser = new TextFieldParser("AnimationData.csv") {CommentTokens = new[] {"#"}};
+                var embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("AnimationData.csv");
+                if(embeddedStream == null) throw new IOException("Could not open embedded ressource AnimationData");
+                var csvParser = new TextFieldParser(embeddedStream) {CommentTokens = new[] {"#"}};
                 csvParser.SetDelimiters(",");
                 csvParser.HasFieldsEnclosedInQuotes = true;
                 csvParser.ReadLine(); // Skip first line
@@ -180,7 +203,7 @@ namespace m2lib_csharp.m2
             }
         }
 
-        public static ArrayRef<PlayableRecord> BuildPlayLookup(IReadOnlyList<short> animLookup)
+        public static ArrayRef<PlayableRecord> GeneratePlayableLookup(IReadOnlyList<short> animLookup)
         {
             const int numberOfActions = 226;// From 2.4.3 DB/AnimationData
             var lookup = new ArrayRef<PlayableRecord>();

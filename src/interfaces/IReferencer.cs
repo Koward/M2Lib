@@ -8,7 +8,7 @@ namespace m2lib_csharp.interfaces
     /// </summary>
     public interface IReferencer : IMarshalable
     {
-        void LoadContent(BinaryReader stream, M2.Format version = M2.Format.Unknown, BinaryReader[] animFiles = null);
-        void SaveContent(BinaryWriter stream, M2.Format version = M2.Format.Unknown, BinaryWriter[] animFiles = null);
+        void LoadContent(BinaryReader stream, M2.Format version = M2.Format.Unknown);
+        void SaveContent(BinaryWriter stream, M2.Format version = M2.Format.Unknown);
     }
 }

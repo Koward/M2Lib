@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\interfaces\IAnimated.cs" />
     <Compile Include="src\interfaces\IMarshalable.cs" />
     <Compile Include="src\interfaces\IReferencer.cs" />
     <Compile Include="src\io\Substream.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="src\m2\Sequence.cs" />
     <Compile Include="src\DebugProgram.cs" />
     <Compile Include="src\m2\Track.cs" />
+    <Compile Include="src\m2\Vertex.cs" />
     <Compile Include="src\types\ArrayRef.cs" />
     <Compile Include="src\types\C2Vector.cs" />
     <Compile Include="src\types\C33Matrix.cs" />
@@ -70,10 +72,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <EmbeddedResource Include="src\csv\AnimationData.csv" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="src\csv\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -7,7 +7,6 @@ using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
-
     public class Track<T> : IReferencer where T : new()
     {
         public InterpolationTypes InterpolationType { get; set; }
@@ -17,7 +16,7 @@ namespace m2lib_csharp.m2
 
         // Used only to read 1 timeline formats
         // Legacy fields are automatically converted to standard ones in methods.
-        public IReadOnlyList<Sequence> SequenceBackRef { get; set; }
+        public IReadOnlyList<Sequence> SequenceBackRef { private get; set; }
         private ArrayRef<Range> LegacyRanges { get; set; }
         private ArrayRef<uint> LegacyTimestamps { get; set; }
         private ArrayRef<T> LegacyValues { get; set; }
@@ -73,13 +72,13 @@ namespace m2lib_csharp.m2
             }
         }
 
-        public void LoadContent(BinaryReader stream, M2.Format version = M2.Format.Unknown, BinaryReader[] animFiles = null)
+        public void LoadContent(BinaryReader stream, M2.Format version = M2.Format.Unknown)
         {
             Debug.Assert(version != M2.Format.Unknown);
             if (version >= M2.Format.LichKing)
             {
-                Timestamps.LoadContent(stream, version, animFiles);
-                Values.LoadContent(stream, version, animFiles);
+                Timestamps.LoadContent(stream, version);
+                Values.LoadContent(stream, version);
             }
             else
             {
@@ -102,13 +101,13 @@ namespace m2lib_csharp.m2
             }
         }
 
-        public void SaveContent(BinaryWriter stream, M2.Format version = M2.Format.Unknown, BinaryWriter[] animFiles = null)
+        public void SaveContent(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
         {
             Debug.Assert(version != M2.Format.Unknown);
             if (version >= M2.Format.LichKing)
             {
-                Timestamps.SaveContent(stream, version, animFiles);
-                Values.SaveContent(stream, version, animFiles);
+                Timestamps.SaveContent(stream, version);
+                Values.SaveContent(stream, version);
             }
             else
             {
@@ -160,10 +159,15 @@ namespace m2lib_csharp.m2
                 var indexesNext = Enumerable.Range(0, LegacyTimestamps.Count) // Indexes of times >= to the end of sequence.
                 .Where(i => LegacyTimestamps[i] >= seq.TimeStart + seq.Length)
                 .ToList();
-                uint startIndex = 0;
-                uint endIndex = 0;
+
+                uint startIndex;
+                uint endIndex;
                 if (indexesPrevious.Count == 0) startIndex = 0;
+                else startIndex = (uint) indexesPrevious[indexesPrevious.Count - 1]; // Maximum
+
                 if (indexesNext.Count == 0) endIndex = (uint) (LegacyTimestamps.Count - 1); // We know there more than 1 element (see line 1) so it's >= 0
+                else endIndex = (uint) indexesNext[0]; // Minimum
+
                 LegacyRanges.Add(new Range(startIndex, endIndex));
             }
             LegacyRanges.Add(new Range());

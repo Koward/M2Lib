@@ -1,18 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using m2lib_csharp.interfaces;
 using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
-    public class Bone : IReferencer
+    public class Bone : IAnimated
     {
         public int KeyBoneId = -1;
         public BoneFlags Flags = 0;
         public short ParentBone = -1;
         public ushort SubmeshId;
-        private ushort[] _unknown = new ushort[2];
+        private readonly ushort[] _unknown = new ushort[2];
         public Track<C3Vector> Translation;
         public Track<C4Quaternion> Rotation;
         public Track<C3Vector> Scale;
@@ -49,26 +51,58 @@ namespace m2lib_csharp.m2
         public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
         {
             Debug.Assert(version != M2.Format.Unknown);
-            throw new NotImplementedException();
+            stream.Write(KeyBoneId);
+            stream.Write((uint) Flags);
+            stream.Write(ParentBone);
+            stream.Write(SubmeshId);
+            if (version > M2.Format.Classic)
+            {
+                stream.Write(_unknown[0]);
+                stream.Write(_unknown[1]);
+            }
+            Translation.Save(stream, version);
+            Rotation.Save(stream, version);
+            Scale.Save(stream, version);
         }
 
-        public void LoadContent(BinaryReader stream, M2.Format version = M2.Format.Unknown, BinaryReader[] animFiles = null)
+        public void LoadContent(BinaryReader stream, M2.Format version = M2.Format.Unknown)
         {
             Debug.Assert(version != M2.Format.Unknown);
-            throw new NotImplementedException();
+            Translation.LoadContent(stream, version);
+            Rotation.LoadContent(stream, version);
+            Scale.LoadContent(stream, version);
         }
 
-        public void SaveContent(BinaryWriter stream, M2.Format version = M2.Format.Unknown, BinaryWriter[] animFiles = null)
+        public void SaveContent(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
         {
             Debug.Assert(version != M2.Format.Unknown);
-            throw new NotImplementedException();
+            Translation.SaveContent(stream, version);
+            Rotation.SaveContent(stream, version);
+            Scale.SaveContent(stream, version);
         }
 
-        public void ConvertTracks(ArrayRef<Sequence> sequences)
+        /// <summary>
+        /// Pass the sequences reference to Tracks so they can : switch between 1 timeline & multiple timelines, open .anim files...
+        /// </summary>
+        /// <param name="sequences"></param>
+        public void SetSequences(IReadOnlyList<Sequence> sequences)
         {
             Translation.SequenceBackRef = sequences;
             Rotation.SequenceBackRef = sequences;
             Scale.SequenceBackRef = sequences;
+        }
+
+        public static ArrayRef<short> GenerateKeyBoneLookup(ArrayRef<Bone> bones)
+        {
+            var lookup = new ArrayRef<short>();
+            var maxId = bones.Max(x => x.KeyBoneId);
+            for(short i = 0; i <= maxId; i++) lookup.Add(-1);
+            for(short i = 0; i < bones.Count; i++)
+            {
+                var id = bones[i].KeyBoneId;
+                if (lookup[id] == -1) lookup[id] = i;
+            }
+            return lookup;
         }
     }
 }
