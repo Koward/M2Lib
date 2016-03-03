@@ -116,7 +116,7 @@ namespace m2lib_csharp.m2
             HasNext = 0x40,
             Blended = 0x80,
             Stored = 0x100,
-            AnimFile = LowPriority + Looped + Stored
+            NoAnimFile = LowPriority + Looped + Stored
         }
 
         public string GetAnimFilePath(string path)

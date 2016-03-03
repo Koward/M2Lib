@@ -10,14 +10,16 @@ namespace m2lib_csharp.m2
 {
     public class Bone : IAnimated
     {
-        public int KeyBoneId = -1;
-        public BoneFlags Flags = 0;
-        public short ParentBone = -1;
-        public ushort SubmeshId;
+        public int KeyBoneId { get; set; } = -1;
+        public BoneFlags Flags { get; set; } = 0;
+        public short ParentBone { get; set; } = -1;
+        public ushort SubmeshId { get; set; }
         private readonly ushort[] _unknown = new ushort[2];
-        public Track<C3Vector> Translation;
-        public Track<C4Quaternion> Rotation;
-        public Track<C3Vector> Scale;
+        public Track<C3Vector> Translation { get; set; } = new Track<C3Vector>();
+        public Track<C4Quaternion> Rotation { get; set; } = new Track<C4Quaternion>();
+        public Track<C3Vector> Scale { get; set; } = new Track<C3Vector>();
+
+        private Track<CompQuat> CompressedRotation { get; set; }
 
         [Flags]
         public enum BoneFlags
@@ -44,7 +46,13 @@ namespace m2lib_csharp.m2
                 _unknown[1] = stream.ReadUInt16();
             }
             Translation.Load(stream, version);
-            Rotation.Load(stream, version);
+            if (version >= M2.Format.LichKing)
+            {
+                CompressedRotation = new Track<CompQuat>();
+                CompressedRotation.Load(stream, version);
+            }
+            else
+                Rotation.Load(stream, version);
             Scale.Load(stream, version);
         }
 
@@ -61,7 +69,14 @@ namespace m2lib_csharp.m2
                 stream.Write(_unknown[1]);
             }
             Translation.Save(stream, version);
-            Rotation.Save(stream, version);
+            if (version >= M2.Format.LichKing)
+            {
+                CompressedRotation = new Track<CompQuat>();
+                CompressedRotation.InitializeCasted(Rotation);
+                CompressedRotation.Save(stream, version);
+            }
+            else
+                Rotation.Save(stream, version);
             Scale.Save(stream, version);
         }
 
@@ -69,7 +84,13 @@ namespace m2lib_csharp.m2
         {
             Debug.Assert(version != M2.Format.Unknown);
             Translation.LoadContent(stream, version);
-            Rotation.LoadContent(stream, version);
+            if (version >= M2.Format.LichKing)
+            {
+                CompressedRotation.LoadContent(stream, version);
+                Rotation.InitializeCasted(CompressedRotation);
+            }
+            else
+                Rotation.LoadContent(stream, version);
             Scale.LoadContent(stream, version);
         }
 
@@ -77,7 +98,12 @@ namespace m2lib_csharp.m2
         {
             Debug.Assert(version != M2.Format.Unknown);
             Translation.SaveContent(stream, version);
-            Rotation.SaveContent(stream, version);
+            if (version >= M2.Format.LichKing)
+            {
+                CompressedRotation.SaveContent(stream, version);
+            }
+            else
+                Rotation.SaveContent(stream, version);
             Scale.SaveContent(stream, version);
         }
 

@@ -172,6 +172,19 @@ namespace m2lib_csharp.m2
             }
             LegacyRanges.Add(new Range());
         }
+
+        public void InitializeCasted<TG>(Track<TG> track) where TG : new()
+        {
+            InterpolationType = (InterpolationTypes) track.InterpolationType;
+            GlobalSequence = track.GlobalSequence;
+            Timestamps = track.Timestamps;
+            foreach (var array in track.Values)
+            {
+                var newArray = new ArrayRef<T>();
+                newArray.AddRange(array.Select(value => (T) (object) value));
+                Values.Add(newArray);
+            }
+        }
     }
 
     public class Range : IMarshalable
@@ -198,5 +211,6 @@ namespace m2lib_csharp.m2
             stream.Write(StartIndex);
             stream.Write(EndIndex);
         }
+
     }
 }

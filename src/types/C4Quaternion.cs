@@ -38,5 +38,20 @@ namespace m2lib_csharp.types
             stream.Write(Z);
             stream.Write(W);
         }
+
+        public static explicit operator CompQuat(C4Quaternion quat)
+        {
+            return new CompQuat(FloatToShort(quat.X), FloatToShort(quat.Y), FloatToShort(quat.Z), FloatToShort(quat.W));
+        }
+
+        /// <summary>
+        /// Compress a float in a short
+        /// </summary>
+        /// <param name="value">Float to compress.</param>
+        /// <returns>A short, compressed version of value.</returns>
+        private static short FloatToShort(float value)
+        {
+            return (short)(value > 0 ? value * 32767.0 - 32768 : value * 32767.0 + 32768);
+        }
     }
 }
