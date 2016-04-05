@@ -33,9 +33,9 @@ namespace m2lib_csharp.m2
             HelmetAnimScaled = 0x1000,  // set blend_modificator to helmetAnimScalingRec.m_amount for this bone
         }
 
-        public void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown)
+        public void Load(BinaryReader stream, M2.Format version)
         {
-            Debug.Assert(version != M2.Format.Unknown);
+            Debug.Assert(version != M2.Format.Useless);
             KeyBoneId = stream.ReadInt32();
             Flags = (BoneFlags) stream.ReadUInt32();
             ParentBone = stream.ReadInt16();
@@ -56,9 +56,9 @@ namespace m2lib_csharp.m2
             Scale.Load(stream, version);
         }
 
-        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
+        public void Save(BinaryWriter stream, M2.Format version)
         {
-            Debug.Assert(version != M2.Format.Unknown);
+            Debug.Assert(version != M2.Format.Useless);
             stream.Write(KeyBoneId);
             stream.Write((uint) Flags);
             stream.Write(ParentBone);
@@ -80,9 +80,9 @@ namespace m2lib_csharp.m2
             Scale.Save(stream, version);
         }
 
-        public void LoadContent(BinaryReader stream, M2.Format version = M2.Format.Unknown)
+        public void LoadContent(BinaryReader stream, M2.Format version)
         {
-            Debug.Assert(version != M2.Format.Unknown);
+            Debug.Assert(version != M2.Format.Useless);
             Translation.LoadContent(stream, version);
             if (version >= M2.Format.LichKing)
             {
@@ -94,9 +94,9 @@ namespace m2lib_csharp.m2
             Scale.LoadContent(stream, version);
         }
 
-        public void SaveContent(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
+        public void SaveContent(BinaryWriter stream, M2.Format version)
         {
-            Debug.Assert(version != M2.Format.Unknown);
+            Debug.Assert(version != M2.Format.Useless);
             Translation.SaveContent(stream, version);
             if (version >= M2.Format.LichKing)
             {

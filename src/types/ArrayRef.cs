@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using m2lib_csharp.interfaces;
+using m2lib_csharp.io;
 using m2lib_csharp.m2;
 
 namespace m2lib_csharp.types
@@ -34,13 +35,13 @@ namespace m2lib_csharp.types
             AddRange((IEnumerable<T>) (object) Encoding.UTF8.GetBytes(str + "\0"));
         } 
 
-        public void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown)
+        public void Load(BinaryReader stream, M2.Format version = M2.Format.Useless)
         {
             _n = stream.ReadUInt32();
             _offset = stream.ReadUInt32();
         }
 
-        public void LoadContent(BinaryReader stream, M2.Format version = M2.Format.Unknown)
+        public void LoadContent(BinaryReader stream, M2.Format version = M2.Format.Useless)
         {
             if (_n == 0) return;
 
@@ -49,26 +50,7 @@ namespace m2lib_csharp.types
             stream.BaseStream.Seek(_offset, SeekOrigin.Begin);
             for (var i = 0; i < _n; i++)
             {
-                if (typeof(IMarshalable).IsAssignableFrom(typeof(T)))
-                {
-                    Add(new T());
-                    if (typeof(IAnimated).IsAssignableFrom(typeof(T))) ((IAnimated) this[i]).SetSequences(_sequencesBackRef);
-                    ((IMarshalable) this[i]).Load(stream, version);
-                }
-                else if (typeof (bool).IsAssignableFrom(typeof (T)))
-                    Add((T) (object) stream.ReadBoolean());
-                else if (typeof (byte).IsAssignableFrom(typeof (T)))
-                    Add((T) (object) stream.ReadByte());
-                else if (typeof (short).IsAssignableFrom(typeof (T)))
-                    Add((T) (object) stream.ReadInt16());
-                else if (typeof (int).IsAssignableFrom(typeof (T)))
-                    Add((T) (object) stream.ReadInt32());
-                else if (typeof (ushort).IsAssignableFrom(typeof (T)))
-                    Add((T) (object) stream.ReadUInt16());
-                else if (typeof (uint).IsAssignableFrom(typeof (T)))
-                    Add((T) (object) stream.ReadUInt32());
-                else
-                    throw new NotImplementedException(typeof(T) + "type is not supported and cannot be read.");
+                Add(stream.ReadGeneric<T>(version, _sequencesBackRef));
             }
             if (!typeof (IReferencer).IsAssignableFrom(typeof (T))) return;
 
@@ -85,14 +67,14 @@ namespace m2lib_csharp.types
             }
         }
 
-        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
+        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Useless)
         {
             _startOffset = stream.BaseStream.Position;
             stream.Write(Count);
             stream.Write(_offset);
         }
 
-        public void SaveContent(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
+        public void SaveContent(BinaryWriter stream, M2.Format version = M2.Format.Useless)
         {
             if (Count == 0) return;
 
@@ -102,25 +84,7 @@ namespace m2lib_csharp.types
             _offset = (uint) stream.BaseStream.Position;
             foreach (var item in this)
             {
-                if (typeof(IMarshalable).IsAssignableFrom(typeof(T)))
-                {
-                    if (typeof(IAnimated).IsAssignableFrom(typeof(T))) ((IAnimated) item).SetSequences(_sequencesBackRef);
-                    ((IMarshalable) item).Save(stream, version);
-                }
-                else if (typeof (bool).IsAssignableFrom(typeof (T)))
-                    stream.Write((bool) (object) item);
-                else if (typeof (byte).IsAssignableFrom(typeof (T)))
-                    stream.Write((byte) (object) item);
-                else if (typeof (short).IsAssignableFrom(typeof (T)))
-                    stream.Write((short)(object) item);
-                else if (typeof (int).IsAssignableFrom(typeof (T)))
-                    stream.Write((int)(object) item);
-                else if (typeof (ushort).IsAssignableFrom(typeof (T)))
-                    stream.Write((ushort)(object) item);
-                else if (typeof (uint).IsAssignableFrom(typeof (T)))
-                    stream.Write((uint)(object) item);
-                else
-                    throw new NotImplementedException(typeof(T) + "type is not supported and cannot be written.");
+                stream.WriteGeneric(version, _sequencesBackRef, item);
             }
             if (!typeof (IReferencer).IsAssignableFrom(typeof (T))) return;
             for(var i = 0; i < Count; i++)
@@ -156,7 +120,6 @@ namespace m2lib_csharp.types
                 throw new NotImplementedException("Cannot convert ArrayRef<" + typeof (T) + "> to " + typeof (string));
             return Encoding.UTF8.GetString((byte[]) (object) ToArray()).Trim('\0');
         }
-
     }
 
     /// <summary>

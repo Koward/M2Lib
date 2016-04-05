@@ -17,13 +17,13 @@ namespace m2lib_csharp.types
             Max = p2;
         }
 
-        public void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown)
+        public void Load(BinaryReader stream, M2.Format version)
         {
             Min = stream.ReadSingle();
             Max = stream.ReadSingle();
         }
 
-        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
+        public void Save(BinaryWriter stream, M2.Format version)
         {
             stream.Write(Min);
             stream.Write(Max);

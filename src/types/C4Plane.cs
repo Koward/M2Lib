@@ -24,15 +24,15 @@ namespace m2lib_csharp.types
             Distance = 0;
         }
 
-        public void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown)
+        public void Load(BinaryReader stream, M2.Format version)
         {
-            Normal.Load(stream);
+            Normal.Load(stream, version);
             Distance = stream.ReadSingle();
         }
 
-        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
+        public void Save(BinaryWriter stream, M2.Format version)
         {
-            Normal.Save(stream);
+            Normal.Save(stream, version);
             stream.Write(Distance);
         }
     }

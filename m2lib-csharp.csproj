@@ -48,7 +48,9 @@
     <Compile Include="src\interfaces\IAnimated.cs" />
     <Compile Include="src\interfaces\IMarshalable.cs" />
     <Compile Include="src\interfaces\IReferencer.cs" />
+    <Compile Include="src\io\StreamExtensions.cs" />
     <Compile Include="src\io\Substream.cs" />
+    <Compile Include="src\m2\AnimationData.cs" />
     <Compile Include="src\m2\Bone.cs" />
     <Compile Include="src\m2\PlayableRecord.cs" />
     <Compile Include="src\m2\M2.cs" />
@@ -56,6 +58,7 @@
     <Compile Include="src\DebugProgram.cs" />
     <Compile Include="src\m2\Track.cs" />
     <Compile Include="src\m2\Vertex.cs" />
+    <Compile Include="src\m2\View.cs" />
     <Compile Include="src\types\ArrayRef.cs" />
     <Compile Include="src\types\C2Vector.cs" />
     <Compile Include="src\types\C33Matrix.cs" />

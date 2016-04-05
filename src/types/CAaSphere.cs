@@ -24,15 +24,15 @@ namespace m2lib_csharp.types
             Radius = 0;
         }
 
-        public void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown)
+        public void Load(BinaryReader stream, M2.Format version)
         {
-            Position.Load(stream);
+            Position.Load(stream, version);
             Radius = stream.ReadSingle();
         }
 
-        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
+        public void Save(BinaryWriter stream, M2.Format version)
         {
-            Position.Save(stream);
+            Position.Save(stream, version);
             stream.Write(Radius);
         }
     }

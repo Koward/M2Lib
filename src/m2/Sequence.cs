@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using m2lib_csharp.interfaces;
 using m2lib_csharp.types;
-using Microsoft.VisualBasic.FileIO;
 
 namespace m2lib_csharp.m2
 {
@@ -34,9 +31,9 @@ namespace m2lib_csharp.m2
         /// </summary>
         public uint TimeStart { get; set; }
 
-        public void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown)
+        public void Load(BinaryReader stream, M2.Format version)
         {
-            Debug.Assert(version != M2.Format.Unknown);
+            Debug.Assert(version != M2.Format.Useless);
             AnimationId = stream.ReadUInt16();
             SubAnimationId = stream.ReadUInt16();
             if (version >= M2.Format.LichKing)
@@ -66,15 +63,15 @@ namespace m2lib_csharp.m2
                 BlendTimeStart = (ushort) blendTime;
                 BlendTimeEnd = (ushort) blendTime;
             }
-            Bounds.Load(stream);
+            Bounds.Load(stream, version);
             BoundRadius = stream.ReadSingle();
             NextAnimation = stream.ReadInt16();
             AliasNext = stream.ReadUInt16();
         }
 
-        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
+        public void Save(BinaryWriter stream, M2.Format version)
         {
-            Debug.Assert(version != M2.Format.Unknown);
+            Debug.Assert(version != M2.Format.Useless);
             stream.Write(AnimationId);
             stream.Write(SubAnimationId);
             if (version >= M2.Format.LichKing)
@@ -101,7 +98,7 @@ namespace m2lib_csharp.m2
             {
                 stream.Write((BlendTimeStart + BlendTimeEnd) / 2);
             }
-            Bounds.Save(stream);
+            Bounds.Save(stream, version);
             stream.Write(BoundRadius);
             stream.Write(NextAnimation);
             stream.Write(AliasNext);
@@ -122,9 +119,9 @@ namespace m2lib_csharp.m2
         public string GetAnimFilePath(string path)
         {
             var pathDirectory = Path.GetDirectoryName(path);
+            Debug.Assert(pathDirectory != null, "pathDirectory != null");
             var pathWithoutExt = Path.GetFileNameWithoutExtension(path);
             string animFileName = $"{pathWithoutExt}{AnimationId:0000}-{SubAnimationId:00}.anim";
-            Debug.Assert(pathDirectory != null, "pathDirectory != null");
             return Path.Combine(pathDirectory, animFileName);
         }
 
@@ -153,43 +150,7 @@ namespace m2lib_csharp.m2
             return lookup;
         }
 
-        private static class AnimationData
-        {
-            public static IDictionary Fallback { get; } = new Dictionary<ushort, ushort>();
-            public static IDictionary Ids { get; } = new Dictionary<string, ushort>();
-
-            static AnimationData()
-            {
-                var embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("AnimationData.csv");
-                if(embeddedStream == null) throw new IOException("Could not open embedded ressource AnimationData");
-                var csvParser = new TextFieldParser(embeddedStream) {CommentTokens = new[] {"#"}};
-                csvParser.SetDelimiters(",");
-                csvParser.HasFieldsEnclosedInQuotes = true;
-                csvParser.ReadLine(); // Skip first line
-                while (!csvParser.EndOfData)
-                {
-                    var fields = csvParser.ReadFields();
-                    if (fields == null) return;
-                    Fallback[fields[0]] = fields[3];
-                    Ids[fields[1]] = fields[0];
-                }
-            }
-        }
-
-        private static ushort NameToId(string name)
-        {
-            return (ushort) AnimationData.Ids[name];
-        }
-
-        private static ushort GetFallback(ushort id)
-        {
-            return (ushort) AnimationData.Fallback[id];
-        }
-
         // PLAYABLE ANIMATION LOOKUP
-
-        private static readonly ushort[] PlayThenStop = {NameToId("Dead"), NameToId("SitGround"), NameToId("Sleep"), NameToId("KneelLoop"), NameToId("UseStandingLoop"), NameToId("Drowned"), NameToId("LootHold") };
-        private static readonly ushort[] PlayBackwards = {NameToId("WalkBackwards"), NameToId("SwimBackwards"), NameToId("SleepUp"), NameToId("LootUp") };
 
         private static ushort GetRealId(ushort id, IReadOnlyList<short> animLookup)
         {
@@ -199,7 +160,7 @@ namespace m2lib_csharp.m2
                 {
                     return id;
                 }
-                id = GetFallback(id);
+                id = AnimationData.Fallback[id];
             }
         }
 
@@ -212,12 +173,13 @@ namespace m2lib_csharp.m2
                 var record = new PlayableRecord(GetRealId(i, animLookup), 0);
                 if (record.FallbackId != i)
                 {
-                    if (PlayThenStop.Contains(i)) record.Flags = PlayableRecord.PlayFlags.Freeze;
-                    else if (PlayBackwards.Contains(i)) record.Flags = PlayableRecord.PlayFlags.Backwards;
+                    if (AnimationData.PlayThenStop.Contains(i)) record.Flags = PlayableRecord.PlayFlags.Freeze;
+                    else if (AnimationData.PlayBackwards.Contains(i)) record.Flags = PlayableRecord.PlayFlags.Backwards;
                 }
                 lookup.Add(record);
             }
             return lookup;
         }
     }
+
 }

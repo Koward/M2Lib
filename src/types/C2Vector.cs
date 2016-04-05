@@ -17,13 +17,13 @@ namespace m2lib_csharp.types
             Y = p2;
         }
 
-        public void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown)
+        public void Load(BinaryReader stream, M2.Format version)
         {
             X = stream.ReadSingle();
             Y = stream.ReadSingle();
         }
 
-        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
+        public void Save(BinaryWriter stream, M2.Format version)
         {
             stream.Write(X);
             stream.Write(Y);

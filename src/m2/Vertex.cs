@@ -12,7 +12,7 @@ namespace m2lib_csharp.m2 {
         public C3Vector Normal { get; set; } = new C3Vector();
         public C2Vector[] TexCoords { get; set; } = {new C2Vector(),new C2Vector()};
 
-        public void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown)
+        public void Load(BinaryReader stream, M2.Format version)
         {
             Position.Load(stream, version);
             for (var i = 0; i < BoneWeights.Length; i++) BoneWeights[i] = stream.ReadByte();
@@ -21,7 +21,7 @@ namespace m2lib_csharp.m2 {
             foreach (var vec in TexCoords) vec.Load(stream, version);
         }
 
-        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
+        public void Save(BinaryWriter stream, M2.Format version)
         {
             Position.Save(stream, version);
             foreach (var t in BoneWeights) stream.Write(t);

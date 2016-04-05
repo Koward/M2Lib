@@ -9,7 +9,7 @@ namespace m2lib_csharp.interfaces
     /// </summary>
     public interface IMarshalable
     {
-        void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown);
-        void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown);
+        void Load(BinaryReader stream, M2.Format version);
+        void Save(BinaryWriter stream, M2.Format version);
     }
 }

@@ -23,19 +23,19 @@ namespace m2lib_csharp.types
         {
         }
 
-        public void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown)
+        public void Load(BinaryReader stream, M2.Format version)
         {
             foreach (C3Vector vec in Columns)
             {
-                vec.Load(stream);
+                vec.Load(stream, version);
             }
         }
 
-        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
+        public void Save(BinaryWriter stream, M2.Format version)
         {
             foreach (C3Vector vec in Columns)
             {
-                vec.Save(stream);
+                vec.Save(stream, version);
             }
         }
     }

@@ -19,7 +19,7 @@ namespace m2lib_csharp.types
             A = p4;
         }
 
-        public void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown)
+        public void Load(BinaryReader stream, M2.Format version)
         {
             R = stream.ReadByte();
             G = stream.ReadByte();
@@ -27,7 +27,7 @@ namespace m2lib_csharp.types
             A = stream.ReadByte();
         }
 
-        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
+        public void Save(BinaryWriter stream, M2.Format version)
         {
             stream.Write(R);
             stream.Write(G);

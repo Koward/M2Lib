@@ -29,9 +29,9 @@ namespace m2lib_csharp.m2
             Bezier = 3
         } 
 
-        public void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown)
+        public void Load(BinaryReader stream, M2.Format version)
         {
-            Debug.Assert(version != M2.Format.Unknown);
+            Debug.Assert(version != M2.Format.Useless);
             InterpolationType = (InterpolationTypes) stream.ReadUInt16();
             GlobalSequence = stream.ReadInt16();
             if (version >= M2.Format.LichKing)
@@ -44,15 +44,15 @@ namespace m2lib_csharp.m2
                 LegacyRanges = new ArrayRef<Range>();
                 LegacyTimestamps = new ArrayRef<uint>();
                 LegacyValues = new ArrayRef<T>();
-                LegacyRanges.Load(stream);
-                LegacyTimestamps.Load(stream);
+                LegacyRanges.Load(stream, version);
+                LegacyTimestamps.Load(stream, version);
                 LegacyValues.Load(stream, version);
             }
         }
 
-        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
+        public void Save(BinaryWriter stream, M2.Format version)
         {
-            Debug.Assert(version != M2.Format.Unknown);
+            Debug.Assert(version != M2.Format.Useless);
             stream.Write((ushort) InterpolationType);
             stream.Write(GlobalSequence);
             if (version >= M2.Format.LichKing)
@@ -66,15 +66,15 @@ namespace m2lib_csharp.m2
                 LegacyTimestamps = new ArrayRef<uint>();
                 LegacyValues = new ArrayRef<T>();
                 GenerateLegacyFields();
-                LegacyRanges.Save(stream);
-                LegacyTimestamps.Save(stream);
+                LegacyRanges.Save(stream, version);
+                LegacyTimestamps.Save(stream, version);
                 LegacyValues.Save(stream, version);
             }
         }
 
-        public void LoadContent(BinaryReader stream, M2.Format version = M2.Format.Unknown)
+        public void LoadContent(BinaryReader stream, M2.Format version)
         {
-            Debug.Assert(version != M2.Format.Unknown);
+            Debug.Assert(version != M2.Format.Useless);
             if (version >= M2.Format.LichKing)
             {
                 Timestamps.LoadContent(stream, version);
@@ -83,8 +83,8 @@ namespace m2lib_csharp.m2
             else
             {
                 Debug.Assert(SequenceBackRef != null);
-                LegacyRanges.LoadContent(stream);
-                LegacyTimestamps.LoadContent(stream);
+                LegacyRanges.LoadContent(stream, version);
+                LegacyTimestamps.LoadContent(stream, version);
                 LegacyValues.LoadContent(stream, version);
                 foreach (var seq in SequenceBackRef)
                 {
@@ -101,9 +101,9 @@ namespace m2lib_csharp.m2
             }
         }
 
-        public void SaveContent(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
+        public void SaveContent(BinaryWriter stream, M2.Format version)
         {
-            Debug.Assert(version != M2.Format.Unknown);
+            Debug.Assert(version != M2.Format.Useless);
             if (version >= M2.Format.LichKing)
             {
                 Timestamps.SaveContent(stream, version);
@@ -111,8 +111,8 @@ namespace m2lib_csharp.m2
             }
             else
             {
-                LegacyRanges.SaveContent(stream);
-                LegacyTimestamps.SaveContent(stream);
+                LegacyRanges.SaveContent(stream, version);
+                LegacyTimestamps.SaveContent(stream, version);
                 LegacyValues.SaveContent(stream, version);
             }
         }
@@ -200,13 +200,13 @@ namespace m2lib_csharp.m2
 
         public Range() : this(0, 0) { }
 
-        public void Load(BinaryReader stream, M2.Format version = M2.Format.Unknown)
+        public void Load(BinaryReader stream, M2.Format version)
         {
             StartIndex = stream.ReadUInt32();
             EndIndex = stream.ReadUInt32();
         }
 
-        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Unknown)
+        public void Save(BinaryWriter stream, M2.Format version)
         {
             stream.Write(StartIndex);
             stream.Write(EndIndex);
