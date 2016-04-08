@@ -130,4 +130,6 @@ namespace m2lib_csharp.types
         BinaryReader ReadingAnimFile { get; set; }
         BinaryWriter WritingAnimFile { get; set; }
     }
+
+
 }

@@ -11,15 +11,18 @@ namespace m2lib_csharp.m2
     {
         public InterpolationTypes InterpolationType { get; set; }
         public short GlobalSequence { get; set; } = -1;
-        public ArrayRef<ArrayRef<uint>> Timestamps { get; set; } = new ArrayRef<ArrayRef<uint>>();
-        public ArrayRef<ArrayRef<T>> Values { get; set; } = new ArrayRef<ArrayRef<T>>();
+        public ArrayRef<ArrayRef<uint>> Timestamps => _timestamps;
+        public ArrayRef<ArrayRef<T>> Values => _values; 
+
+        private readonly ArrayRef<ArrayRef<uint>> _timestamps = new ArrayRef<ArrayRef<uint>>();
+        private readonly ArrayRef<ArrayRef<T>> _values = new ArrayRef<ArrayRef<T>>();
 
         // Used only to read 1 timeline formats
         // Legacy fields are automatically converted to standard ones in methods.
         public IReadOnlyList<Sequence> SequenceBackRef { private get; set; }
-        private ArrayRef<Range> LegacyRanges { get; set; }
-        private ArrayRef<uint> LegacyTimestamps { get; set; }
-        private ArrayRef<T> LegacyValues { get; set; }
+        private ArrayRef<Range> _legacyRanges;
+        private ArrayRef<uint> _legacyTimestamps;
+        private ArrayRef<T> _legacyValues;
 
         public enum InterpolationTypes : ushort
         {
@@ -36,17 +39,17 @@ namespace m2lib_csharp.m2
             GlobalSequence = stream.ReadInt16();
             if (version >= M2.Format.LichKing)
             {
-                Timestamps.Load(stream, version);
-                Values.Load(stream, version);
+                _timestamps.Load(stream, version);
+                _values.Load(stream, version);
             }
             else
             {
-                LegacyRanges = new ArrayRef<Range>();
-                LegacyTimestamps = new ArrayRef<uint>();
-                LegacyValues = new ArrayRef<T>();
-                LegacyRanges.Load(stream, version);
-                LegacyTimestamps.Load(stream, version);
-                LegacyValues.Load(stream, version);
+                _legacyRanges = new ArrayRef<Range>();
+                _legacyTimestamps = new ArrayRef<uint>();
+                _legacyValues = new ArrayRef<T>();
+                _legacyRanges.Load(stream, version);
+                _legacyTimestamps.Load(stream, version);
+                _legacyValues.Load(stream, version);
             }
         }
 
@@ -57,18 +60,18 @@ namespace m2lib_csharp.m2
             stream.Write(GlobalSequence);
             if (version >= M2.Format.LichKing)
             {
-                Timestamps.Save(stream, version);
-                Values.Save(stream, version);
+                _timestamps.Save(stream, version);
+                _values.Save(stream, version);
             }
             else
             {
-                LegacyRanges = new ArrayRef<Range>();
-                LegacyTimestamps = new ArrayRef<uint>();
-                LegacyValues = new ArrayRef<T>();
+                _legacyRanges = new ArrayRef<Range>();
+                _legacyTimestamps = new ArrayRef<uint>();
+                _legacyValues = new ArrayRef<T>();
                 GenerateLegacyFields();
-                LegacyRanges.Save(stream, version);
-                LegacyTimestamps.Save(stream, version);
-                LegacyValues.Save(stream, version);
+                _legacyRanges.Save(stream, version);
+                _legacyTimestamps.Save(stream, version);
+                _legacyValues.Save(stream, version);
             }
         }
 
@@ -77,26 +80,26 @@ namespace m2lib_csharp.m2
             Debug.Assert(version != M2.Format.Useless);
             if (version >= M2.Format.LichKing)
             {
-                Timestamps.LoadContent(stream, version);
-                Values.LoadContent(stream, version);
+                _timestamps.LoadContent(stream, version);
+                _values.LoadContent(stream, version);
             }
             else
             {
                 Debug.Assert(SequenceBackRef != null);
-                LegacyRanges.LoadContent(stream, version);
-                LegacyTimestamps.LoadContent(stream, version);
-                LegacyValues.LoadContent(stream, version);
+                _legacyRanges.LoadContent(stream, version);
+                _legacyTimestamps.LoadContent(stream, version);
+                _legacyValues.LoadContent(stream, version);
                 foreach (var seq in SequenceBackRef)
                 {
-                    var validIndexes = Enumerable.Range(0, LegacyTimestamps.Count)
-                    .Where(i => LegacyTimestamps[i] >= seq.TimeStart && LegacyTimestamps[i] <= seq.TimeStart + seq.Length)
+                    var validIndexes = Enumerable.Range(0, _legacyTimestamps.Count)
+                    .Where(i => _legacyTimestamps[i] >= seq.TimeStart && _legacyTimestamps[i] <= seq.TimeStart + seq.Length)
                     .ToList();
                     var animTimes = new ArrayRef<uint>();
                     var animValues = new ArrayRef<T>();
-                    animTimes.AddRange(LegacyTimestamps.GetRange(validIndexes[0], validIndexes[validIndexes.Count - 1]));
-                    animValues.AddRange(LegacyValues.GetRange(validIndexes[0], validIndexes[validIndexes.Count - 1]));
-                    Timestamps.Add(animTimes);
-                    Values.Add(animValues);
+                    animTimes.AddRange(_legacyTimestamps.GetRange(validIndexes[0], validIndexes[validIndexes.Count - 1]));
+                    animValues.AddRange(_legacyValues.GetRange(validIndexes[0], validIndexes[validIndexes.Count - 1]));
+                    _timestamps.Add(animTimes);
+                    _values.Add(animValues);
                 }
             }
         }
@@ -106,14 +109,14 @@ namespace m2lib_csharp.m2
             Debug.Assert(version != M2.Format.Useless);
             if (version >= M2.Format.LichKing)
             {
-                Timestamps.SaveContent(stream, version);
-                Values.SaveContent(stream, version);
+                _timestamps.SaveContent(stream, version);
+                _values.SaveContent(stream, version);
             }
             else
             {
-                LegacyRanges.SaveContent(stream, version);
-                LegacyTimestamps.SaveContent(stream, version);
-                LegacyValues.SaveContent(stream, version);
+                _legacyRanges.SaveContent(stream, version);
+                _legacyTimestamps.SaveContent(stream, version);
+                _legacyValues.SaveContent(stream, version);
             }
         }
 
@@ -122,25 +125,25 @@ namespace m2lib_csharp.m2
             Debug.Assert(SequenceBackRef != null);
             if (GlobalSequence >= 0)
             {
-                LegacyTimestamps.AddRange(Timestamps[0]);
-                LegacyValues.AddRange(Values[0]);
+                _legacyTimestamps.AddRange(_timestamps[0]);
+                _legacyValues.AddRange(_values[0]);
             }
-            else if (Timestamps.Count == SequenceBackRef.Count)
+            else if (_timestamps.Count == SequenceBackRef.Count)
             {
-                for(var i = 0; i < Timestamps.Count; i++)
+                for(var i = 0; i < _timestamps.Count; i++)
                 {
-                    if (Timestamps[i].Count == 0) continue;
-                    for (var j = 0; j < Timestamps[i].Count; j++)
+                    if (_timestamps[i].Count == 0) continue;
+                    for (var j = 0; j < _timestamps[i].Count; j++)
                     {
-                        LegacyTimestamps.Add(Timestamps[i][j] + SequenceBackRef[i].TimeStart);
-                        LegacyValues.Add(Values[i][j]);
+                        _legacyTimestamps.Add(_timestamps[i][j] + SequenceBackRef[i].TimeStart);
+                        _legacyValues.Add(_values[i][j]);
                     }
                 }
             }
-            else if (Timestamps.Count == 1)
+            else if (_timestamps.Count == 1)
             {
-                LegacyTimestamps.AddRange(Timestamps[0]);
-                LegacyValues.AddRange(Values[0]);
+                _legacyTimestamps.AddRange(_timestamps[0]);
+                _legacyValues.AddRange(_values[0]);
             }
             GenerateLegacyRanges();
         }
@@ -150,14 +153,14 @@ namespace m2lib_csharp.m2
         /// </summary>
         private void GenerateLegacyRanges()
         {
-            if (LegacyTimestamps.Count == 0) return;
+            if (_legacyTimestamps.Count == 0) return;
             foreach (var seq in SequenceBackRef)
             {
-                var indexesPrevious = Enumerable.Range(0, LegacyTimestamps.Count) // Indexes of times >= to the end of sequence.
-                .Where(i => LegacyTimestamps[i] <= seq.TimeStart)
+                var indexesPrevious = Enumerable.Range(0, _legacyTimestamps.Count) // Indexes of times >= to the end of sequence.
+                .Where(i => _legacyTimestamps[i] <= seq.TimeStart)
                 .ToList();
-                var indexesNext = Enumerable.Range(0, LegacyTimestamps.Count) // Indexes of times >= to the end of sequence.
-                .Where(i => LegacyTimestamps[i] >= seq.TimeStart + seq.Length)
+                var indexesNext = Enumerable.Range(0, _legacyTimestamps.Count) // Indexes of times >= to the end of sequence.
+                .Where(i => _legacyTimestamps[i] >= seq.TimeStart + seq.Length)
                 .ToList();
 
                 uint startIndex;
@@ -165,24 +168,24 @@ namespace m2lib_csharp.m2
                 if (indexesPrevious.Count == 0) startIndex = 0;
                 else startIndex = (uint) indexesPrevious[indexesPrevious.Count - 1]; // Maximum
 
-                if (indexesNext.Count == 0) endIndex = (uint) (LegacyTimestamps.Count - 1); // We know there more than 1 element (see line 1) so it's >= 0
+                if (indexesNext.Count == 0) endIndex = (uint) (_legacyTimestamps.Count - 1); // We know there more than 1 element (see line 1) so it's >= 0
                 else endIndex = (uint) indexesNext[0]; // Minimum
 
-                LegacyRanges.Add(new Range(startIndex, endIndex));
+                _legacyRanges.Add(new Range(startIndex, endIndex));
             }
-            LegacyRanges.Add(new Range());
+            _legacyRanges.Add(new Range());
         }
 
         public void InitializeCasted<TG>(Track<TG> track) where TG : new()
         {
             InterpolationType = (InterpolationTypes) track.InterpolationType;
             GlobalSequence = track.GlobalSequence;
-            Timestamps = track.Timestamps;
-            foreach (var array in track.Values)
+            foreach (var timestamp in track._timestamps) _timestamps.Add(timestamp);
+            foreach (var array in track._values)
             {
                 var newArray = new ArrayRef<T>();
                 newArray.AddRange(array.Select(value => (T) (object) value));
-                Values.Add(newArray);
+                _values.Add(newArray);
             }
         }
     }

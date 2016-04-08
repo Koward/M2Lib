@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using m2lib_csharp.interfaces;
 using m2lib_csharp.m2;
@@ -43,7 +44,11 @@ namespace m2lib_csharp.io
         {
                 if (typeof(IMarshalable).IsAssignableFrom(typeof(T)))
                 {
-                    if (typeof(IAnimated).IsAssignableFrom(typeof(T))) ((IAnimated) item).SetSequences(sequences);
+                    if (typeof (IAnimated).IsAssignableFrom(typeof (T)))
+                    {
+                        Debug.Assert(sequences != null);
+                        ((IAnimated) item).SetSequences(sequences);
+                    }
                     ((IMarshalable) item).Save(stream, version);
                 }
                 else if (typeof (bool).IsAssignableFrom(typeof (T)))

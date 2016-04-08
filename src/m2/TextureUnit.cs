@@ -13,7 +13,7 @@ namespace m2lib_csharp.m2
         public ushort ShaderId { get; set; }
         public ushort SubmeshIndex { get; set; }
         public ushort SubmeshIndex2 { get; set; }
-        public short ColorIndex { get; set; }
+        public short ColorIndex { get; set; } = -1;
         public ushort RenderFlags { get; set; }
         public ushort Layer { get; set; }
         public ushort OpCount { get; set; }
