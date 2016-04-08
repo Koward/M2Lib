@@ -5,13 +5,14 @@ namespace m2lib_csharp.m2
 {
     public class ShadowBatch : IMarshalable
     {
+        private ushort _unknown1;
         public byte Flags { get; set; }
         public byte Flags2 { get; set; }
-        private ushort _unknown1; 
         public ushort SubmeshId { get; set; }
         public ushort TextureId { get; set; }
         public ushort ColorId { get; set; }
         public ushort TransparencyId { get; set; }
+
         public void Load(BinaryReader stream, M2.Format version = M2.Format.Useless)
         {
             Flags = stream.ReadByte();

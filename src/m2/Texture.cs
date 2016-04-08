@@ -8,34 +8,11 @@ namespace m2lib_csharp.m2
 {
     public class Texture : IReferencer
     {
-        public TextureType Type { get; set; }
-        public TextureFlags Flags { get; set; }
-        public string Name { get; set; } = "";
-        private ArrayRef<byte> _nameArrayRef = new ArrayRef<byte>();
-        public void Load(BinaryReader stream, M2.Format version)
+        [Flags]
+        public enum TextureFlags : uint
         {
-            Type = (TextureType) stream.ReadUInt32();
-            Flags = (TextureFlags) stream.ReadUInt32();
-            _nameArrayRef.Load(stream, version);
-        }
-
-        public void Save(BinaryWriter stream, M2.Format version)
-        {
-            stream.Write((uint) Type);
-            stream.Write((uint) Flags);
-            _nameArrayRef = new ArrayRef<byte>(Name);
-            _nameArrayRef.Save(stream, version);
-        }
-
-        public void LoadContent(BinaryReader stream, M2.Format version)
-        {
-            _nameArrayRef.LoadContent(stream, version);
-            Name = _nameArrayRef.ToNameString();
-        }
-
-        public void SaveContent(BinaryWriter stream, M2.Format version)
-        {
-            _nameArrayRef.SaveContent(stream, version);
+            WrapX = 0x01,
+            WrapY = 0x02
         }
 
         public enum TextureType : uint
@@ -61,11 +38,35 @@ namespace m2lib_csharp.m2
             GuildEmblem = 18
         }
 
-        [Flags]
-        public enum TextureFlags : uint
+        private ArrayRef<byte> _nameArrayRef = new ArrayRef<byte>();
+        public TextureType Type { get; set; }
+        public TextureFlags Flags { get; set; }
+        public string Name { get; set; } = "";
+
+        public void Load(BinaryReader stream, M2.Format version)
         {
-            WrapX = 0x01,
-            WrapY = 0x02 
+            Type = (TextureType) stream.ReadUInt32();
+            Flags = (TextureFlags) stream.ReadUInt32();
+            _nameArrayRef.Load(stream, version);
+        }
+
+        public void Save(BinaryWriter stream, M2.Format version)
+        {
+            stream.Write((uint) Type);
+            stream.Write((uint) Flags);
+            _nameArrayRef = new ArrayRef<byte>(Name);
+            _nameArrayRef.Save(stream, version);
+        }
+
+        public void LoadContent(BinaryReader stream, M2.Format version)
+        {
+            _nameArrayRef.LoadContent(stream, version);
+            Name = _nameArrayRef.ToNameString();
+        }
+
+        public void SaveContent(BinaryWriter stream, M2.Format version)
+        {
+            _nameArrayRef.SaveContent(stream, version);
         }
 
         public static ArrayRef<short> GenerateTexReplaceLookup(ArrayRef<Texture> textures)

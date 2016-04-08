@@ -5,7 +5,7 @@ using m2lib_csharp.m2;
 namespace m2lib_csharp.types
 {
     /// <summary>
-    /// An axis aligned box described by the minimum and maximum point.
+    ///     An axis aligned box described by the minimum and maximum point.
     /// </summary>
     public class CAaBox : IMarshalable
     {

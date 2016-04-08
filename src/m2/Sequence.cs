@@ -10,13 +10,25 @@ namespace m2lib_csharp.m2
 {
     public class Sequence : IMarshalable
     {
+        [Flags]
+        public enum SequenceFlags
+        {
+            RuntimeBlended = 0x01,
+            LowPriority = 0x10,
+            Looped = 0x20,
+            HasNext = 0x40,
+            Blended = 0x80,
+            Stored = 0x100,
+            NoAnimFile = LowPriority + Looped + Stored
+        }
+
+        private ushort _padding;
         public ushort AnimationId { get; set; }
         public ushort SubAnimationId { get; set; }
         public uint Length { get; set; }
         public float MovingSpeed { get; set; }
         public SequenceFlags Flags { get; set; } = 0;
         public short Probability { get; set; } = short.MaxValue;
-        private ushort _padding;
         public uint MinimumRepetitions { get; set; }
         public uint MaximumRepetitions { get; set; }
         public ushort BlendTimeStart { get; set; } = 150;
@@ -27,7 +39,7 @@ namespace m2lib_csharp.m2
         public ushort AliasNext { get; set; }
 
         /// <summary>
-        /// Used to convert to one-timeline animation style
+        ///     Used to convert to one-timeline animation style
         /// </summary>
         public uint TimeStart { get; set; }
 
@@ -75,7 +87,7 @@ namespace m2lib_csharp.m2
             stream.Write(AnimationId);
             stream.Write(SubAnimationId);
             if (version >= M2.Format.LichKing)
-            { 
+            {
                 stream.Write(Length);
             }
             else
@@ -96,24 +108,12 @@ namespace m2lib_csharp.m2
             }
             else
             {
-                stream.Write((BlendTimeStart + BlendTimeEnd) / 2);
+                stream.Write((BlendTimeStart + BlendTimeEnd)/2);
             }
             Bounds.Save(stream, version);
             stream.Write(BoundRadius);
             stream.Write(NextAnimation);
             stream.Write(AliasNext);
-        }
-
-        [Flags]
-        public enum SequenceFlags
-        {
-            RuntimeBlended = 0x01,
-            LowPriority = 0x10,
-            Looped = 0x20,
-            HasNext = 0x40,
-            Blended = 0x80,
-            Stored = 0x100,
-            NoAnimFile = LowPriority + Looped + Stored
         }
 
         public string GetAnimFilePath(string path)
@@ -126,7 +126,7 @@ namespace m2lib_csharp.m2
         }
 
         /// <summary>
-        /// Return the animation that's really implemented (handle aliases).
+        ///     Return the animation that's really implemented (handle aliases).
         /// </summary>
         /// <param name="sequences">List of sequences to navigate in.</param>
         /// <returns></returns>
@@ -141,8 +141,8 @@ namespace m2lib_csharp.m2
         {
             var lookup = new ArrayRef<short>();
             var maxId = sequences.Max(x => x.AnimationId);
-            for(short i = 0; i <= maxId; i++) lookup.Add(-1);
-            for(short i = 0; i < sequences.Count; i++)
+            for (short i = 0; i <= maxId; i++) lookup.Add(-1);
+            for (short i = 0; i < sequences.Count; i++)
             {
                 var id = sequences[i].AnimationId;
                 if (lookup[id] == -1) lookup[id] = i;
@@ -166,7 +166,7 @@ namespace m2lib_csharp.m2
 
         public static ArrayRef<PlayableRecord> GeneratePlayableLookup(IReadOnlyList<short> animLookup)
         {
-            const int numberOfActions = 226;// From 2.4.3 DB/AnimationData
+            const int numberOfActions = 226; // From 2.4.3 DB/AnimationData
             var lookup = new ArrayRef<PlayableRecord>();
             for (ushort i = 0; i <= numberOfActions; i++)
             {
@@ -181,5 +181,4 @@ namespace m2lib_csharp.m2
             return lookup;
         }
     }
-
 }

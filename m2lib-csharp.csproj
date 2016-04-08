@@ -51,6 +51,7 @@
     <Compile Include="src\io\StreamExtensions.cs" />
     <Compile Include="src\io\Substream.cs" />
     <Compile Include="src\m2\AnimationData.cs" />
+    <Compile Include="src\m2\Attachment.cs" />
     <Compile Include="src\m2\Bone.cs" />
     <Compile Include="src\m2\Material.cs" />
     <Compile Include="src\m2\PlayableRecord.cs" />

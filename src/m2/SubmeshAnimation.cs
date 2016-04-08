@@ -8,7 +8,8 @@ namespace m2lib_csharp.m2
     public class SubmeshAnimation : IAnimated
     {
         public Track<C3Vector> Color { get; set; } = new Track<C3Vector>();
-        public Track<ushort> Alpha { get; set; } = new Track<ushort>();//TODO fixed16
+        public Track<ushort> Alpha { get; set; } = new Track<ushort>(); //TODO fixed16
+
         public void Load(BinaryReader stream, M2.Format version)
         {
             Color.Load(stream, version);

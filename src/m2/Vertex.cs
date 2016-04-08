@@ -2,15 +2,15 @@
 using m2lib_csharp.interfaces;
 using m2lib_csharp.types;
 
-namespace m2lib_csharp.m2 {
-
+namespace m2lib_csharp.m2
+{
     public class Vertex : IMarshalable
     {
         public C3Vector Position { get; set; } = new C3Vector();
         public byte[] BoneWeights { get; set; } = new byte[4];
         public byte[] BoneIndices { get; set; } = new byte[4];
         public C3Vector Normal { get; set; } = new C3Vector();
-        public C2Vector[] TexCoords { get; set; } = {new C2Vector(),new C2Vector()};
+        public C2Vector[] TexCoords { get; set; } = {new C2Vector(), new C2Vector()};
 
         public void Load(BinaryReader stream, M2.Format version)
         {

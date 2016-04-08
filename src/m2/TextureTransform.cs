@@ -70,7 +70,8 @@ namespace m2lib_csharp.m2
         }
 
         /// <summary>
-        /// Pass the sequences reference to Tracks so they can : switch between 1 timeline & multiple timelines, open .anim files...
+        ///     Pass the sequences reference to Tracks so they can : switch between 1 timeline & multiple timelines, open .anim
+        ///     files...
         /// </summary>
         /// <param name="sequences"></param>
         public void SetSequences(IReadOnlyList<Sequence> sequences)
@@ -79,6 +80,5 @@ namespace m2lib_csharp.m2
             Rotation.SequenceBackRef = sequences;
             Scale.SequenceBackRef = sequences;
         }
-
     }
 }

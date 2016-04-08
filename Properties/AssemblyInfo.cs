@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -7,7 +6,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("m2lib-csharp")]
 [assembly: AssemblyDescription(".NET library to handle M2 format.")]
-[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyConfiguration("Debug")]
 [assembly: AssemblyCompany("Koward")]
 [assembly: AssemblyProduct("m2lib-csharp")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]

@@ -10,17 +10,6 @@ namespace m2lib_csharp.m2
 {
     public class Bone : IAnimated
     {
-        public int KeyBoneId { get; set; } = -1;
-        public BoneFlags Flags { get; set; } = 0;
-        public short ParentBone { get; set; } = -1;
-        public ushort SubmeshId { get; set; }
-        private readonly ushort[] _unknown = new ushort[2];
-        public Track<C3Vector> Translation { get; set; } = new Track<C3Vector>();
-        public Track<C4Quaternion> Rotation { get; set; } = new Track<C4Quaternion>();
-        public Track<C3Vector> Scale { get; set; } = new Track<C3Vector>();
-
-        private Track<CompQuat> CompressedRotation { get; set; }
-
         [Flags]
         public enum BoneFlags
         {
@@ -29,9 +18,20 @@ namespace m2lib_csharp.m2
             CylindricalBillboardLockY = 0x20,
             CylindricalBillboardLockZ = 0x40,
             Transformed = 0x200,
-            KinematicBone = 0x400,       // MoP+: allow physics to influence this bone
-            HelmetAnimScaled = 0x1000,  // set blend_modificator to helmetAnimScalingRec.m_amount for this bone
+            KinematicBone = 0x400, // MoP+: allow physics to influence this bone
+            HelmetAnimScaled = 0x1000 // set blend_modificator to helmetAnimScalingRec.m_amount for this bone
         }
+
+        private readonly ushort[] _unknown = new ushort[2];
+        public int KeyBoneId { get; set; } = -1;
+        public BoneFlags Flags { get; set; } = 0;
+        public short ParentBone { get; set; } = -1;
+        public ushort SubmeshId { get; set; }
+        public Track<C3Vector> Translation { get; set; } = new Track<C3Vector>();
+        public Track<C4Quaternion> Rotation { get; set; } = new Track<C4Quaternion>();
+        public Track<C3Vector> Scale { get; set; } = new Track<C3Vector>();
+
+        private Track<CompQuat> CompressedRotation { get; set; }
 
         public void Load(BinaryReader stream, M2.Format version)
         {
@@ -108,7 +108,8 @@ namespace m2lib_csharp.m2
         }
 
         /// <summary>
-        /// Pass the sequences reference to Tracks so they can : switch between 1 timeline & multiple timelines, open .anim files...
+        ///     Pass the sequences reference to Tracks so they can : switch between 1 timeline & multiple timelines, open .anim
+        ///     files...
         /// </summary>
         /// <param name="sequences"></param>
         public void SetSequences(IReadOnlyList<Sequence> sequences)
@@ -122,8 +123,8 @@ namespace m2lib_csharp.m2
         {
             var lookup = new ArrayRef<short>();
             var maxId = bones.Max(x => x.KeyBoneId);
-            for(short i = 0; i <= maxId; i++) lookup.Add(-1);
-            for(short i = 0; i < bones.Count; i++)
+            for (short i = 0; i < maxId + 1; i++) lookup.Add(-1);
+            for (short i = 0; i < bones.Count; i++)
             {
                 var id = bones[i].KeyBoneId;
                 if (lookup[id] == -1) lookup[id] = i;

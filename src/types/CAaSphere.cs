@@ -5,7 +5,7 @@ using m2lib_csharp.m2;
 namespace m2lib_csharp.types
 {
     /// <summary>
-    /// An axis aligned sphere described by position and radius. 
+    ///     An axis aligned sphere described by position and radius.
     /// </summary>
     public class CAaSphere : IMarshalable
     {

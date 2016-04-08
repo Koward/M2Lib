@@ -10,13 +10,11 @@ namespace m2lib_csharp.types
 {
     public class ArrayRef<T> : List<T>, IAnimated, IArrayRef where T : new()
     {
-        private long _startOffset;// Where the n&offset are located
         private uint _n; // n&ofs are only used in loading. When writing the real number is used.
         private uint _offset;
 
         private IReadOnlyList<Sequence> _sequencesBackRef; // Only used to give the reference to contained IAnimated.
-        public BinaryReader ReadingAnimFile { get; set; } // .anim files handling
-        public BinaryWriter WritingAnimFile { get; set; }
+        private long _startOffset; // Where the n&offset are located
 
         public ArrayRef()
         {
@@ -26,14 +24,14 @@ namespace m2lib_csharp.types
         }
 
         /// <summary>
-        /// Build ArrayRef from string.
+        ///     Build ArrayRef from string.
         /// </summary>
         /// <param name="str">String that will be converted in bytes.</param>
         public ArrayRef(string str) : this()
         {
             if (!typeof (byte).IsAssignableFrom(typeof (T))) throw new NotSupportedException();
             AddRange((IEnumerable<T>) (object) Encoding.UTF8.GetBytes(str + "\0"));
-        } 
+        }
 
         public void Load(BinaryReader stream, M2.Format version = M2.Format.Useless)
         {
@@ -57,13 +55,16 @@ namespace m2lib_csharp.types
             for (var i = 0; i < _n; i++)
             {
                 if (typeof (ArrayRef<>).IsAssignableFrom(typeof (T)) &&
-                    version >= M2.Format.LichKing && !_sequencesBackRef[i].Flags.HasFlag(Sequence.SequenceFlags.NoAnimFile))
+                    version >= M2.Format.LichKing &&
+                    !_sequencesBackRef[i].Flags.HasFlag(Sequence.SequenceFlags.NoAnimFile))
                 {
                     var animFileStream =
-                        new FileStream(_sequencesBackRef[i].GetRealSequence(_sequencesBackRef).GetAnimFilePath(((FileStream)stream.BaseStream).Name), FileMode.Open);
-                    ((IArrayRef)this[i]).ReadingAnimFile = new BinaryReader(animFileStream);
+                        new FileStream(
+                            _sequencesBackRef[i].GetRealSequence(_sequencesBackRef)
+                                .GetAnimFilePath(((FileStream) stream.BaseStream).Name), FileMode.Open);
+                    ((IArrayRef) this[i]).ReadingAnimFile = new BinaryReader(animFileStream);
                 }
-                ((IReferencer)this[i]).LoadContent(stream, version);
+                ((IReferencer) this[i]).LoadContent(stream, version);
             }
         }
 
@@ -83,23 +84,34 @@ namespace m2lib_csharp.types
 
             _offset = (uint) stream.BaseStream.Position;
             foreach (var item in this)
-            {
                 stream.WriteGeneric(version, _sequencesBackRef, item);
-            }
-            if (!typeof (IReferencer).IsAssignableFrom(typeof (T))) return;
-            for(var i = 0; i < Count; i++)
+            if (typeof (IReferencer).IsAssignableFrom(typeof (T)))
             {
-                if (typeof (ArrayRef<>).IsAssignableFrom(typeof (T)) &&
-                version >= M2.Format.LichKing && !_sequencesBackRef[i].Flags.HasFlag(Sequence.SequenceFlags.NoAnimFile))
+                for (var i = 0; i < Count; i++)
                 {
-                    var animFileStream =
-                        new FileStream(_sequencesBackRef[i].GetRealSequence(_sequencesBackRef).GetAnimFilePath(((FileStream)stream.BaseStream).Name), FileMode.Create);
-                    ((IArrayRef)this[i]).WritingAnimFile = new BinaryWriter(animFileStream);
+                    if (typeof (ArrayRef<>).IsAssignableFrom(typeof (T)) &&
+                        version >= M2.Format.LichKing &&
+                        !_sequencesBackRef[i].Flags.HasFlag(Sequence.SequenceFlags.NoAnimFile))
+                    {
+                        var animFileStream =
+                            new FileStream(
+                                _sequencesBackRef[i].GetRealSequence(_sequencesBackRef)
+                                    .GetAnimFilePath(((FileStream) stream.BaseStream).Name), FileMode.Create);
+                        ((IArrayRef) this[i]).WritingAnimFile = new BinaryWriter(animFileStream);
+                    }
+                    ((IReferencer) this[i]).SaveContent(stream, version);
                 }
-                ((IReferencer)this[i]).SaveContent(stream, version);
             }
             RewriteHeader(mainStream, version);
         }
+
+        public void SetSequences(IReadOnlyList<Sequence> sequences)
+        {
+            _sequencesBackRef = sequences;
+        }
+
+        public BinaryReader ReadingAnimFile { get; set; } // .anim files handling
+        public BinaryWriter WritingAnimFile { get; set; }
 
         private void RewriteHeader(BinaryWriter stream, M2.Format version)
         {
@@ -107,11 +119,6 @@ namespace m2lib_csharp.types
             stream.BaseStream.Seek(_startOffset, SeekOrigin.Begin);
             Save(stream, version);
             stream.BaseStream.Seek(currentOffset, SeekOrigin.Begin);
-        }
-
-        public void SetSequences(IReadOnlyList<Sequence> sequences)
-        {
-            _sequencesBackRef = sequences;
         }
 
         public string ToNameString()
@@ -123,13 +130,11 @@ namespace m2lib_csharp.types
     }
 
     /// <summary>
-    /// Used to call non generic methods on generic ArrayRef.
+    ///     Used to call non generic methods on generic ArrayRef.
     /// </summary>
     internal interface IArrayRef
     {
         BinaryReader ReadingAnimFile { get; set; }
         BinaryWriter WritingAnimFile { get; set; }
     }
-
-
 }

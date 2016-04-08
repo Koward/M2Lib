@@ -5,7 +5,7 @@ using m2lib_csharp.m2;
 namespace m2lib_csharp.types
 {
     /// <summary>
-    /// A color given in values of red, green, blue and alpha.
+    ///     A color given in values of red, green, blue and alpha.
     /// </summary>
     public class CArgb : IMarshalable
     {

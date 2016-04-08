@@ -5,10 +5,18 @@ using m2lib_csharp.interfaces;
 namespace m2lib_csharp.m2
 {
     /// <summary>
-    /// A playable record for a sequence.
+    ///     A playable record for a sequence.
     /// </summary>
     public class PlayableRecord : IMarshalable
     {
+        [Flags]
+        public enum PlayFlags : ushort
+        {
+            Loop = 0,
+            Backwards = 1,
+            Freeze = 3
+        }
+
         public ushort FallbackId;
         public PlayFlags Flags;
 
@@ -18,7 +26,7 @@ namespace m2lib_csharp.m2
             Flags = p2;
         }
 
-        public PlayableRecord() : this(0,0)
+        public PlayableRecord() : this(0, 0)
         {
         }
 
@@ -32,14 +40,6 @@ namespace m2lib_csharp.m2
         {
             stream.Write(FallbackId);
             stream.Write((ushort) Flags);
-        }
-
-        [Flags]
-        public enum PlayFlags : ushort 
-        {
-            Loop = 0,
-            Backwards = 1,
-            Freeze = 3
         }
     }
 }

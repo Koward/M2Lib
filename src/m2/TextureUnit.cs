@@ -4,7 +4,7 @@ using m2lib_csharp.interfaces;
 namespace m2lib_csharp.m2
 {
     /// <summary>
-    /// Called M2Batch in the WoW source
+    ///     Called M2Batch in the WoW source
     /// </summary>
     public class TextureUnit : IMarshalable
     {
@@ -21,6 +21,7 @@ namespace m2lib_csharp.m2
         public ushort TexUnitNumber2 { get; set; }
         public ushort Transparency { get; set; }
         public ushort TextureAnim { get; set; }
+
         public void Load(BinaryReader stream, M2.Format version = M2.Format.Useless)
         {
             Flags = stream.ReadByte();

@@ -8,15 +8,10 @@ using Microsoft.VisualBasic.FileIO;
 namespace m2lib_csharp.m2
 {
     /// <summary>
-    /// Static class providing friendly access to AnimationData.dbc
+    ///     Static class providing friendly access to AnimationData.dbc
     /// </summary>
     public static class AnimationData
     {
-        public static IDictionary<ushort, ushort> Fallback { get; }
-        public static IDictionary<string, ushort> Ids { get; }
-        public static ISet<ushort> PlayThenStop { get; }
-        public static ISet<ushort> PlayBackwards { get; }
-
         static AnimationData()
         {
             Fallback = new Dictionary<ushort, ushort>();
@@ -25,7 +20,7 @@ namespace m2lib_csharp.m2
             PlayBackwards = new HashSet<ushort>();
             var assembly = Assembly.GetExecutingAssembly();
             var embeddedStream = assembly.GetManifestResourceStream("m2lib_csharp.src.csv.AnimationData.csv");
-            if(embeddedStream == null) throw new IOException("Could not open embedded ressource AnimationData");
+            if (embeddedStream == null) throw new IOException("Could not open embedded ressource AnimationData");
             var csvParser = new TextFieldParser(embeddedStream) {CommentTokens = new[] {"#"}};
             csvParser.SetDelimiters(",");
             csvParser.HasFieldsEnclosedInQuotes = true;
@@ -41,15 +36,15 @@ namespace m2lib_csharp.m2
                 Ids[name] = id;
             }
             csvParser.Close();
-            ushort[] playThenStopValues = 
+            ushort[] playThenStopValues =
             {
-                Ids["Dead"], 
+                Ids["Dead"],
                 Ids["SitGround"],
                 Ids["Sleep"],
                 Ids["KneelLoop"],
                 Ids["UseStandingLoop"],
                 Ids["Drowned"],
-                Ids["LootHold"] 
+                Ids["LootHold"]
             };
             foreach (var value in playThenStopValues) PlayThenStop.Add(value);
             ushort[] playBackwardsValues =
@@ -61,5 +56,10 @@ namespace m2lib_csharp.m2
             };
             foreach (var value in playBackwardsValues) PlayBackwards.Add(value);
         }
+
+        public static IDictionary<ushort, ushort> Fallback { get; }
+        public static IDictionary<string, ushort> Ids { get; }
+        public static ISet<ushort> PlayThenStop { get; }
+        public static ISet<ushort> PlayBackwards { get; }
     }
 }

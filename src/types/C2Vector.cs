@@ -5,7 +5,7 @@ using m2lib_csharp.m2;
 namespace m2lib_csharp.types
 {
     /// <summary>
-    /// A two component float vector.
+    ///     A two component float vector.
     /// </summary>
     public class C2Vector : IMarshalable
     {

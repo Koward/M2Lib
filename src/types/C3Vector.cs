@@ -5,7 +5,7 @@ using m2lib_csharp.m2;
 namespace m2lib_csharp.types
 {
     /// <summary>
-    /// A three component float vector.
+    ///     A three component float vector.
     /// </summary>
     public class C3Vector : IMarshalable
     {
@@ -18,7 +18,7 @@ namespace m2lib_csharp.types
             Z = p3;
         }
 
-        public C3Vector() : this(0,0,0)
+        public C3Vector() : this(0, 0, 0)
         {
         }
 

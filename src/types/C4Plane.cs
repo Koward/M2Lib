@@ -5,12 +5,12 @@ using m2lib_csharp.m2;
 namespace m2lib_csharp.types
 {
     /// <summary>
-    /// A 3D plane defined by four floats
+    ///     A 3D plane defined by four floats
     /// </summary>
     public class C4Plane : IMarshalable
     {
-        public C3Vector Normal;
         public float Distance;
+        public C3Vector Normal;
 
         public C4Plane(C3Vector vec, float dist)
         {

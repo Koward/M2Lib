@@ -4,7 +4,7 @@ using m2lib_csharp.m2;
 namespace m2lib_csharp.interfaces
 {
     /// <summary>
-    /// Handles the content pointed by the ArrayRef objects in the structure.
+    ///     Handles the content pointed by the ArrayRef objects in the structure.
     /// </summary>
     public interface IReferencer : IMarshalable
     {

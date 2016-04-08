@@ -5,7 +5,7 @@ using m2lib_csharp.m2;
 namespace m2lib_csharp.types
 {
     /// <summary>
-    /// A one dimensional range defined by the bounds.
+    ///     A one dimensional range defined by the bounds.
     /// </summary>
     public class CRange : IMarshalable
     {

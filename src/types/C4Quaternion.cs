@@ -5,7 +5,7 @@ using m2lib_csharp.m2;
 namespace m2lib_csharp.types
 {
     /// <summary>
-    /// A four floats quaternion.
+    ///     A four floats quaternion.
     /// </summary>
     public class C4Quaternion : IMarshalable
     {
@@ -19,7 +19,7 @@ namespace m2lib_csharp.types
             W = p4;
         }
 
-        public C4Quaternion() : this(0,0,0,1)
+        public C4Quaternion() : this(0, 0, 0, 1)
         {
         }
 
@@ -45,13 +45,13 @@ namespace m2lib_csharp.types
         }
 
         /// <summary>
-        /// Compress a float in a short
+        ///     Compress a float in a short
         /// </summary>
         /// <param name="value">Float to compress.</param>
         /// <returns>A short, compressed version of value.</returns>
         private static short FloatToShort(float value)
         {
-            return (short)(value > 0 ? value * 32767.0 - 32768 : value * 32767.0 + 32768);
+            return (short) (value > 0 ? value*32767.0 - 32768 : value*32767.0 + 32768);
         }
     }
 }

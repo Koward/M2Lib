@@ -5,7 +5,7 @@ using m2lib_csharp.m2;
 namespace m2lib_csharp.types
 {
     /// <summary>
-    /// A four component float vector.
+    ///     A four component float vector.
     /// </summary>
     public class C4Vector : IMarshalable
     {

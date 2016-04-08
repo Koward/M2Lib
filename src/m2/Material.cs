@@ -6,8 +6,17 @@ namespace m2lib_csharp.m2
 {
     public class Material : IMarshalable
     {
-        public RenderFlags Flags { get; set; }
-        public BlendingMode Mode { get; set; }
+        public enum BlendingMode : ushort
+        {
+            Opaque = 0,
+            Mod = 1,
+            Decal = 2,
+            Add = 3,
+            Mod2X = 4,
+            Fade = 5,
+            DeeprunTram = 6,
+            Unknown = 7
+        }
 
         [Flags]
         public enum RenderFlags
@@ -23,17 +32,8 @@ namespace m2lib_csharp.m2
             DisableAlpha = 0x800
         }
 
-        public enum BlendingMode : ushort
-        {
-            Opaque = 0,
-            Mod = 1,
-            Decal = 2,
-            Add = 3,
-            Mod2X = 4,
-            Fade = 5,
-            DeeprunTram = 6,
-            Unknown = 7
-        }
+        public RenderFlags Flags { get; set; }
+        public BlendingMode Mode { get; set; }
 
         public void Load(BinaryReader stream, M2.Format version)
         {

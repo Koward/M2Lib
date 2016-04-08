@@ -55,7 +55,7 @@ namespace m2lib_csharp.m2
             }
             else
             {
-                if(Level > 0) throw new Exception("This model has too many polygons to be saved in this version.");
+                if (Level > 0) throw new Exception("This model has too many polygons to be saved in this version.");
                 stream.Write((uint) SubmeshId);
             }
             stream.Write(StartVertex);
