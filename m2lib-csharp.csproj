@@ -57,6 +57,7 @@
     <Compile Include="src\m2\M2Event.cs" />
     <Compile Include="src\m2\M2Light.cs" />
     <Compile Include="src\m2\M2Material.cs" />
+    <Compile Include="src\m2\M2Ribbon.cs" />
     <Compile Include="src\m2\PlayableRecord.cs" />
     <Compile Include="src\m2\M2.cs" />
     <Compile Include="src\m2\M2Sequence.cs" />

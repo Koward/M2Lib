@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using m2lib_csharp.interfaces;
@@ -21,16 +20,6 @@ namespace m2lib_csharp.types
             _startOffset = 0;
             _n = 0;
             _offset = 0;
-        }
-
-        /// <summary>
-        ///     Build M2Array from string.
-        /// </summary>
-        /// <param name="str">String that will be converted in bytes.</param>
-        public M2Array(string str) : this()
-        {
-            if (!typeof (byte).IsAssignableFrom(typeof (T))) throw new NotSupportedException();
-            AddRange((IEnumerable<T>) (object) Encoding.UTF8.GetBytes(str + "\0"));
         }
 
         public void Load(BinaryReader stream, M2.Format version = M2.Format.Useless)
@@ -120,13 +109,6 @@ namespace m2lib_csharp.types
             Save(stream, version);
             stream.BaseStream.Seek(currentOffset, SeekOrigin.Begin);
         }
-
-        public string ToNameString()
-        {
-            if (!typeof (byte).IsAssignableFrom(typeof (T)))
-                throw new NotImplementedException("Cannot convert M2Array<" + typeof (T) + "> to " + typeof (string));
-            return Encoding.UTF8.GetString((byte[]) (object) ToArray()).Trim('\0');
-        }
     }
 
     /// <summary>
@@ -136,5 +118,22 @@ namespace m2lib_csharp.types
     {
         BinaryReader ReadingAnimFile { get; set; }
         BinaryWriter WritingAnimFile { get; set; }
+    }
+
+    /// <summary>
+    /// Allows special behaviors for specific M2Arrays.
+    /// </summary>
+    public static class M2ArrayExtensions
+    {
+        public static string ToNameString(this M2Array<byte> array)
+        {
+            return Encoding.UTF8.GetString(array.ToArray()).Trim('\0');
+        }
+
+        public static void SetString(this M2Array<byte> array, string str)
+        {
+            array.Clear();
+            array.AddRange(Encoding.UTF8.GetBytes(str + "\0"));
+        }
     }
 }

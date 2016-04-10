@@ -9,6 +9,7 @@ namespace m2lib_csharp
         public static void Main(string[] args)
         {
             Debug.WriteLine("Debug application for M2Lib");
+            /*
             var point = new FixedPoint(0, 15);
             point.Bits[14] = true;
             point.Bits[15] = true;
@@ -26,6 +27,7 @@ namespace m2lib_csharp
             Debug.WriteLine("Written&Read]");
             Debug.WriteLine("Bits : " + newPoint.Bits.ToBitString());
             Debug.WriteLine("Value : " + newPoint.Value);
+            */
 
             /*
             var model = new M2();

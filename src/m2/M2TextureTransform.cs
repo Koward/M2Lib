@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using m2lib_csharp.interfaces;
 using m2lib_csharp.types;
@@ -12,60 +11,31 @@ namespace m2lib_csharp.m2
         public M2Track<C4Quaternion> Rotation { get; set; } = new M2Track<C4Quaternion>();
         public M2Track<C3Vector> Scale { get; set; } = new M2Track<C3Vector>();
 
-        private M2Track<CompQuat> CompressedRotation { get; set; }
-
         public void Load(BinaryReader stream, M2.Format version)
         {
             Translation.Load(stream, version);
-            if (version >= M2.Format.LichKing)
-            {
-                CompressedRotation = new M2Track<CompQuat>();
-                CompressedRotation.Load(stream, version);
-            }
-            else
-                Rotation.Load(stream, version);
+            Rotation.Load(stream, version);
             Scale.Load(stream, version);
         }
 
         public void Save(BinaryWriter stream, M2.Format version)
         {
-            Debug.Assert(version != M2.Format.Useless);
             Translation.Save(stream, version);
-            if (version >= M2.Format.LichKing)
-            {
-                CompressedRotation = new M2Track<CompQuat>();
-                CompressedRotation.InitializeCasted(Rotation);
-                CompressedRotation.Save(stream, version);
-            }
-            else
-                Rotation.Save(stream, version);
+            Rotation.Save(stream, version);
             Scale.Save(stream, version);
         }
 
         public void LoadContent(BinaryReader stream, M2.Format version)
         {
-            Debug.Assert(version != M2.Format.Useless);
             Translation.LoadContent(stream, version);
-            if (version >= M2.Format.LichKing)
-            {
-                CompressedRotation.LoadContent(stream, version);
-                Rotation.InitializeCasted(CompressedRotation);
-            }
-            else
-                Rotation.LoadContent(stream, version);
+            Rotation.LoadContent(stream, version);
             Scale.LoadContent(stream, version);
         }
 
         public void SaveContent(BinaryWriter stream, M2.Format version)
         {
-            Debug.Assert(version != M2.Format.Useless);
             Translation.SaveContent(stream, version);
-            if (version >= M2.Format.LichKing)
-            {
-                CompressedRotation.SaveContent(stream, version);
-            }
-            else
-                Rotation.SaveContent(stream, version);
+            Rotation.SaveContent(stream, version);
             Scale.SaveContent(stream, version);
         }
 

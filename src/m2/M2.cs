@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -41,68 +40,49 @@ namespace m2lib_csharp.m2
             CameraRelated = 0x0100
         }
 
-        private readonly M2Array<short> _boneLookup = new M2Array<short>();
-        private readonly M2Array<M2Bone> _bones = new M2Array<M2Bone>();
-        private readonly M2Array<C3Vector> _boundingNormals = new M2Array<C3Vector>();
-        private readonly M2Array<ushort> _boundingTriangles = new M2Array<ushort>();
-        private readonly M2Array<C3Vector> _boundingVertices = new M2Array<C3Vector>();
-        private readonly M2Array<int> _globalSequences = new M2Array<int>();
-        private readonly M2Array<M2Material> _materials = new M2Array<M2Material>();
-        private readonly M2Array<M2Sequence> _sequences = new M2Array<M2Sequence>();
-        private readonly M2Array<M2Color> _colors = new M2Array<M2Color>();
-        private readonly M2Array<short> _texLookup = new M2Array<short>();
-        private readonly M2Array<M2Texture> _textures = new M2Array<M2Texture>();
-        private readonly M2Array<M2TextureTransform> _textureTransforms = new M2Array<M2TextureTransform>();
-        private readonly M2Array<short> _texUnitLookup = new M2Array<short>();
-        private readonly M2Array<short> _transLookup = new M2Array<short>();
-        private readonly M2Array<M2TextureWeight> _transparencies = new M2Array<M2TextureWeight>();
-        private readonly M2Array<short> _uvAnimLookup = new M2Array<short>();
-        private readonly M2Array<M2Vertex> _vertices = new M2Array<M2Vertex>();
-        private readonly M2Array<M2SkinProfile> _views = new M2Array<M2SkinProfile>();
-        private readonly M2Array<M2Attachment> _attachments = new M2Array<M2Attachment>();
-        private readonly M2Array<M2Event> _events = new M2Array<M2Event>();
-        private readonly M2Array<M2Light> _lights = new M2Array<M2Light>();
-        private readonly M2Array<M2Camera> _cameras = new M2Array<M2Camera>();
-        private M2Array<byte> _name = new M2Array<byte>();
+        private readonly M2Array<byte> _name = new M2Array<byte>();
 
         public Format Version { get; set; } = Format.Draenor;
 
         public string Name
         {
             get { return _name.ToNameString(); }
-            set { _name = new M2Array<byte>(value); }
+            set { _name.SetString(value); }
         }
 
         public GlobalFlags GlobalModelFlags { get; set; } = 0;
-        public List<int> GlobalSequences => _globalSequences;
-        public List<M2Sequence> Sequences => _sequences;
-        public List<M2Bone> Bones => _bones;
-        public List<M2Vertex> Vertices => _vertices;
-        public List<M2SkinProfile> Views => _views;
-        public List<M2Color> Colors => _colors;
-        public List<M2Texture> Textures => _textures;
-        public List<M2TextureWeight> Transparencies => _transparencies;
-        public List<M2TextureTransform> TextureTransforms => _textureTransforms;
-        public List<M2Material> Materials => _materials;
-        public List<M2Attachment> Attachments => _attachments;
-        public List<M2Event> Events => _events;
-        public List<M2Light> Lights => _lights;
-        public List<M2Camera> Cameras => _cameras;
+        public M2Array<int> GlobalSequences { get; } = new M2Array<int>();
+        public M2Array<M2Sequence> Sequences { get; } = new M2Array<M2Sequence>();
+        public M2Array<M2Bone> Bones { get; } = new M2Array<M2Bone>();
+        public M2Array<M2Vertex> Vertices { get; } = new M2Array<M2Vertex>();
+        public M2Array<M2SkinProfile> Views { get; } = new M2Array<M2SkinProfile>();
+        public M2Array<M2Color> Colors { get; } = new M2Array<M2Color>();
+        public M2Array<M2Texture> Textures { get; } = new M2Array<M2Texture>();
+        public M2Array<M2TextureWeight> Transparencies { get; } = new M2Array<M2TextureWeight>();
+        public M2Array<M2TextureTransform> TextureTransforms { get; } = new M2Array<M2TextureTransform>();
+        public M2Array<M2Material> Materials { get; } = new M2Array<M2Material>();
+        public M2Array<M2Attachment> Attachments { get; } = new M2Array<M2Attachment>();
+        public M2Array<M2Event> Events { get; } = new M2Array<M2Event>();
+        public M2Array<M2Light> Lights { get; } = new M2Array<M2Light>();
+        public M2Array<M2Camera> Cameras { get; } = new M2Array<M2Camera>();
 
         //Data referenced by Views. TODO See if can be generated on the fly.
-        public List<short> BoneLookup => _boneLookup;
-        public List<short> TexLookup => _texLookup;
-        public List<short> TexUnitLookup => _texUnitLookup;
-        public List<short> TransLookup => _transLookup;
-        public List<short> UvAnimLookup => _uvAnimLookup;
+        public M2Array<short> BoneLookup { get; } = new M2Array<short>();
+        public M2Array<short> TexLookup { get; } = new M2Array<short>();
+        public M2Array<short> TexUnitLookup { get; } = new M2Array<short>();
+        public M2Array<short> TransLookup { get; } = new M2Array<short>();
+        public M2Array<short> UvAnimLookup { get; } = new M2Array<short>();
 
         public CAaBox BoundingBox { get; set; } = new CAaBox();
         public float BoundingSphereRadius { get; set; }
         public CAaBox CollisionBox { get; set; } = new CAaBox();
         public float CollisionSphereRadius { get; set; }
-        public List<ushort> BoundingTriangles => _boundingTriangles;
-        public List<C3Vector> BoundingVertices => _boundingVertices;
-        public List<C3Vector> BoundingNormals => _boundingNormals;
+        public M2Array<ushort> BoundingTriangles { get; } = new M2Array<ushort>();
+        public M2Array<C3Vector> BoundingVertices { get; } = new M2Array<C3Vector>();
+        public M2Array<C3Vector> BoundingNormals { get; } = new M2Array<C3Vector>();
+        public M2Array<M2Ribbon> Ribbons { get; } = new M2Array<M2Ribbon>();
+        public M2Array<ushort> Particles { get; } = new M2Array<ushort>();//TODO Replace by real structs
+        public M2Array<ushort> BlendingMaps { get; } = new M2Array<ushort>();
 
         public void Load(BinaryReader stream, Format version = Format.Useless)
         {
@@ -123,50 +103,53 @@ namespace m2lib_csharp.m2
             Debug.Assert(version != Format.Useless);
             _name.Load(stream, version);
             GlobalModelFlags = (GlobalFlags) stream.ReadUInt32();
-            _globalSequences.Load(stream, version);
-            _sequences.Load(stream, version);
+            GlobalSequences.Load(stream, version);
+            Sequences.Load(stream, version);
             SkipLookupParsing(stream, version);
             if (version < Format.LichKing) SkipLookupParsing(stream, version);
-            _bones.Load(stream, version);
+            Bones.Load(stream, version);
             SkipLookupParsing(stream, version);
-            _vertices.Load(stream, version);
+            Vertices.Load(stream, version);
             uint nViews = 0; //For Lich King external views system.
-            if (version < Format.LichKing) _views.Load(stream, version);
+            if (version < Format.LichKing) Views.Load(stream, version);
             else nViews = stream.ReadUInt32();
-            _colors.Load(stream, version);
-            _textures.Load(stream, version);
-            _transparencies.Load(stream, version);
-            _textureTransforms.Load(stream, version);
+            Colors.Load(stream, version);
+            Textures.Load(stream, version);
+            Transparencies.Load(stream, version);
+            TextureTransforms.Load(stream, version);
             SkipLookupParsing(stream, version);
-            _materials.Load(stream, version);
-            _boneLookup.Load(stream, version);
-            _texLookup.Load(stream, version);
-            _texUnitLookup.Load(stream, version);
-            _transLookup.Load(stream, version);
-            _uvAnimLookup.Load(stream, version);
+            Materials.Load(stream, version);
+            BoneLookup.Load(stream, version);
+            TexLookup.Load(stream, version);
+            TexUnitLookup.Load(stream, version);
+            TransLookup.Load(stream, version);
+            UvAnimLookup.Load(stream, version);
             BoundingBox.Load(stream, version);
             BoundingSphereRadius = stream.ReadSingle();
             CollisionBox.Load(stream, version);
             CollisionSphereRadius = stream.ReadSingle();
-            _boundingTriangles.Load(stream, version);
-            _boundingVertices.Load(stream, version);
-            _boundingNormals.Load(stream, version);
-            _attachments.Load(stream, version);
+            BoundingTriangles.Load(stream, version);
+            BoundingVertices.Load(stream, version);
+            BoundingNormals.Load(stream, version);
+            Attachments.Load(stream, version);
             SkipLookupParsing(stream, version);
-            _events.Load(stream, version);
-            _lights.Load(stream, version);
-            _cameras.Load(stream, version);
+            Events.Load(stream, version);
+            Lights.Load(stream, version);
+            Cameras.Load(stream, version);
             SkipLookupParsing(stream, version);
+            Ribbons.Load(stream, version);
+            Particles.Load(stream, version);
+            if(GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.Load(stream, version);
 
             // LOAD REFERENCED CONTENT
             _name.LoadContent(stream);
-            _globalSequences.LoadContent(stream);
-            _sequences.LoadContent(stream, version);
+            GlobalSequences.LoadContent(stream);
+            Sequences.LoadContent(stream, version);
             SetSequences();
-            _bones.LoadContent(stream, version);
-            _vertices.LoadContent(stream, version);
+            Bones.LoadContent(stream, version);
+            Vertices.LoadContent(stream, version);
             //VIEWS
-            if (version < Format.LichKing) _views.LoadContent(stream, version);
+            if (version < Format.LichKing) Views.LoadContent(stream, version);
             else
             {
                 for (var i = 0; i < nViews; i++)
@@ -176,27 +159,30 @@ namespace m2lib_csharp.m2
                         new FileStream(M2SkinProfile.SkinFileName(((FileStream) stream.BaseStream).Name, i), FileMode.Open));
                     view.Load(skinFile, version);
                     view.LoadContent(skinFile, version);
-                    _views.Add(view);
+                    Views.Add(view);
                 }
             }
             //VIEWS END
-            _colors.LoadContent(stream, version);
-            _textures.LoadContent(stream, version);
-            _transparencies.LoadContent(stream, version);
-            _textureTransforms.LoadContent(stream, version);
-            _materials.LoadContent(stream, version);
-            _boneLookup.LoadContent(stream, version);
-            _texLookup.LoadContent(stream, version);
-            _texUnitLookup.LoadContent(stream, version);
-            _transLookup.LoadContent(stream, version);
-            _uvAnimLookup.LoadContent(stream, version);
-            _boundingTriangles.LoadContent(stream, version);
-            _boundingVertices.LoadContent(stream, version);
-            _boundingNormals.LoadContent(stream, version);
-            _attachments.LoadContent(stream, version);
-            _events.LoadContent(stream, version);
-            _lights.LoadContent(stream, version);
-            _cameras.LoadContent(stream, version);
+            Colors.LoadContent(stream, version);
+            Textures.LoadContent(stream, version);
+            Transparencies.LoadContent(stream, version);
+            TextureTransforms.LoadContent(stream, version);
+            Materials.LoadContent(stream, version);
+            BoneLookup.LoadContent(stream, version);
+            TexLookup.LoadContent(stream, version);
+            TexUnitLookup.LoadContent(stream, version);
+            TransLookup.LoadContent(stream, version);
+            UvAnimLookup.LoadContent(stream, version);
+            BoundingTriangles.LoadContent(stream, version);
+            BoundingVertices.LoadContent(stream, version);
+            BoundingNormals.LoadContent(stream, version);
+            Attachments.LoadContent(stream, version);
+            Events.LoadContent(stream, version);
+            Lights.LoadContent(stream, version);
+            Cameras.LoadContent(stream, version);
+            Ribbons.LoadContent(stream, version);
+            Particles.LoadContent(stream, version);
+            if(GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.LoadContent(stream, version);
         }
 
         public void Save(BinaryWriter stream, Format version = Format.Useless)
@@ -212,110 +198,117 @@ namespace m2lib_csharp.m2
             stream.Write((uint) version);
             _name.Save(stream, version);
             stream.Write((uint) GlobalModelFlags);
-            _globalSequences.Save(stream, version);
-            _sequences.Save(stream, version);
-            var sequenceLookup = M2Sequence.GenerateAnimationLookup(_sequences);
+            GlobalSequences.Save(stream, version);
+            Sequences.Save(stream, version);
+            var sequenceLookup = M2Sequence.GenerateAnimationLookup(Sequences);
             sequenceLookup.Save(stream, version);
             M2Array<short> playableLookup = null;
-            if (version < Format.LichKing) playableLookup = M2Sequence.GenerateAnimationLookup(_sequences);
-            _bones.Save(stream, version);
-            var keyBoneLookup = M2Bone.GenerateKeyBoneLookup(_bones);
+            if (version < Format.LichKing) playableLookup = M2Sequence.GenerateAnimationLookup(Sequences);
+            Bones.Save(stream, version);
+            var keyBoneLookup = M2Bone.GenerateKeyBoneLookup(Bones);
             keyBoneLookup.Save(stream, version);
-            _vertices.Save(stream, version);
-            if (version < Format.LichKing) _views.Save(stream, version);
-            else stream.Write(_views.Count);
-            _colors.Save(stream, version);
-            _textures.Save(stream, version);
-            _transparencies.Save(stream, version);
-            _textureTransforms.Save(stream, version);
-            var texReplaceLookup = M2Texture.GenerateTexReplaceLookup(_textures);
+            Vertices.Save(stream, version);
+            if (version < Format.LichKing) Views.Save(stream, version);
+            else stream.Write(Views.Count);
+            Colors.Save(stream, version);
+            Textures.Save(stream, version);
+            Transparencies.Save(stream, version);
+            TextureTransforms.Save(stream, version);
+            var texReplaceLookup = M2Texture.GenerateTexReplaceLookup(Textures);
             texReplaceLookup.Save(stream, version);
-            _materials.Save(stream, version);
-            _boneLookup.Save(stream, version);
-            _texLookup.Save(stream, version);
-            _texUnitLookup.Save(stream, version);
-            _transLookup.Save(stream, version);
-            _uvAnimLookup.Save(stream, version);
+            Materials.Save(stream, version);
+            BoneLookup.Save(stream, version);
+            TexLookup.Save(stream, version);
+            TexUnitLookup.Save(stream, version);
+            TransLookup.Save(stream, version);
+            UvAnimLookup.Save(stream, version);
             BoundingBox.Save(stream, version);
             stream.Write(BoundingSphereRadius);
             CollisionBox.Save(stream, version);
             stream.Write(CollisionSphereRadius);
-            _boundingTriangles.Save(stream, version);
-            _boundingVertices.Save(stream, version);
-            _boundingNormals.Save(stream, version);
-            _attachments.Save(stream, version);
-            var attachmentLookup = M2Attachment.GenerateLookup(_attachments);
+            BoundingTriangles.Save(stream, version);
+            BoundingVertices.Save(stream, version);
+            BoundingNormals.Save(stream, version);
+            Attachments.Save(stream, version);
+            var attachmentLookup = M2Attachment.GenerateLookup(Attachments);
             attachmentLookup.Save(stream, version);
-            _events.Save(stream, version);
-            _lights.Save(stream, version);
-            _cameras.Save(stream, version);
-            var cameraLookup = M2Camera.GenerateLookup(_cameras);
+            Events.Save(stream, version);
+            Lights.Save(stream, version);
+            Cameras.Save(stream, version);
+            var cameraLookup = M2Camera.GenerateLookup(Cameras);
             cameraLookup.Save(stream, version);
+            Ribbons.Save(stream, version);
+            Particles.Save(stream, version);
+            if(GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.Save(stream, version);
 
             // SAVE REFERENCED CONTENT
             _name.SaveContent(stream);
-            _globalSequences.SaveContent(stream);
+            GlobalSequences.SaveContent(stream);
             if (version < Format.LichKing)
             {
                 uint time = 0;
-                foreach (var seq in _sequences)
+                foreach (var seq in Sequences)
                 {
                     time += 3333;
                     seq.TimeStart = time;
                     time += seq.Length;
                 }
             }
-            _sequences.SaveContent(stream, version);
+            Sequences.SaveContent(stream, version);
             sequenceLookup.SaveContent(stream);
             playableLookup?.SaveContent(stream);
-            _bones.SaveContent(stream, version);
+            Bones.SaveContent(stream, version);
             keyBoneLookup.SaveContent(stream);
-            _vertices.SaveContent(stream, version);
+            Vertices.SaveContent(stream, version);
             //VIEWS
-            if (version < Format.LichKing) _views.SaveContent(stream, version);
+            if (version < Format.LichKing) Views.SaveContent(stream, version);
             else
             {
-                for (var i = 0; i < _views.Count; i++)
+                for (var i = 0; i < Views.Count; i++)
                 {
                     var skinFile = new BinaryWriter(
                         new FileStream(M2SkinProfile.SkinFileName(((FileStream) stream.BaseStream).Name, i), FileMode.Create));
-                    _views[i].Save(skinFile, version);
-                    _views[i].SaveContent(skinFile, version);
+                    Views[i].Save(skinFile, version);
+                    Views[i].SaveContent(skinFile, version);
                 }
             }
             //VIEWS END
-            _colors.SaveContent(stream, version);
-            _textures.SaveContent(stream, version);
-            _transparencies.SaveContent(stream, version);
-            _textureTransforms.SaveContent(stream, version);
+            Colors.SaveContent(stream, version);
+            Textures.SaveContent(stream, version);
+            Transparencies.SaveContent(stream, version);
+            TextureTransforms.SaveContent(stream, version);
             texReplaceLookup.SaveContent(stream, version);
-            _materials.SaveContent(stream, version);
-            _boneLookup.SaveContent(stream, version);
-            _texLookup.SaveContent(stream, version);
-            _texUnitLookup.SaveContent(stream, version);
-            _transLookup.SaveContent(stream, version);
-            _uvAnimLookup.SaveContent(stream, version);
-            _boundingTriangles.SaveContent(stream, version);
-            _boundingVertices.SaveContent(stream, version);
-            _boundingNormals.SaveContent(stream, version);
-            _attachments.SaveContent(stream, version);
+            Materials.SaveContent(stream, version);
+            BoneLookup.SaveContent(stream, version);
+            TexLookup.SaveContent(stream, version);
+            TexUnitLookup.SaveContent(stream, version);
+            TransLookup.SaveContent(stream, version);
+            UvAnimLookup.SaveContent(stream, version);
+            BoundingTriangles.SaveContent(stream, version);
+            BoundingVertices.SaveContent(stream, version);
+            BoundingNormals.SaveContent(stream, version);
+            Attachments.SaveContent(stream, version);
             attachmentLookup.SaveContent(stream, version);
-            _events.SaveContent(stream, version);
-            _lights.SaveContent(stream, version);
-            _cameras.SaveContent(stream, version);
+            Events.SaveContent(stream, version);
+            Lights.SaveContent(stream, version);
+            Cameras.SaveContent(stream, version);
             cameraLookup.SaveContent(stream, version);
+            Ribbons.SaveContent(stream, version);
+            Particles.Save(stream, version);
+            if(GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.SaveContent(stream, version);
         }
 
         private void SetSequences()
         {
-            _bones.SetSequences(_sequences);
-            _colors.SetSequences(_sequences);
-            _transparencies.SetSequences(_sequences);
-            _textureTransforms.SetSequences(_sequences);
-            _attachments.SetSequences(_sequences);
-            _events.SetSequences(_sequences);
-            _lights.SetSequences(_sequences);
-            _cameras.SetSequences(_sequences);
+            Bones.SetSequences(Sequences);
+            Colors.SetSequences(Sequences);
+            Transparencies.SetSequences(Sequences);
+            TextureTransforms.SetSequences(Sequences);
+            Attachments.SetSequences(Sequences);
+            Events.SetSequences(Sequences);
+            Lights.SetSequences(Sequences);
+            Cameras.SetSequences(Sequences);
+            Ribbons.SetSequences(Sequences);
         }
 
         /// <summary>

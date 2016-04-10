@@ -38,13 +38,13 @@ namespace m2lib_csharp.m2
             GuildEmblem = 18
         }
 
-        private M2Array<byte> _name = new M2Array<byte>();
+        private readonly M2Array<byte> _name = new M2Array<byte>();
         public TextureType Type { get; set; }
         public TextureFlags Flags { get; set; }
         public string Name
         {
             get { return _name.ToNameString(); }
-            set { _name = new M2Array<byte>(value); }
+            set { _name.SetString(value); }
         }
 
         public void Load(BinaryReader stream, M2.Format version)

@@ -182,7 +182,7 @@ namespace m2lib_csharp.m2
             _legacyRanges.Add(new Range());
         }
 
-        public void InitializeCasted<TG>(M2Track<TG> track) where TG : new()
+        public void CopyCasted<TG>(M2Track<TG> track) where TG : new()
         {
             InterpolationType = (InterpolationTypes) track.InterpolationType;
             GlobalSequence = track.GlobalSequence;
