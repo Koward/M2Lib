@@ -6,20 +6,20 @@ using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
-    public class TextureTransform : IAnimated
+    public class M2TextureTransform : IAnimated
     {
-        public Track<C3Vector> Translation { get; set; } = new Track<C3Vector>();
-        public Track<C4Quaternion> Rotation { get; set; } = new Track<C4Quaternion>();
-        public Track<C3Vector> Scale { get; set; } = new Track<C3Vector>();
+        public M2Track<C3Vector> Translation { get; set; } = new M2Track<C3Vector>();
+        public M2Track<C4Quaternion> Rotation { get; set; } = new M2Track<C4Quaternion>();
+        public M2Track<C3Vector> Scale { get; set; } = new M2Track<C3Vector>();
 
-        private Track<CompQuat> CompressedRotation { get; set; }
+        private M2Track<CompQuat> CompressedRotation { get; set; }
 
         public void Load(BinaryReader stream, M2.Format version)
         {
             Translation.Load(stream, version);
             if (version >= M2.Format.LichKing)
             {
-                CompressedRotation = new Track<CompQuat>();
+                CompressedRotation = new M2Track<CompQuat>();
                 CompressedRotation.Load(stream, version);
             }
             else
@@ -33,7 +33,7 @@ namespace m2lib_csharp.m2
             Translation.Save(stream, version);
             if (version >= M2.Format.LichKing)
             {
-                CompressedRotation = new Track<CompQuat>();
+                CompressedRotation = new M2Track<CompQuat>();
                 CompressedRotation.InitializeCasted(Rotation);
                 CompressedRotation.Save(stream, version);
             }
@@ -74,7 +74,7 @@ namespace m2lib_csharp.m2
         ///     files...
         /// </summary>
         /// <param name="sequences"></param>
-        public void SetSequences(IReadOnlyList<Sequence> sequences)
+        public void SetSequences(IReadOnlyList<M2Sequence> sequences)
         {
             Translation.SequenceBackRef = sequences;
             Rotation.SequenceBackRef = sequences;

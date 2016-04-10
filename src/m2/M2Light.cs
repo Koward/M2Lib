@@ -5,18 +5,18 @@ using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
-    public class Light : IAnimated
+    public class M2Light : IAnimated
     {
         public LightType Type { get; set; } = LightType.Directional;
         public short Bone { get; set; } = -1;
         public C3Vector Position { get; set; } = new C3Vector();
-        public Track<C3Vector> AmbientColor { get; set; } = new Track<C3Vector>(); 
-        public Track<float> AmbientIntensity { get; set; } = new Track<float>(); 
-        public Track<C3Vector> DiffuseColor { get; set; } = new Track<C3Vector>(); 
-        public Track<float> DiffuseIntensity { get; set; } = new Track<float>(); 
-        public Track<float> AttenuationStart { get; set; } = new Track<float>(); 
-        public Track<float> AttenuationEnd { get; set; } = new Track<float>(); 
-        public Track<byte> Unknown { get; set; } = new Track<byte>(); 
+        public M2Track<C3Vector> AmbientColor { get; set; } = new M2Track<C3Vector>(); 
+        public M2Track<float> AmbientIntensity { get; set; } = new M2Track<float>(); 
+        public M2Track<C3Vector> DiffuseColor { get; set; } = new M2Track<C3Vector>(); 
+        public M2Track<float> DiffuseIntensity { get; set; } = new M2Track<float>(); 
+        public M2Track<float> AttenuationStart { get; set; } = new M2Track<float>(); 
+        public M2Track<float> AttenuationEnd { get; set; } = new M2Track<float>(); 
+        public M2Track<byte> Unknown { get; set; } = new M2Track<byte>(); 
 
         public enum LightType : ushort
         {
@@ -74,7 +74,7 @@ namespace m2lib_csharp.m2
             Unknown.SaveContent(stream, version);
         }
 
-        public void SetSequences(IReadOnlyList<Sequence> sequences)
+        public void SetSequences(IReadOnlyList<M2Sequence> sequences)
         {
             AmbientColor.SequenceBackRef = sequences;
             AmbientIntensity.SequenceBackRef = sequences;

@@ -4,7 +4,7 @@ using m2lib_csharp.interfaces;
 
 namespace m2lib_csharp.m2
 {
-    public class Material : IMarshalable
+    public class M2Material : IMarshalable
     {
         public enum BlendingMode : ushort
         {

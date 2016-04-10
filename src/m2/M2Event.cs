@@ -6,13 +6,13 @@ using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
-    public class Event : IAnimated
+    public class M2Event : IAnimated
     {
         public string Identifier { get; set; }
         public int Data { get; set; }
         public int Bone { get; set; }
         public C3Vector Position { get; set; } = new C3Vector();
-        public TrackBase Enabled { get; set; } = new TrackBase();
+        public M2TrackBase Enabled { get; set; } = new M2TrackBase();
 
         public void Load(BinaryReader stream, M2.Format version)
         {
@@ -44,7 +44,7 @@ namespace m2lib_csharp.m2
             Enabled.SaveContent(stream, version);
         }
 
-        public void SetSequences(IReadOnlyList<Sequence> sequences)
+        public void SetSequences(IReadOnlyList<M2Sequence> sequences)
         {
             Enabled.SequenceBackRef = sequences;
         }

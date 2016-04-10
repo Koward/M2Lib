@@ -41,53 +41,53 @@ namespace m2lib_csharp.m2
             CameraRelated = 0x0100
         }
 
-        private readonly ArrayRef<short> _boneLookup = new ArrayRef<short>();
-        private readonly ArrayRef<Bone> _bones = new ArrayRef<Bone>();
-        private readonly ArrayRef<C3Vector> _boundingNormals = new ArrayRef<C3Vector>();
-        private readonly ArrayRef<ushort> _boundingTriangles = new ArrayRef<ushort>();
-        private readonly ArrayRef<C3Vector> _boundingVertices = new ArrayRef<C3Vector>();
-        private readonly ArrayRef<int> _globalSequences = new ArrayRef<int>();
-        private readonly ArrayRef<Material> _materials = new ArrayRef<Material>();
-        private readonly ArrayRef<Sequence> _sequences = new ArrayRef<Sequence>();
-        private readonly ArrayRef<SubmeshAnimation> _submeshAnimations = new ArrayRef<SubmeshAnimation>();
-        private readonly ArrayRef<short> _texLookup = new ArrayRef<short>();
-        private readonly ArrayRef<Texture> _textures = new ArrayRef<Texture>();
-        private readonly ArrayRef<TextureTransform> _textureTransforms = new ArrayRef<TextureTransform>();
-        private readonly ArrayRef<short> _texUnitLookup = new ArrayRef<short>();
-        private readonly ArrayRef<short> _transLookup = new ArrayRef<short>();
-        private readonly ArrayRef<Transparency> _transparencies = new ArrayRef<Transparency>();
-        private readonly ArrayRef<short> _uvAnimLookup = new ArrayRef<short>();
-        private readonly ArrayRef<Vertex> _vertices = new ArrayRef<Vertex>();
-        private readonly ArrayRef<View> _views = new ArrayRef<View>();
-        private readonly ArrayRef<Attachment> _attachments = new ArrayRef<Attachment>();
-        private readonly ArrayRef<Event> _events = new ArrayRef<Event>();
-        private readonly ArrayRef<Light> _lights = new ArrayRef<Light>();
-        private readonly ArrayRef<Camera> _cameras = new ArrayRef<Camera>();
-        private ArrayRef<byte> _name = new ArrayRef<byte>();
+        private readonly M2Array<short> _boneLookup = new M2Array<short>();
+        private readonly M2Array<M2Bone> _bones = new M2Array<M2Bone>();
+        private readonly M2Array<C3Vector> _boundingNormals = new M2Array<C3Vector>();
+        private readonly M2Array<ushort> _boundingTriangles = new M2Array<ushort>();
+        private readonly M2Array<C3Vector> _boundingVertices = new M2Array<C3Vector>();
+        private readonly M2Array<int> _globalSequences = new M2Array<int>();
+        private readonly M2Array<M2Material> _materials = new M2Array<M2Material>();
+        private readonly M2Array<M2Sequence> _sequences = new M2Array<M2Sequence>();
+        private readonly M2Array<M2Color> _colors = new M2Array<M2Color>();
+        private readonly M2Array<short> _texLookup = new M2Array<short>();
+        private readonly M2Array<M2Texture> _textures = new M2Array<M2Texture>();
+        private readonly M2Array<M2TextureTransform> _textureTransforms = new M2Array<M2TextureTransform>();
+        private readonly M2Array<short> _texUnitLookup = new M2Array<short>();
+        private readonly M2Array<short> _transLookup = new M2Array<short>();
+        private readonly M2Array<M2TextureWeight> _transparencies = new M2Array<M2TextureWeight>();
+        private readonly M2Array<short> _uvAnimLookup = new M2Array<short>();
+        private readonly M2Array<M2Vertex> _vertices = new M2Array<M2Vertex>();
+        private readonly M2Array<M2SkinProfile> _views = new M2Array<M2SkinProfile>();
+        private readonly M2Array<M2Attachment> _attachments = new M2Array<M2Attachment>();
+        private readonly M2Array<M2Event> _events = new M2Array<M2Event>();
+        private readonly M2Array<M2Light> _lights = new M2Array<M2Light>();
+        private readonly M2Array<M2Camera> _cameras = new M2Array<M2Camera>();
+        private M2Array<byte> _name = new M2Array<byte>();
 
         public Format Version { get; set; } = Format.Draenor;
 
         public string Name
         {
             get { return _name.ToNameString(); }
-            set { _name = new ArrayRef<byte>(value); }
+            set { _name = new M2Array<byte>(value); }
         }
 
         public GlobalFlags GlobalModelFlags { get; set; } = 0;
         public List<int> GlobalSequences => _globalSequences;
-        public List<Sequence> Sequences => _sequences;
-        public List<Bone> Bones => _bones;
-        public List<Vertex> Vertices => _vertices;
-        public List<View> Views => _views;
-        public List<SubmeshAnimation> SubmeshAnimations => _submeshAnimations;
-        public List<Texture> Textures => _textures;
-        public List<Transparency> Transparencies => _transparencies;
-        public List<TextureTransform> TextureTransforms => _textureTransforms;
-        public List<Material> Materials => _materials;
-        public List<Attachment> Attachments => _attachments;
-        public List<Event> Events => _events;
-        public List<Light> Lights => _lights;
-        public List<Camera> Cameras => _cameras;
+        public List<M2Sequence> Sequences => _sequences;
+        public List<M2Bone> Bones => _bones;
+        public List<M2Vertex> Vertices => _vertices;
+        public List<M2SkinProfile> Views => _views;
+        public List<M2Color> Colors => _colors;
+        public List<M2Texture> Textures => _textures;
+        public List<M2TextureWeight> Transparencies => _transparencies;
+        public List<M2TextureTransform> TextureTransforms => _textureTransforms;
+        public List<M2Material> Materials => _materials;
+        public List<M2Attachment> Attachments => _attachments;
+        public List<M2Event> Events => _events;
+        public List<M2Light> Lights => _lights;
+        public List<M2Camera> Cameras => _cameras;
 
         //Data referenced by Views. TODO See if can be generated on the fly.
         public List<short> BoneLookup => _boneLookup;
@@ -133,7 +133,7 @@ namespace m2lib_csharp.m2
             uint nViews = 0; //For Lich King external views system.
             if (version < Format.LichKing) _views.Load(stream, version);
             else nViews = stream.ReadUInt32();
-            _submeshAnimations.Load(stream, version);
+            _colors.Load(stream, version);
             _textures.Load(stream, version);
             _transparencies.Load(stream, version);
             _textureTransforms.Load(stream, version);
@@ -156,6 +156,7 @@ namespace m2lib_csharp.m2
             _events.Load(stream, version);
             _lights.Load(stream, version);
             _cameras.Load(stream, version);
+            SkipLookupParsing(stream, version);
 
             // LOAD REFERENCED CONTENT
             _name.LoadContent(stream);
@@ -170,16 +171,16 @@ namespace m2lib_csharp.m2
             {
                 for (var i = 0; i < nViews; i++)
                 {
-                    var view = new View();
+                    var view = new M2SkinProfile();
                     var skinFile = new BinaryReader(
-                        new FileStream(View.SkinFileName(((FileStream) stream.BaseStream).Name, i), FileMode.Open));
+                        new FileStream(M2SkinProfile.SkinFileName(((FileStream) stream.BaseStream).Name, i), FileMode.Open));
                     view.Load(skinFile, version);
                     view.LoadContent(skinFile, version);
                     _views.Add(view);
                 }
             }
             //VIEWS END
-            _submeshAnimations.LoadContent(stream, version);
+            _colors.LoadContent(stream, version);
             _textures.LoadContent(stream, version);
             _transparencies.LoadContent(stream, version);
             _textureTransforms.LoadContent(stream, version);
@@ -213,21 +214,21 @@ namespace m2lib_csharp.m2
             stream.Write((uint) GlobalModelFlags);
             _globalSequences.Save(stream, version);
             _sequences.Save(stream, version);
-            var sequenceLookup = Sequence.GenerateAnimationLookup(_sequences);
+            var sequenceLookup = M2Sequence.GenerateAnimationLookup(_sequences);
             sequenceLookup.Save(stream, version);
-            ArrayRef<short> playableLookup = null;
-            if (version < Format.LichKing) playableLookup = Sequence.GenerateAnimationLookup(_sequences);
+            M2Array<short> playableLookup = null;
+            if (version < Format.LichKing) playableLookup = M2Sequence.GenerateAnimationLookup(_sequences);
             _bones.Save(stream, version);
-            var keyBoneLookup = Bone.GenerateKeyBoneLookup(_bones);
+            var keyBoneLookup = M2Bone.GenerateKeyBoneLookup(_bones);
             keyBoneLookup.Save(stream, version);
             _vertices.Save(stream, version);
             if (version < Format.LichKing) _views.Save(stream, version);
             else stream.Write(_views.Count);
-            _submeshAnimations.Save(stream, version);
+            _colors.Save(stream, version);
             _textures.Save(stream, version);
             _transparencies.Save(stream, version);
             _textureTransforms.Save(stream, version);
-            var texReplaceLookup = Texture.GenerateTexReplaceLookup(_textures);
+            var texReplaceLookup = M2Texture.GenerateTexReplaceLookup(_textures);
             texReplaceLookup.Save(stream, version);
             _materials.Save(stream, version);
             _boneLookup.Save(stream, version);
@@ -243,11 +244,13 @@ namespace m2lib_csharp.m2
             _boundingVertices.Save(stream, version);
             _boundingNormals.Save(stream, version);
             _attachments.Save(stream, version);
-            var attachmentLookup = Attachment.GenerateAttachmentLookup(_attachments);
+            var attachmentLookup = M2Attachment.GenerateLookup(_attachments);
             attachmentLookup.Save(stream, version);
             _events.Save(stream, version);
             _lights.Save(stream, version);
             _cameras.Save(stream, version);
+            var cameraLookup = M2Camera.GenerateLookup(_cameras);
+            cameraLookup.Save(stream, version);
 
             // SAVE REFERENCED CONTENT
             _name.SaveContent(stream);
@@ -275,13 +278,13 @@ namespace m2lib_csharp.m2
                 for (var i = 0; i < _views.Count; i++)
                 {
                     var skinFile = new BinaryWriter(
-                        new FileStream(View.SkinFileName(((FileStream) stream.BaseStream).Name, i), FileMode.Create));
+                        new FileStream(M2SkinProfile.SkinFileName(((FileStream) stream.BaseStream).Name, i), FileMode.Create));
                     _views[i].Save(skinFile, version);
                     _views[i].SaveContent(skinFile, version);
                 }
             }
             //VIEWS END
-            _submeshAnimations.SaveContent(stream, version);
+            _colors.SaveContent(stream, version);
             _textures.SaveContent(stream, version);
             _transparencies.SaveContent(stream, version);
             _textureTransforms.SaveContent(stream, version);
@@ -300,12 +303,13 @@ namespace m2lib_csharp.m2
             _events.SaveContent(stream, version);
             _lights.SaveContent(stream, version);
             _cameras.SaveContent(stream, version);
+            cameraLookup.SaveContent(stream, version);
         }
 
         private void SetSequences()
         {
             _bones.SetSequences(_sequences);
-            _submeshAnimations.SetSequences(_sequences);
+            _colors.SetSequences(_sequences);
             _transparencies.SetSequences(_sequences);
             _textureTransforms.SetSequences(_sequences);
             _attachments.SetSequences(_sequences);
@@ -321,7 +325,7 @@ namespace m2lib_csharp.m2
         /// <param name="version"></param>
         private void SkipLookupParsing(BinaryReader stream, Format version)
         {
-            new ArrayRef<short>().Load(stream, version);
+            new M2Array<short>().Load(stream, version);
         }
     }
 }

@@ -4,7 +4,7 @@ using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
-    public class Vertex : IMarshalable
+    public class M2Vertex : IMarshalable
     {
         public C3Vector Position { get; set; } = new C3Vector();
         public byte[] BoneWeights { get; set; } = new byte[4];

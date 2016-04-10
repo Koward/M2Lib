@@ -5,7 +5,7 @@ using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
-    public class Submesh : IMarshalable
+    public class M2SkinSection : IMarshalable
     {
         public ushort SubmeshId { get; set; }
         public ushort Level { get; set; }
@@ -48,6 +48,8 @@ namespace m2lib_csharp.m2
 
         public void Save(BinaryWriter stream, M2.Format version)
         {
+            if (version < M2.Format.Cataclysm && BoneInfluences == 0) BoneInfluences = 1; //@author Mjollna
+
             if (version >= M2.Format.Cataclysm)
             {
                 stream.Write(SubmeshId);

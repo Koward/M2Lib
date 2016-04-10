@@ -8,7 +8,7 @@ using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
-    public class Sequence : IMarshalable
+    public class M2Sequence : IMarshalable
     {
         [Flags]
         public enum SequenceFlags
@@ -130,16 +130,16 @@ namespace m2lib_csharp.m2
         /// </summary>
         /// <param name="sequences">List of sequences to navigate in.</param>
         /// <returns></returns>
-        public Sequence GetRealSequence(IReadOnlyList<Sequence> sequences)
+        public M2Sequence GetRealSequence(IReadOnlyList<M2Sequence> sequences)
         {
             return Flags.HasFlag(SequenceFlags.HasNext) ? sequences[AliasNext].GetRealSequence(sequences) : this;
         }
 
         // ANIMATION LOOKUP
 
-        public static ArrayRef<short> GenerateAnimationLookup(ArrayRef<Sequence> sequences)
+        public static M2Array<short> GenerateAnimationLookup(M2Array<M2Sequence> sequences)
         {
-            var lookup = new ArrayRef<short>();
+            var lookup = new M2Array<short>();
             var maxId = sequences.Max(x => x.AnimationId);
             for (short i = 0; i <= maxId; i++) lookup.Add(-1);
             for (short i = 0; i < sequences.Count; i++)
@@ -164,10 +164,10 @@ namespace m2lib_csharp.m2
             }
         }
 
-        public static ArrayRef<PlayableRecord> GeneratePlayableLookup(IReadOnlyList<short> animLookup)
+        public static M2Array<PlayableRecord> GeneratePlayableLookup(IReadOnlyList<short> animLookup)
         {
             const int numberOfActions = 226; // From 2.4.3 DB/AnimationData
-            var lookup = new ArrayRef<PlayableRecord>();
+            var lookup = new M2Array<PlayableRecord>();
             for (ushort i = 0; i <= numberOfActions; i++)
             {
                 var record = new PlayableRecord(GetRealId(i, animLookup), 0);

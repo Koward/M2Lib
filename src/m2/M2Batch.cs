@@ -6,7 +6,7 @@ namespace m2lib_csharp.m2
     /// <summary>
     ///     Called M2Batch in the WoW source
     /// </summary>
-    public class TextureUnit : IMarshalable
+    public class M2Batch : IMarshalable
     {
         public byte Flags { get; set; }
         public byte Flags2 { get; set; }
@@ -41,6 +41,15 @@ namespace m2lib_csharp.m2
 
         public void Save(BinaryWriter stream, M2.Format version = M2.Format.Useless)
         {
+            if (version < M2.Format.Cataclysm)//@author Morfium
+            {
+                if (!(Flags == 0 || Flags == 16))
+                {
+                    OpCount = 1;
+                    Flags = 16;
+                }
+                if (ShaderId > 50) ShaderId = 1;
+            }
             stream.Write(Flags);
             stream.Write(Flags2);
             stream.Write(ShaderId);

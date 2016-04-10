@@ -3,7 +3,7 @@ using m2lib_csharp.interfaces;
 
 namespace m2lib_csharp.m2
 {
-    public class ShadowBatch : IMarshalable
+    public class M2ShadowBatch : IMarshalable
     {
         private ushort _unknown1;
         public byte Flags { get; set; }

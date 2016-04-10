@@ -5,6 +5,6 @@ namespace m2lib_csharp.interfaces
 {
     public interface IAnimated : IReferencer
     {
-        void SetSequences(IReadOnlyList<Sequence> sequences);
+        void SetSequences(IReadOnlyList<M2Sequence> sequences);
     }
 }

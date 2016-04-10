@@ -6,16 +6,15 @@ using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
-    public class View : IReferencer
+    public class M2SkinProfile : IReferencer
     {
-        //TODO change types (ushort, placeholder) to real ones
-        public ArrayRef<ushort> Indices { get; set; } = new ArrayRef<ushort>();
-        public ArrayRef<ushort> Triangles { get; set; } = new ArrayRef<ushort>();
-        public ArrayRef<uint> Properties { get; set; } = new ArrayRef<uint>();
-        public ArrayRef<Submesh> Submeshes { get; set; } = new ArrayRef<Submesh>();
-        public ArrayRef<TextureUnit> TextureUnits { get; set; } = new ArrayRef<TextureUnit>();
+        public M2Array<ushort> Indices { get; set; } = new M2Array<ushort>();
+        public M2Array<ushort> Triangles { get; set; } = new M2Array<ushort>();
+        public M2Array<uint> Properties { get; set; } = new M2Array<uint>();
+        public M2Array<M2SkinSection> Submeshes { get; set; } = new M2Array<M2SkinSection>();
+        public M2Array<M2Batch> TextureUnits { get; set; } = new M2Array<M2Batch>();
         public uint Bones { get; set; }
-        public ArrayRef<ShadowBatch> ShadowBatches { get; set; } = new ArrayRef<ShadowBatch>();
+        public M2Array<M2ShadowBatch> ShadowBatches { get; set; } = new M2Array<M2ShadowBatch>();
 
         public void Load(BinaryReader stream, M2.Format version)
         {

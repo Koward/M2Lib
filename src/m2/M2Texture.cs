@@ -6,7 +6,7 @@ using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
-    public class Texture : IReferencer
+    public class M2Texture : IReferencer
     {
         [Flags]
         public enum TextureFlags : uint
@@ -38,40 +38,42 @@ namespace m2lib_csharp.m2
             GuildEmblem = 18
         }
 
-        private ArrayRef<byte> _nameArrayRef = new ArrayRef<byte>();
+        private M2Array<byte> _name = new M2Array<byte>();
         public TextureType Type { get; set; }
         public TextureFlags Flags { get; set; }
-        public string Name { get; set; } = "";
+        public string Name
+        {
+            get { return _name.ToNameString(); }
+            set { _name = new M2Array<byte>(value); }
+        }
 
         public void Load(BinaryReader stream, M2.Format version)
         {
             Type = (TextureType) stream.ReadUInt32();
             Flags = (TextureFlags) stream.ReadUInt32();
-            _nameArrayRef.Load(stream, version);
+            _name.Load(stream, version);
         }
 
         public void Save(BinaryWriter stream, M2.Format version)
         {
             stream.Write((uint) Type);
             stream.Write((uint) Flags);
-            _nameArrayRef = new ArrayRef<byte>(Name);
-            _nameArrayRef.Save(stream, version);
+            _name.Save(stream, version);
         }
 
         public void LoadContent(BinaryReader stream, M2.Format version)
         {
-            _nameArrayRef.LoadContent(stream, version);
-            Name = _nameArrayRef.ToNameString();
+            _name.LoadContent(stream, version);
         }
 
         public void SaveContent(BinaryWriter stream, M2.Format version)
         {
-            _nameArrayRef.SaveContent(stream, version);
+            _name.SaveContent(stream, version);
         }
 
-        public static ArrayRef<short> GenerateTexReplaceLookup(ArrayRef<Texture> textures)
+        public static M2Array<short> GenerateTexReplaceLookup(M2Array<M2Texture> textures)
         {
-            var lookup = new ArrayRef<short>();
+            var lookup = new M2Array<short>();
             var maxId = (short) textures.Max(x => x.Type);
             for (short i = 0; i <= maxId; i++) lookup.Add(-1);
             for (short i = 0; i < textures.Count; i++)

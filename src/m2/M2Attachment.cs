@@ -6,12 +6,12 @@ using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
-    public class Attachment : IAnimated
+    public class M2Attachment : IAnimated
     {
         public uint Id { get; set; }
         public uint Bone { get; set; }
         public C3Vector Position { get; set; } = new C3Vector();
-        public Track<bool> AnimateAttached { get; set; } = new Track<bool>();
+        public M2Track<bool> AnimateAttached { get; set; } = new M2Track<bool>();
 
         public void Load(BinaryReader stream, M2.Format version)
         {
@@ -28,8 +28,8 @@ namespace m2lib_csharp.m2
             Position.Save(stream, version);
             if (version < M2.Format.LichKing && AnimateAttached.Timestamps.Count == 0)
             {
-                AnimateAttached.Timestamps.Add(new ArrayRef<uint> {0});
-                AnimateAttached.Values.Add(new ArrayRef<bool> {true});
+                AnimateAttached.Timestamps.Add(new M2Array<uint> {0});
+                AnimateAttached.Values.Add(new M2Array<bool> {true});
             }
             AnimateAttached.Save(stream, version);
         }
@@ -44,14 +44,14 @@ namespace m2lib_csharp.m2
             AnimateAttached.SaveContent(stream, version);
         }
 
-        public void SetSequences(IReadOnlyList<Sequence> sequences)
+        public void SetSequences(IReadOnlyList<M2Sequence> sequences)
         {
             AnimateAttached.SequenceBackRef = sequences;
         }
 
-        public static ArrayRef<short> GenerateAttachmentLookup(ArrayRef<Attachment> attachments)
+        public static M2Array<short> GenerateLookup(M2Array<M2Attachment> attachments)
         {
-            var lookup = new ArrayRef<short>();
+            var lookup = new M2Array<short>();
             if (attachments.Count == 0) return lookup;
             var maxId = attachments.Max(x => x.Id);
             for (short i = 0; i <= maxId; i++) lookup.Add(-1);

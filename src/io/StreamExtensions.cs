@@ -12,7 +12,7 @@ namespace m2lib_csharp.io
     /// </summary>
     public static class StreamExtensions
     {
-        public static T ReadGeneric<T>(this BinaryReader stream, M2.Format version, IReadOnlyList<Sequence> sequences)
+        public static T ReadGeneric<T>(this BinaryReader stream, M2.Format version, IReadOnlyList<M2Sequence> sequences)
             where T : new()
         {
             T item;
@@ -41,7 +41,7 @@ namespace m2lib_csharp.io
 
 
         public static void WriteGeneric<T>(this BinaryWriter stream, M2.Format version,
-            IReadOnlyList<Sequence> sequences, T item) where T : new()
+            IReadOnlyList<M2Sequence> sequences, T item) where T : new()
         {
             if (typeof (IMarshalable).IsAssignableFrom(typeof (T)))
             {

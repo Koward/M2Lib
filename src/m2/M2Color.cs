@@ -5,10 +5,10 @@ using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
-    public class SubmeshAnimation : IAnimated
+    public class M2Color : IAnimated
     {
-        public Track<C3Vector> Color { get; set; } = new Track<C3Vector>();
-        public Track<ushort> Alpha { get; set; } = new Track<ushort>(); //TODO fixed16
+        public M2Track<C3Vector> Color { get; set; } = new M2Track<C3Vector>();
+        public M2Track<Fixed16> Alpha { get; set; } = new M2Track<Fixed16>();
 
         public void Load(BinaryReader stream, M2.Format version)
         {
@@ -34,7 +34,7 @@ namespace m2lib_csharp.m2
             Alpha.SaveContent(stream, version);
         }
 
-        public void SetSequences(IReadOnlyList<Sequence> sequences)
+        public void SetSequences(IReadOnlyList<M2Sequence> sequences)
         {
             Color.SequenceBackRef = sequences;
             Alpha.SequenceBackRef = sequences;
