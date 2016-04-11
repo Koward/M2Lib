@@ -17,8 +17,8 @@ namespace m2lib_csharp.m2
             Bezier = 3
         }
 
-        private M2Array<Range> _legacyRanges;
-        private M2Array<uint> _legacyTimestamps;
+        private readonly M2Array<Range> _legacyRanges = new M2Array<Range>();
+        private readonly M2Array<uint> _legacyTimestamps = new M2Array<uint>();
 
         public InterpolationTypes InterpolationType { get; set; }
         public short GlobalSequence { get; set; } = -1;
@@ -26,40 +26,38 @@ namespace m2lib_csharp.m2
 
         // Used only to read 1 timeline formats and to open correct .anim files when needed.
         // Legacy fields are automatically converted to standard ones in methods.
-        public IReadOnlyList<M2Sequence> SequenceBackRef { private get; set; }
+        public IReadOnlyList<M2Sequence> SequenceBackRef { set; get; }
+
 
         public void Load(BinaryReader stream, M2.Format version)
         {
             Debug.Assert(version != M2.Format.Useless);
-            InterpolationType = (InterpolationTypes) stream.ReadUInt16();
+            InterpolationType = (InterpolationTypes)stream.ReadUInt16();
             GlobalSequence = stream.ReadInt16();
             if (version >= M2.Format.LichKing)
             {
+                Timestamps.SetSequences(SequenceBackRef);
                 Timestamps.Load(stream, version);
             }
             else
             {
-                _legacyRanges.Load(stream, version);
-                _legacyTimestamps.Load(stream, version);
+                LegacyLoad(stream, version);
             }
         }
 
         public void Save(BinaryWriter stream, M2.Format version)
         {
             Debug.Assert(version != M2.Format.Useless);
-            stream.Write((ushort) InterpolationType);
+            stream.Write((ushort)InterpolationType);
             stream.Write(GlobalSequence);
             if (version >= M2.Format.LichKing)
             {
+                Timestamps.SetSequences(SequenceBackRef);
                 Timestamps.Save(stream, version);
             }
             else
             {
-                _legacyRanges = new M2Array<Range>();
-                _legacyTimestamps = new M2Array<uint>();
-                GenerateLegacyFields();
-                _legacyRanges.Save(stream, version);
-                _legacyTimestamps.Save(stream, version);
+                LegacySave(stream, version);
             }
         }
 
@@ -72,21 +70,7 @@ namespace m2lib_csharp.m2
             }
             else
             {
-                Debug.Assert(SequenceBackRef != null);
-                _legacyRanges.LoadContent(stream, version);
-                _legacyTimestamps.LoadContent(stream, version);
-                foreach (var seq in SequenceBackRef)
-                {
-                    var validIndexes = Enumerable.Range(0, _legacyTimestamps.Count)
-                        .Where(
-                            i =>
-                                _legacyTimestamps[i] >= seq.TimeStart &&
-                                _legacyTimestamps[i] <= seq.TimeStart + seq.Length)
-                        .ToList();
-                    var animTimes = new M2Array<uint>();
-                    animTimes.AddRange(_legacyTimestamps.GetRange(validIndexes[0], validIndexes[validIndexes.Count - 1]));
-                    Timestamps.Add(animTimes);
-                }
+                LegacyLoadContent(stream, version);
             }
         }
 
@@ -99,16 +83,18 @@ namespace m2lib_csharp.m2
             }
             else
             {
-                _legacyRanges.SaveContent(stream, version);
-                _legacyTimestamps.SaveContent(stream, version);
+                LegacySaveContent(stream, version);
             }
         }
 
-        private void GenerateLegacyFields()
+        public override string ToString()
         {
-            Debug.Assert(SequenceBackRef != null);
-            _legacyRanges = new M2Array<Range>();
-            _legacyTimestamps = new M2Array<uint>();
+            return $"InterpolationType: {InterpolationType}, GlobalSequence: {GlobalSequence}, " +
+                   $"\nTimestamps: {Timestamps}";
+        }
+
+        private void LegacySave(BinaryWriter stream, M2.Format version)
+        {
             if (GlobalSequence >= 0)
             {
                 _legacyTimestamps.AddRange(Timestamps[0]);
@@ -129,14 +115,24 @@ namespace m2lib_csharp.m2
                 _legacyTimestamps.AddRange(Timestamps[0]);
             }
             GenerateLegacyRanges();
+            _legacyRanges.Save(stream, version);
+            _legacyTimestamps.Save(stream, version);
+        }
+
+        private void LegacySaveContent(BinaryWriter stream, M2.Format version)
+        {
+
+            _legacyRanges.SetSequences(SequenceBackRef);
+            _legacyTimestamps.SetSequences(SequenceBackRef);
+            _legacyRanges.SaveContent(stream, version);
+            _legacyTimestamps.SaveContent(stream, version);
         }
 
         /// <summary>
         ///     Pre : Sequences set with TimeStart, SequenceBackRef set, LegacyTimestamps computed
         /// </summary>
-        private void GenerateLegacyRanges()//TODO Check if output ranges are okay
+        private void GenerateLegacyRanges()
         {
-            //if (_legacyTimestamps.Count == 0) return;
             foreach (var seq in SequenceBackRef)
             {
                 var indexesPrevious =
@@ -151,16 +147,57 @@ namespace m2lib_csharp.m2
                 uint startIndex;
                 uint endIndex;
                 if (indexesPrevious.Count == 0) startIndex = 0;
-                else startIndex = (uint) indexesPrevious[indexesPrevious.Count - 1]; // Maximum
+                else startIndex = (uint)indexesPrevious[indexesPrevious.Count - 1]; // Maximum
 
                 if (indexesNext.Count == 0)
-                    endIndex = (uint) (_legacyTimestamps.Count - 1);
-                        // We know there more than 1 element (see line 1) so it's >= 0
-                else endIndex = (uint) indexesNext[0]; // Minimum
+                    endIndex = (uint)(_legacyTimestamps.Count - 1);
+                // We know there more than 1 element (see line 1) so it's >= 0
+                else endIndex = (uint)indexesNext[0]; // Minimum
 
                 _legacyRanges.Add(new Range(startIndex, endIndex));
             }
             _legacyRanges.Add(new Range());
+        }
+
+        private void LegacyLoad(BinaryReader stream, M2.Format version)
+        {
+            Debug.Assert(SequenceBackRef != null, "SequenceBackRef is null in M2TrackBase");
+            _legacyRanges.SetSequences(SequenceBackRef);
+            _legacyTimestamps.SetSequences(SequenceBackRef);
+            _legacyRanges.Load(stream, version);
+            _legacyTimestamps.Load(stream, version);
+        }
+
+        private void LegacyLoadContent(BinaryReader stream, M2.Format version)
+        {
+            _legacyRanges.LoadContent(stream, version);
+            _legacyTimestamps.LoadContent(stream, version);
+            if (_legacyTimestamps.Count == 0) return;
+            if (GlobalSequence >= 0)
+            {
+                Timestamps.Add(_legacyTimestamps);
+            }
+            else
+            {
+                foreach (var seq in SequenceBackRef)
+                {
+                    var validIndexes = Enumerable.Range(0, _legacyTimestamps.Count)
+                        .Where(
+                            i =>
+                                _legacyTimestamps[i] >= seq.TimeStart &&
+                                _legacyTimestamps[i] <= seq.TimeStart + seq.Length)
+                        .ToList();
+
+                    var animTimes = new M2Array<uint>();
+                    if (validIndexes.Count > 0)
+                    {
+                        var firstIndex = validIndexes[0];
+                        var lastIndex = validIndexes[validIndexes.Count - 1];
+                        animTimes.AddRange(_legacyTimestamps.GetRange(firstIndex, lastIndex - firstIndex + 1));
+                    }
+                    Timestamps.Add(animTimes);
+                }
+            }
         }
     }
 }

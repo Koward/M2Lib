@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using m2lib_csharp.m2;
 using m2lib_csharp.types;
@@ -10,11 +11,15 @@ namespace m2lib_csharp
         public static void Main(string[] args)
         {
             Debug.WriteLine("Debug application for M2Lib");
-            var reader = new BinaryReader(new FileStream("Character/Human/Male/HumanMale_HD.m2", FileMode.Open));
+            //var reader = new BinaryReader(new FileStream("Character/Human/Male/HumanMale_HD.m2", FileMode.Open));
+            var reader = new BinaryReader(new FileStream("LichKing/Frog.m2", FileMode.Open));
             var model = new M2();
             model.Load(reader);
             reader.Close();
-            Debug.WriteLine(model.Textures[0].Name);
+            //Debug.WriteLine(model.Bones[0]);
+            var writer = new BinaryWriter(new FileStream("Classic/Frog.m2", FileMode.Create));
+            model.Save(writer, M2.Format.BurningCrusade);
+            writer.Close();
             /*
             var point = new FixedPoint(0, 15);
             point.Bits[14] = true;

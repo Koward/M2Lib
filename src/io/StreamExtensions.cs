@@ -19,7 +19,7 @@ namespace m2lib_csharp.io
             if (typeof (IMarshalable).IsAssignableFrom(typeof (T)))
             {
                 item = new T();
-                if (typeof (IAnimated).IsAssignableFrom(typeof (T))) ((IAnimated) item).SetSequences(sequences);
+                //if (typeof (IAnimated).IsAssignableFrom(typeof (T))) ((IAnimated) item).SetSequences(sequences);
                 ((IMarshalable) item).Load(stream, version);
             }
             else if (typeof (bool).IsAssignableFrom(typeof (T)))

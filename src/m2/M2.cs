@@ -18,7 +18,7 @@ namespace m2lib_csharp.m2
         /// </summary>
         public enum Format
         {
-            Useless = -1,
+            Useless = 0xCAFE,
             Classic = 256,
             BurningCrusade = 260,
             LateBurningCrusade = 263,
@@ -105,10 +105,10 @@ namespace m2lib_csharp.m2
             GlobalModelFlags = (GlobalFlags) stream.ReadUInt32();
             GlobalSequences.Load(stream, version);
             Sequences.Load(stream, version);
-            SkipLookupParsing(stream, version);
-            if (version < Format.LichKing) SkipLookupParsing(stream, version);
+            SkipArrayParsing(stream, version);
+            if (version < Format.LichKing) SkipArrayParsing(stream, version);
             Bones.Load(stream, version);
-            SkipLookupParsing(stream, version);
+            SkipArrayParsing(stream, version);
             Vertices.Load(stream, version);
             uint nViews = 0; //For Lich King external views system.
             if (version < Format.LichKing) Views.Load(stream, version);
@@ -116,8 +116,9 @@ namespace m2lib_csharp.m2
             Colors.Load(stream, version);
             Textures.Load(stream, version);
             Transparencies.Load(stream, version);
+            if(version < Format.LichKing) SkipArrayParsing(stream, version);//Unknown Ref
             TextureTransforms.Load(stream, version);
-            SkipLookupParsing(stream, version);
+            SkipArrayParsing(stream, version);
             Materials.Load(stream, version);
             BoneLookup.Load(stream, version);
             TexLookup.Load(stream, version);
@@ -132,11 +133,11 @@ namespace m2lib_csharp.m2
             BoundingVertices.Load(stream, version);
             BoundingNormals.Load(stream, version);
             Attachments.Load(stream, version);
-            SkipLookupParsing(stream, version);
+            SkipArrayParsing(stream, version);
             Events.Load(stream, version);
             Lights.Load(stream, version);
             Cameras.Load(stream, version);
-            SkipLookupParsing(stream, version);
+            SkipArrayParsing(stream, version);
             Ribbons.Load(stream, version);
             Particles.Load(stream, version);
             if(GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.Load(stream, version);
@@ -194,7 +195,6 @@ namespace m2lib_csharp.m2
             if (version == Format.Useless) version = Version;
 
             // SAVE HEADER
-            Debug.Assert(version != Format.Useless);
             stream.Write((uint) version);
             _name.Save(stream, version);
             stream.Write((uint) GlobalModelFlags);
@@ -203,7 +203,11 @@ namespace m2lib_csharp.m2
             var sequenceLookup = M2Sequence.GenerateAnimationLookup(Sequences);
             sequenceLookup.Save(stream, version);
             M2Array<short> playableLookup = null;
-            if (version < Format.LichKing) playableLookup = M2Sequence.GenerateAnimationLookup(Sequences);
+            if (version < Format.LichKing)
+            {
+                playableLookup = M2Sequence.GenerateAnimationLookup(Sequences);
+                playableLookup.Save(stream, version);
+            }
             Bones.Save(stream, version);
             var keyBoneLookup = M2Bone.GenerateKeyBoneLookup(Bones);
             keyBoneLookup.Save(stream, version);
@@ -213,6 +217,7 @@ namespace m2lib_csharp.m2
             Colors.Save(stream, version);
             Textures.Save(stream, version);
             Transparencies.Save(stream, version);
+            if(version < Format.LichKing) stream.Write((long) 0);//Unknown Ref
             TextureTransforms.Save(stream, version);
             var texReplaceLookup = M2Texture.GenerateTexReplaceLookup(Textures);
             texReplaceLookup.Save(stream, version);
@@ -239,7 +244,7 @@ namespace m2lib_csharp.m2
             cameraLookup.Save(stream, version);
             Ribbons.Save(stream, version);
             Particles.Save(stream, version);
-            if(GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.Save(stream, version);
+            if(version >= Format.LichKing && GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.Save(stream, version);
 
             // SAVE REFERENCED CONTENT
             _name.SaveContent(stream);
@@ -312,11 +317,11 @@ namespace m2lib_csharp.m2
         }
 
         /// <summary>
-        ///     Skip the parsing of useless lookups, since lookups are generated at writing.
+        ///     Skip the parsing of useless M2Array (like lookups, since lookups are generated at writing).
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="version"></param>
-        private void SkipLookupParsing(BinaryReader stream, Format version)
+        private void SkipArrayParsing(BinaryReader stream, Format version)
         {
             new M2Array<short>().Load(stream, version);
         }

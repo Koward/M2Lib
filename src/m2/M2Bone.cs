@@ -22,6 +22,15 @@ namespace m2lib_csharp.m2
             HelmetAnimScaled = 0x1000 // set blend_modificator to helmetAnimScalingRec.m_amount for this bone
         }
 
+        public override string ToString()
+        {
+            return $"KeyBoneId: {KeyBoneId}, Flags: {Flags}, ParentBone: {ParentBone}, SubmeshId: {SubmeshId}, " +
+                   $"\nTranslation: {Translation}, " +
+                   $"\nRotation: {Rotation}, \n" +
+                   $"\nScale: {Scale}, " +
+                   $"\nPivot: {Pivot}";
+        }
+
         private readonly ushort[] _unknown = new ushort[2];
         public int KeyBoneId { get; set; } = -1;
         public BoneFlags Flags { get; set; } = 0;
@@ -32,7 +41,7 @@ namespace m2lib_csharp.m2
         public M2Track<C3Vector> Scale { get; set; } = new M2Track<C3Vector>();
         public C3Vector Pivot { get; set; } = new C3Vector();
 
-        private M2Track<CompQuat> _compressedRotation; 
+        private readonly M2Track<CompQuat> _compressedRotation = new M2Track<CompQuat>(); 
 
         public void Load(BinaryReader stream, M2.Format version)
         {
@@ -49,7 +58,6 @@ namespace m2lib_csharp.m2
             Translation.Load(stream, version);
             if (version > M2.Format.Classic)
             {
-                _compressedRotation = new M2Track<CompQuat>();
                 _compressedRotation.Load(stream, version);
             }
             else
@@ -73,8 +81,7 @@ namespace m2lib_csharp.m2
             Translation.Save(stream, version);
             if (version > M2.Format.Classic)
             {
-                _compressedRotation = new M2Track<CompQuat>();
-                _compressedRotation = Rotation.Compress();
+                Rotation.Compress(_compressedRotation);
                 _compressedRotation.Save(stream, version);
             }
             else
@@ -90,7 +97,7 @@ namespace m2lib_csharp.m2
             if (version > M2.Format.Classic)
             {
                 _compressedRotation.LoadContent(stream, version);
-                Rotation = _compressedRotation.Decompress();
+                _compressedRotation.Decompress(Rotation);
             }
             else
                 Rotation.LoadContent(stream, version);
@@ -103,6 +110,7 @@ namespace m2lib_csharp.m2
             Translation.SaveContent(stream, version);
             if (version > M2.Format.Classic)
             {
+                Debug.WriteLine(_compressedRotation);
                 _compressedRotation.SaveContent(stream, version);
             }
             else
@@ -117,8 +125,10 @@ namespace m2lib_csharp.m2
         /// <param name="sequences"></param>
         public void SetSequences(IReadOnlyList<M2Sequence> sequences)
         {
+            Debug.Assert(sequences != null, "Tried to set null sequences.");
             Translation.SequenceBackRef = sequences;
             Rotation.SequenceBackRef = sequences;
+            _compressedRotation.SequenceBackRef = sequences;
             Scale.SequenceBackRef = sequences;
         }
 
@@ -130,7 +140,7 @@ namespace m2lib_csharp.m2
             for (short i = 0; i < bones.Count; i++)
             {
                 var id = bones[i].KeyBoneId;
-                if (lookup[id] == -1) lookup[id] = i;
+                if (id >= 0 && lookup[id] == -1) lookup[id] = i;
             }
             return lookup;
         }

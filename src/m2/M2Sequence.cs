@@ -38,6 +38,8 @@ namespace m2lib_csharp.m2
         public short NextAnimation { get; set; } = -1;
         public ushort AliasNext { get; set; }
 
+        public string Name => AnimationData.IdToName[AnimationId];
+
         /// <summary>
         ///     Used to convert to one-timeline animation style
         /// </summary>
@@ -54,9 +56,9 @@ namespace m2lib_csharp.m2
             }
             else
             {
-                var timeStart = stream.ReadUInt32();
+                TimeStart = stream.ReadUInt32();
                 var timeEnd = stream.ReadUInt32();
-                Length = timeEnd - timeStart;
+                Length = timeEnd - TimeStart;
             }
             MovingSpeed = stream.ReadSingle();
             Flags = (SequenceFlags) stream.ReadUInt32();

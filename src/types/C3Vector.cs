@@ -35,5 +35,10 @@ namespace m2lib_csharp.types
             stream.Write(Y);
             stream.Write(Z);
         }
+
+        public override string ToString()
+        {
+            return $"({X},{Y},{Z})";
+        }
     }
 }
