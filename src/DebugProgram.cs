@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using m2lib_csharp.m2;
 using m2lib_csharp.types;
 
 namespace m2lib_csharp
@@ -9,6 +10,11 @@ namespace m2lib_csharp
         public static void Main(string[] args)
         {
             Debug.WriteLine("Debug application for M2Lib");
+            var reader = new BinaryReader(new FileStream("Character/Human/Male/HumanMale_HD.m2", FileMode.Open));
+            var model = new M2();
+            model.Load(reader);
+            reader.Close();
+            Debug.WriteLine(model.Textures[0].Name);
             /*
             var point = new FixedPoint(0, 15);
             point.Bits[14] = true;

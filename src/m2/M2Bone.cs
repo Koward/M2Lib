@@ -30,6 +30,7 @@ namespace m2lib_csharp.m2
         public M2Track<C3Vector> Translation { get; set; } = new M2Track<C3Vector>();
         public M2Track<C4Quaternion> Rotation { get; set; } = new M2Track<C4Quaternion>();
         public M2Track<C3Vector> Scale { get; set; } = new M2Track<C3Vector>();
+        public C3Vector Pivot { get; set; } = new C3Vector();
 
         private M2Track<CompQuat> _compressedRotation; 
 
@@ -54,6 +55,7 @@ namespace m2lib_csharp.m2
             else
                 Rotation.Load(stream, version);
             Scale.Load(stream, version);
+            Pivot.Load(stream, version);
         }
 
         public void Save(BinaryWriter stream, M2.Format version)
@@ -72,12 +74,13 @@ namespace m2lib_csharp.m2
             if (version > M2.Format.Classic)
             {
                 _compressedRotation = new M2Track<CompQuat>();
-                _compressedRotation.CopyCasted(Rotation);
+                _compressedRotation = Rotation.Compress();
                 _compressedRotation.Save(stream, version);
             }
             else
                 Rotation.Save(stream, version);
             Scale.Save(stream, version);
+            Pivot.Save(stream, version);
         }
 
         public void LoadContent(BinaryReader stream, M2.Format version)
@@ -87,7 +90,7 @@ namespace m2lib_csharp.m2
             if (version > M2.Format.Classic)
             {
                 _compressedRotation.LoadContent(stream, version);
-                Rotation.CopyCasted(_compressedRotation);
+                Rotation = _compressedRotation.Decompress();
             }
             else
                 Rotation.LoadContent(stream, version);

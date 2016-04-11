@@ -17,8 +17,8 @@ namespace m2lib_csharp.m2
         public ushort StartBones { get; set; }
         public ushort BoneInfluences { get; set; }
         public ushort RootBone { get; set; }
-        public C3Vector CenterMass { get; set; }
-        public C3Vector CenterBoundingBox { get; set; }
+        public C3Vector CenterMass { get; set; } = new C3Vector();
+        public C3Vector CenterBoundingBox { get; set; } = new C3Vector();
         public float Radius { get; set; }
 
         public void Load(BinaryReader stream, M2.Format version)

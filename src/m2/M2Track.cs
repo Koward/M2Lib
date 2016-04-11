@@ -181,19 +181,6 @@ namespace m2lib_csharp.m2
             }
             _legacyRanges.Add(new Range());
         }
-
-        public void CopyCasted<TG>(M2Track<TG> track) where TG : new()
-        {
-            InterpolationType = (InterpolationTypes) track.InterpolationType;
-            GlobalSequence = track.GlobalSequence;
-            foreach (var timestamp in track.Timestamps) Timestamps.Add(timestamp);
-            foreach (var array in track.Values)
-            {
-                var newArray = new M2Array<T>();
-                newArray.AddRange(array.Select(value => (T) (object) value));
-                Values.Add(newArray);
-            }
-        }
     }
 
     public class Range : IMarshalable
@@ -222,5 +209,42 @@ namespace m2lib_csharp.m2
             stream.Write(StartIndex);
             stream.Write(EndIndex);
         }
+    }
+
+    public static class M2TrackExtensions
+    {
+        public static M2Track<CompQuat> Compress(this M2Track<C4Quaternion> track)
+        {
+            var result = new M2Track<CompQuat>
+            {
+                InterpolationType = (M2Track<CompQuat>.InterpolationTypes) track.InterpolationType,
+                GlobalSequence = track.GlobalSequence
+            };
+            foreach (var timestamp in track.Timestamps) result.Timestamps.Add(timestamp);
+            foreach (var array in track.Values)
+            {
+                var newArray = new M2Array<CompQuat>();
+                newArray.AddRange(array.Select(value => (CompQuat) value));
+                result.Values.Add(newArray);
+            }
+            return result;
+        } 
+
+        public static M2Track<C4Quaternion> Decompress(this M2Track<CompQuat> track)
+        {
+            var result = new M2Track<C4Quaternion>
+            {
+                InterpolationType = (M2Track<C4Quaternion>.InterpolationTypes) track.InterpolationType,
+                GlobalSequence = track.GlobalSequence
+            };
+            foreach (var timestamp in track.Timestamps) result.Timestamps.Add(timestamp);
+            foreach (var array in track.Values)
+            {
+                var newArray = new M2Array<C4Quaternion>();
+                newArray.AddRange(array.Select(value => (C4Quaternion) value));
+                result.Values.Add(newArray);
+            }
+            return result;
+        } 
     }
 }

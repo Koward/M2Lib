@@ -109,6 +109,11 @@ namespace m2lib_csharp.types
             Save(stream, version);
             stream.BaseStream.Seek(currentOffset, SeekOrigin.Begin);
         }
+
+        public override string ToString()
+        {
+            return $"N: {_n}, Offset: {_offset}";
+        }
     }
 
     /// <summary>
