@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using m2lib_csharp.interfaces;
 using m2lib_csharp.m2;
@@ -12,7 +10,8 @@ namespace m2lib_csharp.io
     /// </summary>
     public static class StreamExtensions
     {
-        public static T ReadGeneric<T>(this BinaryReader stream, M2.Format version, IReadOnlyList<M2Sequence> sequences)
+        //public static T ReadGeneric<T>(this BinaryReader stream, M2.Format version, IReadOnlyList<M2Sequence> sequences)
+        public static T ReadGeneric<T>(this BinaryReader stream, M2.Format version)
             where T : new()
         {
             T item;
@@ -40,15 +39,14 @@ namespace m2lib_csharp.io
         }
 
 
-        public static void WriteGeneric<T>(this BinaryWriter stream, M2.Format version,
-            IReadOnlyList<M2Sequence> sequences, T item) where T : new()
+        public static void WriteGeneric<T>(this BinaryWriter stream, M2.Format version, T item) where T : new()
         {
             if (typeof (IMarshalable).IsAssignableFrom(typeof (T)))
             {
                 if (typeof (IAnimated).IsAssignableFrom(typeof (T)))
                 {
-                    Debug.Assert(sequences != null);
-                    ((IAnimated) item).SetSequences(sequences);
+                    //Debug.Assert(sequences != null);
+                    //((IAnimated) item).SetSequences(sequences);
                 }
                 ((IMarshalable) item).Save(stream, version);
             }

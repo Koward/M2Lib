@@ -110,7 +110,6 @@ namespace m2lib_csharp.m2
             Translation.SaveContent(stream, version);
             if (version > M2.Format.Classic)
             {
-                Debug.WriteLine(_compressedRotation);
                 _compressedRotation.SaveContent(stream, version);
             }
             else

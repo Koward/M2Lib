@@ -32,7 +32,8 @@ namespace m2lib_csharp.types
         {
             if (_n == 0) return;
 
-            if (ReadingAnimFile != null) stream = ReadingAnimFile;
+            if (ReadingAnimFile != null)
+                stream = ReadingAnimFile;
 
             stream.BaseStream.Seek(_offset, SeekOrigin.Begin);
             for (var i = 0; i < _n; i++)
@@ -43,22 +44,33 @@ namespace m2lib_csharp.types
                     ((IAnimated)this[i]).SetSequences(_sequencesBackRef);
                     ((IMarshalable)this[i]).Load(stream, version);
                 }
-                else Add(stream.ReadGeneric<T>(version, _sequencesBackRef));
+                else Add(stream.ReadGeneric<T>(version));
+            }
+            if (typeof (IArrayRef).IsAssignableFrom(typeof (T)))
+            {
+                //Replace alias arrayrefs
+                for (var i = 0; i < _n; i++)
+                {
+                    if (!_sequencesBackRef[i].IsAlias) continue;
+                    var j = i;
+                    while (_sequencesBackRef[j].IsAlias)
+                        j = _sequencesBackRef[j].AliasNext;
+                    this[i] = this[j];
+                }
             }
             if (!typeof (IReferencer).IsAssignableFrom(typeof (T))) return;
 
             for (var i = 0; i < _n; i++)
             {
-                if (typeof (M2Array<>).IsAssignableFrom(typeof (T)) &&
+                if (typeof (IArrayRef).IsAssignableFrom(typeof (T)) &&
                     version >= M2.Format.LichKing &&
-                    !_sequencesBackRef[i].Flags.HasFlag(M2Sequence.SequenceFlags.NoAnimFile))
+                    _sequencesBackRef[i].GetRealSequence(_sequencesBackRef).IsExtern)
                 {
-                    var animFileStream =
-                        new FileStream(
-                            _sequencesBackRef[i].GetRealSequence(_sequencesBackRef)
-                                .GetAnimFilePath(((FileStream) stream.BaseStream).Name), FileMode.Open);
-                    ((IArrayRef) this[i]).ReadingAnimFile = new BinaryReader(animFileStream);
+                    ((IArrayRef) this[i]).ReadingAnimFile = _sequencesBackRef[i].GetRealSequence(_sequencesBackRef).ReadingAnimFile;
                 }
+                //Do not laod content if alias
+                if (!typeof (IArrayRef).IsAssignableFrom(typeof (T)) || 
+                    !_sequencesBackRef[i].IsAlias)
                 ((IReferencer) this[i]).LoadContent(stream, version);
             }
         }
@@ -75,31 +87,33 @@ namespace m2lib_csharp.types
             if (Count == 0) return;
 
             var mainStream = stream;
-            if (WritingAnimFile != null) stream = WritingAnimFile;
+            if (WritingAnimFile != null)
+            {
+                stream = WritingAnimFile;
+            }
 
             _offset = (uint) stream.BaseStream.Position;
-            foreach (var item in this)
+            for(var i = 0; i < Count; i++)
             {
                 if (typeof (IAnimated).IsAssignableFrom(typeof (T)))
                 {
-                    ((IAnimated) item).SetSequences(_sequencesBackRef);
+                    ((IAnimated) this[i]).SetSequences(_sequencesBackRef);
                 }
-                stream.WriteGeneric(version, _sequencesBackRef, item);
+                stream.WriteGeneric(version, this[i]);
             }
             if (typeof (IReferencer).IsAssignableFrom(typeof (T)))
             {
                 for (var i = 0; i < Count; i++)
                 {
-                    if (typeof (M2Array<>).IsAssignableFrom(typeof (T)) &&
+                    if (typeof (IArrayRef).IsAssignableFrom(typeof (T)) &&
                         version >= M2.Format.LichKing &&
-                        !_sequencesBackRef[i].Flags.HasFlag(M2Sequence.SequenceFlags.NoAnimFile))
+                        _sequencesBackRef[i].GetRealSequence(_sequencesBackRef).IsExtern)
                     {
-                        var animFileStream =
-                            new FileStream(
-                                _sequencesBackRef[i].GetRealSequence(_sequencesBackRef)
-                                    .GetAnimFilePath(((FileStream) stream.BaseStream).Name), FileMode.Create);
-                        ((IArrayRef) this[i]).WritingAnimFile = new BinaryWriter(animFileStream);
+                        ((IArrayRef) this[i]).WritingAnimFile = _sequencesBackRef[i].GetRealSequence(_sequencesBackRef).WritingAnimFile;
                     }
+                    //Do NOT write content if seq[i] is an alias. Only the real should write content.
+                    if (!typeof (IArrayRef).IsAssignableFrom(typeof (T)) || 
+                        !_sequencesBackRef[i].IsAlias)
                     ((IReferencer) this[i]).SaveContent(stream, version);
                 }
             }
@@ -129,9 +143,9 @@ namespace m2lib_csharp.types
             result.Append("[N: " + Count + "]");
             if (Count == 0) return result.ToString();
             result.Append("\r\n");
-            foreach(var item in this)
+            for(var i = 0; i < Count; i++)
             {
-                result.Append(item);
+                result.Append(this[i]);
                 result.Append("\r\n");
             }
             result.Append("\r\n");

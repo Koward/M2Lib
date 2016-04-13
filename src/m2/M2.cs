@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using m2lib_csharp.interfaces;
 using m2lib_csharp.io;
@@ -81,7 +82,7 @@ namespace m2lib_csharp.m2
         public M2Array<C3Vector> BoundingVertices { get; } = new M2Array<C3Vector>();
         public M2Array<C3Vector> BoundingNormals { get; } = new M2Array<C3Vector>();
         public M2Array<M2Ribbon> Ribbons { get; } = new M2Array<M2Ribbon>();
-        public M2Array<ushort> Particles { get; } = new M2Array<ushort>();//TODO Replace by real structs
+        public M2Array<ushort> Particles { get; } = new M2Array<ushort>();//TODO Replace by real struct
         public M2Array<ushort> BlendingMaps { get; } = new M2Array<ushort>();
 
         public void Load(BinaryReader stream, Format version = Format.Useless)
@@ -146,6 +147,16 @@ namespace m2lib_csharp.m2
             _name.LoadContent(stream);
             GlobalSequences.LoadContent(stream);
             Sequences.LoadContent(stream, version);
+            if (version >= Format.LichKing)
+            {
+                foreach (var seq in Sequences.Where(seq => (!seq.IsAlias) &&
+                                                           seq.IsExtern))
+                {
+                    seq.ReadingAnimFile =
+                        new BinaryReader(
+                            new FileStream(seq.GetAnimFilePath(((FileStream) stream.BaseStream).Name), FileMode.Open));
+                }
+            }
             SetSequences();
             Bones.LoadContent(stream, version);
             Vertices.LoadContent(stream, version);
@@ -156,10 +167,13 @@ namespace m2lib_csharp.m2
                 for (var i = 0; i < nViews; i++)
                 {
                     var view = new M2SkinProfile();
-                    var skinFile = new BinaryReader(
-                        new FileStream(M2SkinProfile.SkinFileName(((FileStream) stream.BaseStream).Name, i), FileMode.Open));
-                    view.Load(skinFile, version);
-                    view.LoadContent(skinFile, version);
+                    using (var skinFile = new BinaryReader(
+                        new FileStream(M2SkinProfile.SkinFileName(((FileStream) stream.BaseStream).Name, i),
+                            FileMode.Open)))
+                    {
+                        view.Load(skinFile, version);
+                        view.LoadContent(skinFile, version);
+                    }
                     Views.Add(view);
                 }
             }
@@ -184,6 +198,8 @@ namespace m2lib_csharp.m2
             Ribbons.LoadContent(stream, version);
             Particles.LoadContent(stream, version);
             if(GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.LoadContent(stream, version);
+            foreach (var seq in Sequences)
+                seq.ReadingAnimFile?.Close();
         }
 
         public void Save(BinaryWriter stream, Format version = Format.Useless)
@@ -252,14 +268,28 @@ namespace m2lib_csharp.m2
             if (version < Format.LichKing)
             {
                 uint time = 0;
-                foreach (var seq in Sequences)
+                //Alias system. Alias should be skipped in the timing
+                foreach (var seq in Sequences.Where(seq => !seq.IsAlias))
                 {
                     time += 3333;
                     seq.TimeStart = time;
                     time += seq.Length;
                 }
+                //set the timeStart of Alias to their real counterpart
+                foreach (var seq in Sequences.Where(seq => seq.IsAlias))
+                    seq.TimeStart = seq.GetRealSequence(Sequences).TimeStart;
             }
             Sequences.SaveContent(stream, version);
+            if (version >= Format.LichKing)
+            {
+                foreach (var seq in Sequences.Where(seq => (!seq.IsAlias) &&
+                                                           seq.IsExtern))
+                {
+                    seq.WritingAnimFile =
+                        new BinaryWriter(
+                            new FileStream(seq.GetAnimFilePath(((FileStream) stream.BaseStream).Name), FileMode.Create));
+                }
+            }
             sequenceLookup.SaveContent(stream);
             playableLookup?.SaveContent(stream);
             Bones.SaveContent(stream, version);
@@ -271,10 +301,13 @@ namespace m2lib_csharp.m2
             {
                 for (var i = 0; i < Views.Count; i++)
                 {
-                    var skinFile = new BinaryWriter(
-                        new FileStream(M2SkinProfile.SkinFileName(((FileStream) stream.BaseStream).Name, i), FileMode.Create));
-                    Views[i].Save(skinFile, version);
-                    Views[i].SaveContent(skinFile, version);
+                    using (var skinFile = new BinaryWriter(
+                        new FileStream(M2SkinProfile.SkinFileName(((FileStream) stream.BaseStream).Name, i),
+                            FileMode.Create)))
+                    {
+                        Views[i].Save(skinFile, version);
+                        Views[i].SaveContent(skinFile, version);
+                    }
                 }
             }
             //VIEWS END
@@ -301,6 +334,8 @@ namespace m2lib_csharp.m2
             Ribbons.SaveContent(stream, version);
             Particles.Save(stream, version);
             if(GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.SaveContent(stream, version);
+            foreach (var seq in Sequences)
+                seq.WritingAnimFile?.Close();
         }
 
         private void SetSequences()
@@ -314,6 +349,8 @@ namespace m2lib_csharp.m2
             Lights.SetSequences(Sequences);
             Cameras.SetSequences(Sequences);
             Ribbons.SetSequences(Sequences);
+            Particles.SetSequences(Sequences);
+            BlendingMaps.SetSequences(Sequences);
         }
 
         /// <summary>

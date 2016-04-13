@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using m2lib_csharp.m2;
-using m2lib_csharp.types;
 
 namespace m2lib_csharp
 {
@@ -10,52 +7,21 @@ namespace m2lib_csharp
     {
         public static void Main(string[] args)
         {
-            Debug.WriteLine("Debug application for M2Lib");
-            //var reader = new BinaryReader(new FileStream("Character/Human/Male/HumanMale_HD.m2", FileMode.Open));
-            var reader = new BinaryReader(new FileStream("LichKing/Frog.m2", FileMode.Open));
-            var model = new M2();
-            model.Load(reader);
-            reader.Close();
-            //Debug.WriteLine(model.Bones[0]);
-            var writer = new BinaryWriter(new FileStream("Classic/Frog.m2", FileMode.Create));
-            model.Save(writer, M2.Format.BurningCrusade);
-            writer.Close();
-            /*
-            var point = new FixedPoint(0, 15);
-            point.Bits[14] = true;
-            point.Bits[15] = true;
-            //Expect -0.5
-            Debug.WriteLine("Created]");
-            Debug.WriteLine("Bits : " + point.Bits.ToBitString());
-            Debug.WriteLine("Value : " + point.Value);
-            var writer = new BinaryWriter(new FileStream("Test.b", FileMode.Create));
-            point.Save(writer);
-            writer.Close();
-            var reader = new BinaryReader(new FileStream("Test.b", FileMode.Open));
-            var newPoint = new FixedPoint(0, 15);
-            newPoint.Load(reader);
-            reader.Close();
-            Debug.WriteLine("Written&Read]");
-            Debug.WriteLine("Bits : " + newPoint.Bits.ToBitString());
-            Debug.WriteLine("Value : " + newPoint.Value);
-            */
+            //Debug.WriteLine("Debug application for M2Lib");
 
-            /*
+            const string fileName = "Character/Human/Male/HumanMale_HD.m2";
+            //const string fileName = "world/arttest/boxtest/xyz.m2";
+            //"LichKing/Frog.m2"
+            //const string fileName2 = "Classic/HumanMale_HD.m2";
+            //const string fileName = "LichKing/Frog.m2";
             var model = new M2();
-            model.Name = "TestModel";
-            var bone = new M2Bone();
-            bone.KeyBoneId = 0;
-            model.Bones.Add(bone);
-            var anim = new M2Sequence();
-            anim.AnimationId = 42;
-            model.Sequences.Add(anim);
-            var tex = new M2Texture();
-            tex.Name = "ThisIsHardcoded.BLP";
-            model.Textures.Add(tex);
-            var writer = new BinaryWriter(new FileStream("Test.m2", FileMode.Create));
-            model.Save(writer, M2.Format.LichKing);
-            writer.Close();
-            */
+            using (var reader = new BinaryReader(new FileStream(fileName, FileMode.Open)))
+                model.Load(reader);
+            //Debug.WriteLine(model.Sequences.Count);
+            /*
+            using (var writer = new BinaryWriter(new FileStream(fileName2, FileMode.Create)))
+                model.Save(writer, M2.Format.Classic);
+                */
         }
     }
 }

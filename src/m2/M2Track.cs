@@ -20,7 +20,7 @@ namespace m2lib_csharp.m2
         private readonly M2Array<Range> _legacyRanges = new M2Array<Range>();
         private readonly M2Array<uint> _legacyTimestamps = new M2Array<uint>();
         private readonly M2Array<T> _legacyValues = new M2Array<T>();
-        
+
         public InterpolationTypes InterpolationType { get; set; }
         public short GlobalSequence { get; set; } = -1;
         public M2Array<M2Array<uint>> Timestamps { get; } = new M2Array<M2Array<uint>>();
@@ -150,8 +150,10 @@ namespace m2lib_csharp.m2
         private void GenerateLegacyRanges()
         {
             if (_legacyTimestamps.Count < 2) return;
-            foreach (var seq in SequenceBackRef)
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for(var index = 0; index < SequenceBackRef.Count; index++)
             {
+                var seq = SequenceBackRef[index];
                 var indexesPrevious =
                     Enumerable.Range(0, _legacyTimestamps.Count) // Indexes of times <= to the beginning of sequence.
                         .Where(i => _legacyTimestamps[i] <= seq.TimeStart)
@@ -200,8 +202,10 @@ namespace m2lib_csharp.m2
             }
             else
             {
-                foreach (var seq in SequenceBackRef)
+                // ReSharper disable once ForCanBeConvertedToForeach
+                for(var index = 0; index < SequenceBackRef.Count; index++)
                 {
+                    var seq = SequenceBackRef[index];
                     var validIndexes = Enumerable.Range(0, _legacyTimestamps.Count)
                         .Where(
                             i =>
@@ -262,11 +266,11 @@ namespace m2lib_csharp.m2
             target.InterpolationType = (M2Track<CompQuat>.InterpolationTypes) track.InterpolationType;
             target.GlobalSequence = track.GlobalSequence;
             target.SequenceBackRef = track.SequenceBackRef;
-            foreach (var timestamp in track.Timestamps) target.Timestamps.Add(timestamp);
-            foreach (var array in track.Values)
+            for (var i = 0; i < track.Timestamps.Count; i++) target.Timestamps.Add(track.Timestamps[i]);
+            for (var i = 0; i < track.Values.Count; i++)
             {
                 var newArray = new M2Array<CompQuat>();
-                newArray.AddRange(array.Select(value => (CompQuat) value));
+                newArray.AddRange(track.Values[i].Select(value => (CompQuat) value));
                 target.Values.Add(newArray);
             }
         } 
@@ -278,11 +282,11 @@ namespace m2lib_csharp.m2
             target.InterpolationType = (M2Track<C4Quaternion>.InterpolationTypes) track.InterpolationType;
             target.GlobalSequence = track.GlobalSequence;
             target.SequenceBackRef = track.SequenceBackRef;
-            foreach (var timestamp in track.Timestamps) target.Timestamps.Add(timestamp);
-            foreach (var array in track.Values)
+            for (var i = 0; i < track.Timestamps.Count; i++) target.Timestamps.Add(track.Timestamps[i]);
+            for (var i = 0; i < track.Values.Count; i++)
             {
                 var newArray = new M2Array<C4Quaternion>();
-                newArray.AddRange(array.Select(value => (C4Quaternion) value));
+                newArray.AddRange(track.Values[i].Select(value => (C4Quaternion) value));
                 target.Values.Add(newArray);
             }
         } 

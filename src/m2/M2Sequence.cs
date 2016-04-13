@@ -19,7 +19,6 @@ namespace m2lib_csharp.m2
             HasNext = 0x40,
             Blended = 0x80,
             Stored = 0x100,
-            NoAnimFile = LowPriority + Looped + Stored
         }
 
         private ushort _padding;
@@ -39,11 +38,16 @@ namespace m2lib_csharp.m2
         public ushort AliasNext { get; set; }
 
         public string Name => AnimationData.IdToName[AnimationId];
+        public bool IsExtern => (Flags & (SequenceFlags.Looped | SequenceFlags.LowPriority | SequenceFlags.Stored)) == 0;
+        public bool IsAlias => (Flags & (SequenceFlags.HasNext)) != 0;
 
         /// <summary>
         ///     Used to convert to one-timeline animation style
         /// </summary>
         public uint TimeStart { get; set; }
+
+        public BinaryReader ReadingAnimFile { get; set; }
+        public BinaryWriter WritingAnimFile { get; set; }
 
         public void Load(BinaryReader stream, M2.Format version)
         {
@@ -134,7 +138,7 @@ namespace m2lib_csharp.m2
         /// <returns></returns>
         public M2Sequence GetRealSequence(IReadOnlyList<M2Sequence> sequences)
         {
-            return Flags.HasFlag(SequenceFlags.HasNext) ? sequences[AliasNext].GetRealSequence(sequences) : this;
+            return IsAlias ? sequences[AliasNext].GetRealSequence(sequences) : this;
         }
 
         // ANIMATION LOOKUP
