@@ -19,7 +19,7 @@ namespace m2lib_csharp.m2
             for (var i = 0; i < BoneWeights.Length; i++) BoneWeights[i] = stream.ReadByte();
             for (var i = 0; i < BoneIndices.Length; i++) BoneIndices[i] = stream.ReadByte();
             Normal = stream.ReadC3Vector();
-            TexCoords = new []{stream.ReadC2Vector(), stream.ReadC2Vector()};
+            TexCoords = new[] {stream.ReadC2Vector(), stream.ReadC2Vector()};
         }
 
         public void Save(BinaryWriter stream, M2.Format version)

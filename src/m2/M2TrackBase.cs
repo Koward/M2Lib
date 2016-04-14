@@ -110,7 +110,11 @@ namespace m2lib_csharp.m2
                     }
                     if (SequenceBackRef[i].IsExtern)
                     {
-                        Timestamps[i].SaveContent(SequenceBackRef[i].WritingAnimFile, version);
+                        if (Timestamps[i].Count <= 0) continue;
+                        Timestamps[i].StoredOffset = (uint) SequenceBackRef[i].WritingAnimFile.BaseStream.Position;
+                        for (var j = 0; j < Timestamps[i].Count; j++)
+                            SequenceBackRef[i].WritingAnimFile.Write(Timestamps[i][j]);
+                        Timestamps[i].RewriteHeader(stream, version);
                     }
                     else
                     {

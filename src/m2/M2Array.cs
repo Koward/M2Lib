@@ -10,22 +10,22 @@ namespace m2lib_csharp.m2
     public class M2Array<T> : List<T>, IMarshalable where T : new()
     {
         private uint _n; // n&ofs are only used in loading. When writing the real number is used.
-        private uint _offset;
 
         private IReadOnlyList<M2Sequence> _sequencesBackRef; // Only used to give the reference to contained IAnimated.
         private long _startOffset = -1; // Where the n&offset are located
+        public uint StoredOffset;
 
         public void Load(BinaryReader stream, M2.Format version = M2.Format.Useless)
         {
             _n = stream.ReadUInt32();
-            _offset = stream.ReadUInt32();
+            StoredOffset = stream.ReadUInt32();
         }
 
         public void Save(BinaryWriter stream, M2.Format version = M2.Format.Useless)
         {
             _startOffset = stream.BaseStream.Position;
             stream.Write(Count);
-            stream.Write(_offset);
+            stream.Write(StoredOffset);
         }
 
         //TODO A bit of optimization would be nice.
@@ -38,16 +38,28 @@ namespace m2lib_csharp.m2
         {
             if (_n == 0) return;
 
-            stream.BaseStream.Seek(_offset, SeekOrigin.Begin);
-            for (var i = 0; i < _n; i++)
+            stream.BaseStream.Seek(StoredOffset, SeekOrigin.Begin);
+            if (typeof (IAnimated).IsAssignableFrom(typeof (T)))
             {
-                if (typeof (IAnimated).IsAssignableFrom(typeof (T)))
+                for (var i = 0; i < _n; i++)
                 {
                     Add(new T());
                     ((IAnimated) this[i]).SetSequences(_sequencesBackRef);
                     ((IMarshalable) this[i]).Load(stream, version);
                 }
-                else Add(stream.ReadGeneric<T>(version));
+            }
+            else if (typeof (IMarshalable).IsAssignableFrom(typeof (T)))
+            {
+                for (var i = 0; i < _n; i++)
+                {
+                    Add(new T());
+                    ((IMarshalable) this[i]).Load(stream, version);
+                }
+            }
+            else
+            {
+                for (var i = 0; i < _n; i++)
+                    Add((T) StreamExtensions.ReadFunctions[typeof (T)](stream));
             }
             if (!typeof (IReferencer).IsAssignableFrom(typeof (T))) return;
 
@@ -58,15 +70,24 @@ namespace m2lib_csharp.m2
         public void SaveContent(BinaryWriter stream, M2.Format version = M2.Format.Useless)
         {
             if (Count == 0) return;
-            _offset = (uint) stream.BaseStream.Position;
-            for (var i = 0; i < Count; i++)
+            StoredOffset = (uint) stream.BaseStream.Position;
+            if (typeof (IAnimated).IsAssignableFrom(typeof (T)))
             {
-                if (typeof (IAnimated).IsAssignableFrom(typeof (T)))
+                for (var i = 0; i < Count; i++)
                 {
                     ((IAnimated) this[i]).SetSequences(_sequencesBackRef);
                     ((IMarshalable) this[i]).Save(stream, version);
                 }
-                else stream.WriteGeneric(version, this[i]);
+            }
+            else if (typeof (IMarshalable).IsAssignableFrom(typeof (T)))
+            {
+                for (var i = 0; i < Count; i++)
+                    ((IMarshalable) this[i]).Save(stream, version);
+            }
+            else
+            {
+                for (var i = 0; i < Count; i++)
+                    StreamExtensions.WriteFunctions[typeof (T)](stream, this[i]);
             }
             if (typeof (IReferencer).IsAssignableFrom(typeof (T)))
             {
@@ -76,6 +97,11 @@ namespace m2lib_csharp.m2
             RewriteHeader(stream, version);
         }
 
+        /// <summary>
+        ///     M2Array may need sequences for just one thing : give it to contained M2Track.
+        ///     Sometimes these are inside other classes, which are the IAnimated.
+        /// </summary>
+        /// <param name="sequences"></param>
         public void PassSequences(IReadOnlyList<M2Sequence> sequences)
         {
             Debug.Assert(typeof (IAnimated).IsAssignableFrom(typeof (T)),
@@ -83,7 +109,7 @@ namespace m2lib_csharp.m2
             _sequencesBackRef = sequences;
         }
 
-        private void RewriteHeader(BinaryWriter stream, M2.Format version)
+        public void RewriteHeader(BinaryWriter stream, M2.Format version)
         {
             Debug.Assert(_startOffset > -1, "M2Array not saved before saving referenced content.");
             var currentOffset = (uint) stream.BaseStream.Position;

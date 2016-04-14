@@ -11,6 +11,12 @@ namespace m2lib_csharp.m2
     /// </summary>
     public static class AnimationData
     {
+        public static readonly IDictionary<ushort, ushort> Fallback;
+        public static readonly IDictionary<string, ushort> NameToId;
+        public static readonly IDictionary<ushort, string> IdToName;
+        public static readonly ISet<ushort> PlayThenStop;
+        public static readonly ISet<ushort> PlayBackwards;
+
         static AnimationData()
         {
             Fallback = new Dictionary<ushort, ushort>();
@@ -57,11 +63,5 @@ namespace m2lib_csharp.m2
             };
             foreach (var value in playBackwardsValues) PlayBackwards.Add(value);
         }
-
-        public static IDictionary<ushort, ushort> Fallback { get; }
-        public static IDictionary<string, ushort> NameToId { get; }
-        public static IDictionary<ushort, string> IdToName { get; }
-        public static ISet<ushort> PlayThenStop { get; }
-        public static ISet<ushort> PlayBackwards { get; }
     }
 }

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using m2lib_csharp.interfaces;
+using m2lib_csharp.io;
 using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
@@ -134,8 +135,20 @@ namespace m2lib_csharp.m2
                     }
                     if (SequenceBackRef[i].IsExtern)
                     {
+                        //Cannot use SaveContent() as it Rewrites header
+                        /*
                         Timestamps[i].SaveContent(SequenceBackRef[i].WritingAnimFile, version);
                         Values[i].SaveContent(SequenceBackRef[i].WritingAnimFile, version);
+                        */
+                        if (Timestamps[i].Count <= 0) continue;
+                        Timestamps[i].StoredOffset = (uint) SequenceBackRef[i].WritingAnimFile.BaseStream.Position;
+                        for (var j = 0; j < Timestamps[i].Count; j++)
+                            SequenceBackRef[i].WritingAnimFile.Write(Timestamps[i][j]);
+                        Timestamps[i].RewriteHeader(stream, version);
+                        Values[i].StoredOffset = (uint) SequenceBackRef[i].WritingAnimFile.BaseStream.Position;
+                        for (var j = 0; j < Values[i].Count; j++)
+                            SequenceBackRef[i].WritingAnimFile.WriteGeneric(version, Values[i][j]);
+                        Values[i].RewriteHeader(stream, version);
                     }
                     else
                     {

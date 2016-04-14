@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using m2lib_csharp.interfaces;
 using m2lib_csharp.m2;
@@ -11,61 +12,59 @@ namespace m2lib_csharp.io
     /// </summary>
     public static class StreamExtensions
     {
+        public static readonly Dictionary<Type, Func<BinaryReader, object>> ReadFunctions =
+            new Dictionary<Type, Func<BinaryReader, object>>();
+
+        public static readonly Dictionary<Type, Action<BinaryWriter, object>> WriteFunctions =
+            new Dictionary<Type, Action<BinaryWriter, object>>();
+
+        static StreamExtensions()
+        {
+            ReadFunctions[typeof (bool)] = s => s.ReadBoolean();
+            ReadFunctions[typeof (byte)] = s => s.ReadByte();
+            ReadFunctions[typeof (short)] = s => s.ReadInt16();
+            ReadFunctions[typeof (ushort)] = s => s.ReadUInt16();
+            ReadFunctions[typeof (int)] = s => s.ReadInt32();
+            ReadFunctions[typeof (uint)] = s => s.ReadUInt32();
+            ReadFunctions[typeof (C2Vector)] = s => s.ReadC2Vector();
+            ReadFunctions[typeof (C33Matrix)] = s => s.ReadC33Matrix();
+            ReadFunctions[typeof (C3Vector)] = s => s.ReadC3Vector();
+            ReadFunctions[typeof (C44Matrix)] = s => s.ReadC44Matrix();
+            ReadFunctions[typeof (C4Plane)] = s => s.ReadC4Plane();
+            ReadFunctions[typeof (C4Quaternion)] = s => s.ReadC4Quaternion();
+            ReadFunctions[typeof (C4Vector)] = s => s.ReadC4Vector();
+            ReadFunctions[typeof (CAaBox)] = s => s.ReadCAaBox();
+            ReadFunctions[typeof (CAaSphere)] = s => s.ReadCAaSphere();
+            ReadFunctions[typeof (CArgb)] = s => s.ReadCArgb();
+            ReadFunctions[typeof (CompQuat)] = s => s.ReadCompQuat();
+            ReadFunctions[typeof (CRange)] = s => s.ReadCRange();
+
+            WriteFunctions[typeof (bool)] = (s, t) => s.Write((bool) t);
+            WriteFunctions[typeof (byte)] = (s, t) => s.Write((byte) t);
+            WriteFunctions[typeof (short)] = (s, t) => s.Write((short) t);
+            WriteFunctions[typeof (ushort)] = (s, t) => s.Write((ushort) t);
+            WriteFunctions[typeof (int)] = (s, t) => s.Write((int) t);
+            WriteFunctions[typeof (uint)] = (s, t) => s.Write((uint) t);
+            WriteFunctions[typeof (C2Vector)] = (s, t) => s.Write((C2Vector) t);
+            WriteFunctions[typeof (C33Matrix)] = (s, t) => s.Write((C33Matrix) t);
+            WriteFunctions[typeof (C3Vector)] = (s, t) => s.Write((C3Vector) t);
+            WriteFunctions[typeof (C44Matrix)] = (s, t) => s.Write((C44Matrix) t);
+            WriteFunctions[typeof (C4Plane)] = (s, t) => s.Write((C4Plane) t);
+            WriteFunctions[typeof (C4Quaternion)] = (s, t) => s.Write((C4Quaternion) t);
+            WriteFunctions[typeof (C4Vector)] = (s, t) => s.Write((C4Vector) t);
+            WriteFunctions[typeof (CAaBox)] = (s, t) => s.Write((CAaBox) t);
+            WriteFunctions[typeof (CAaSphere)] = (s, t) => s.Write((CAaSphere) t);
+            WriteFunctions[typeof (CArgb)] = (s, t) => s.Write((CArgb) t);
+            WriteFunctions[typeof (CompQuat)] = (s, t) => s.Write((CompQuat) t);
+            WriteFunctions[typeof (CRange)] = (s, t) => s.Write((CRange) t);
+        }
+
         public static T ReadGeneric<T>(this BinaryReader stream, M2.Format version)
             where T : new()
         {
-            T item;
-            if (typeof (IMarshalable).IsAssignableFrom(typeof (T)))
-            {
-                item = new T();
-                ((IMarshalable) item).Load(stream, version);
-            }
-            else if (typeof (bool).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadBoolean();
-            else if (typeof (byte).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadByte();
-            else if (typeof (short).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadInt16();
-            else if (typeof (int).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadInt32();
-            else if (typeof (ushort).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadUInt16();
-            else if (typeof (uint).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadUInt32();
-            else if (typeof (C2Vector).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadC2Vector();
-            else if (typeof (C33Matrix).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadC33Matrix();
-            else if (typeof (C3Vector).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadC3Vector();
-            else if (typeof (C44Matrix).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadC44Matrix();
-            else if (typeof (C4Plane).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadC4Plane();
-            else if (typeof (C4Quaternion).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadC4Quaternion();
-            else if (typeof (C4Vector).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadC4Vector();
-            else if (typeof (C44Matrix).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadC44Matrix();
-            else if (typeof (C4Plane).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadC4Plane();
-            else if (typeof (C4Quaternion).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadC4Quaternion();
-            else if (typeof (C4Vector).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadC4Vector();
-            else if (typeof (CAaBox).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadCAaBox();
-            else if (typeof (CAaSphere).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadCAaSphere();
-            else if (typeof (CArgb).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadCArgb();
-            else if (typeof (CompQuat).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadCompQuat();
-            else if (typeof (CRange).IsAssignableFrom(typeof (T)))
-                item = (T) (object) stream.ReadCRange();
-            else
-                throw new NotImplementedException(typeof (T) + "type is not supported and cannot be read.");
+            if (!typeof (IMarshalable).IsAssignableFrom(typeof (T))) return (T) ReadFunctions[typeof (T)](stream);
+            var item = new T();
+            ((IMarshalable) item).Load(stream, version);
             return item;
         }
 
@@ -74,44 +73,7 @@ namespace m2lib_csharp.io
         {
             if (typeof (IMarshalable).IsAssignableFrom(typeof (T)))
                 ((IMarshalable) item).Save(stream, version);
-            else if (typeof (bool).IsAssignableFrom(typeof (T)))
-                stream.Write((bool) (object) item);
-            else if (typeof (byte).IsAssignableFrom(typeof (T)))
-                stream.Write((byte) (object) item);
-            else if (typeof (short).IsAssignableFrom(typeof (T)))
-                stream.Write((short) (object) item);
-            else if (typeof (int).IsAssignableFrom(typeof (T)))
-                stream.Write((int) (object) item);
-            else if (typeof (ushort).IsAssignableFrom(typeof (T)))
-                stream.Write((ushort) (object) item);
-            else if (typeof (uint).IsAssignableFrom(typeof (T)))
-                stream.Write((uint) (object) item);
-            else if (typeof (C2Vector).IsAssignableFrom(typeof (T)))
-                stream.Write((C2Vector) (object) item);
-            else if (typeof (C33Matrix).IsAssignableFrom(typeof (T)))
-                stream.Write((C33Matrix) (object) item);
-            else if (typeof (C3Vector).IsAssignableFrom(typeof (T)))
-                stream.Write((C3Vector) (object) item);
-            else if (typeof (C44Matrix).IsAssignableFrom(typeof (T)))
-                stream.Write((C44Matrix) (object) item);
-            else if (typeof (C4Plane).IsAssignableFrom(typeof (T)))
-                stream.Write((C4Plane) (object) item);
-            else if (typeof (C4Quaternion).IsAssignableFrom(typeof (T)))
-                stream.Write((C4Quaternion) (object) item);
-            else if (typeof (C4Vector).IsAssignableFrom(typeof (T)))
-                stream.Write((C4Vector) (object) item);
-            else if (typeof (CAaBox).IsAssignableFrom(typeof (T)))
-                stream.Write((CAaBox) (object) item);
-            else if (typeof (CAaSphere).IsAssignableFrom(typeof (T)))
-                stream.Write((CAaSphere) (object) item);
-            else if (typeof (CArgb).IsAssignableFrom(typeof (T)))
-                stream.Write((CArgb) (object) item);
-            else if (typeof (CompQuat).IsAssignableFrom(typeof (T)))
-                stream.Write((CompQuat) (object) item);
-            else if (typeof (CRange).IsAssignableFrom(typeof (T)))
-                stream.Write((CRange) (object) item);
-            else
-                throw new NotImplementedException(typeof (T) + "type is not supported and cannot be written.");
+            else WriteFunctions[typeof (T)](stream, item);
         }
 
         //READING OF STRUCTS
