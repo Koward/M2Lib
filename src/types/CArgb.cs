@@ -11,7 +11,7 @@ namespace m2lib_csharp.types
     {
         public byte R, G, B, A;
 
-        public CArgb(byte p1 = 0, byte p2 = 0, byte p3 = 0, byte p4 = byte.MaxValue)
+        public CArgb(byte p1, byte p2, byte p3, byte p4)
         {
             R = p1;
             G = p2;

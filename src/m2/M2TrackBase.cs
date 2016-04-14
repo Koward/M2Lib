@@ -36,7 +36,6 @@ namespace m2lib_csharp.m2
             GlobalSequence = stream.ReadInt16();
             if (version >= M2.Format.LichKing)
             {
-                Timestamps.SetSequences(SequenceBackRef);
                 Timestamps.Load(stream, version);
             }
             else
@@ -52,7 +51,6 @@ namespace m2lib_csharp.m2
             stream.Write(GlobalSequence);
             if (version >= M2.Format.LichKing)
             {
-                Timestamps.SetSequences(SequenceBackRef);
                 Timestamps.Save(stream, version);
             }
             else
@@ -67,6 +65,26 @@ namespace m2lib_csharp.m2
             if (version >= M2.Format.LichKing)
             {
                 Timestamps.LoadContent(stream, version);
+                for (var i = 0; i < Timestamps.Count; i++)
+                {
+                    //TODO Should we check if GlobalSequence before accessing sequence flags ?
+                    if (SequenceBackRef[i].IsAlias)
+                    {
+                        var realIndex = i;
+                        while (SequenceBackRef[realIndex].IsAlias)
+                            realIndex = SequenceBackRef[realIndex].AliasNext;
+                        Timestamps[i] = Timestamps[realIndex];
+                        continue;
+                    }
+                    if (SequenceBackRef[i].IsExtern)
+                    {
+                        Timestamps[i].LoadContent(SequenceBackRef[i].ReadingAnimFile, version);
+                    }
+                    else
+                    {
+                        Timestamps[i].LoadContent(stream, version);
+                    }
+                }
             }
             else
             {
@@ -80,6 +98,26 @@ namespace m2lib_csharp.m2
             if (version >= M2.Format.LichKing)
             {
                 Timestamps.SaveContent(stream, version);
+                for (var i = 0; i < Timestamps.Count; i++)
+                {
+                    //TODO Should we check if GlobalSequence before accessing sequence flags ?
+                    if (SequenceBackRef[i].IsAlias)
+                    {
+                        var realIndex = i;
+                        while (SequenceBackRef[realIndex].IsAlias)
+                            realIndex = SequenceBackRef[realIndex].AliasNext;
+                        Timestamps[i] = Timestamps[realIndex];
+                        continue;
+                    }
+                    if (SequenceBackRef[i].IsExtern)
+                    {
+                        Timestamps[i].SaveContent(SequenceBackRef[i].WritingAnimFile, version);
+                    }
+                    else
+                    {
+                        Timestamps[i].SaveContent(stream, version);
+                    }
+                }
             }
             else
             {
@@ -93,6 +131,11 @@ namespace m2lib_csharp.m2
                    $"\nTimestamps: {Timestamps}";
         }
 
+        /// <summary>
+        /// Pre : SequenceBackRef != null
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="version"></param>
         private void LegacySave(BinaryWriter stream, M2.Format version)
         {
             if (GlobalSequence >= 0)
@@ -122,8 +165,6 @@ namespace m2lib_csharp.m2
         private void LegacySaveContent(BinaryWriter stream, M2.Format version)
         {
 
-            _legacyRanges.SetSequences(SequenceBackRef);
-            _legacyTimestamps.SetSequences(SequenceBackRef);
             _legacyRanges.SaveContent(stream, version);
             _legacyTimestamps.SaveContent(stream, version);
         }
@@ -133,8 +174,11 @@ namespace m2lib_csharp.m2
         /// </summary>
         private void GenerateLegacyRanges()
         {
-            foreach (var seq in SequenceBackRef)
+            if (_legacyTimestamps.Count < 2) return;
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var index = 0; index < SequenceBackRef.Count; index++)
             {
+                var seq = SequenceBackRef[index];
                 var indexesPrevious =
                     Enumerable.Range(0, _legacyTimestamps.Count) // Indexes of times <= to the beginning of sequence.
                         .Where(i => _legacyTimestamps[i] <= seq.TimeStart)
@@ -162,8 +206,6 @@ namespace m2lib_csharp.m2
         private void LegacyLoad(BinaryReader stream, M2.Format version)
         {
             Debug.Assert(SequenceBackRef != null, "SequenceBackRef is null in M2TrackBase");
-            _legacyRanges.SetSequences(SequenceBackRef);
-            _legacyTimestamps.SetSequences(SequenceBackRef);
             _legacyRanges.Load(stream, version);
             _legacyTimestamps.Load(stream, version);
         }
@@ -179,8 +221,10 @@ namespace m2lib_csharp.m2
             }
             else
             {
-                foreach (var seq in SequenceBackRef)
+                // ReSharper disable once ForCanBeConvertedToForeach
+                for (var index = 0; index < SequenceBackRef.Count; index++)
                 {
+                    var seq = SequenceBackRef[index];
                     var validIndexes = Enumerable.Range(0, _legacyTimestamps.Count)
                         .Where(
                             i =>

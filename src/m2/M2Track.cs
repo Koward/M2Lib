@@ -31,6 +31,15 @@ namespace m2lib_csharp.m2
         // Legacy fields are automatically converted to standard ones in methods.
         public IReadOnlyList<M2Sequence> SequenceBackRef { set; get; }
 
+        // Used to add new values
+        public T DefaultValue
+        {
+            set { _defaultValue = value;
+                _defaultValueSet = true;}
+        }
+        private bool _defaultValueSet;
+        private T _defaultValue;
+
 
         public void Load(BinaryReader stream, M2.Format version)
         {
@@ -39,8 +48,6 @@ namespace m2lib_csharp.m2
             GlobalSequence = stream.ReadInt16();
             if (version >= M2.Format.LichKing)
             {
-                Timestamps.SetSequences(SequenceBackRef);
-                Values.SetSequences(SequenceBackRef);
                 Timestamps.Load(stream, version);
                 Values.Load(stream, version);
             }
@@ -57,8 +64,6 @@ namespace m2lib_csharp.m2
             stream.Write(GlobalSequence);
             if (version >= M2.Format.LichKing)
             {
-                Timestamps.SetSequences(SequenceBackRef);
-                Values.SetSequences(SequenceBackRef);
                 Timestamps.Save(stream, version);
                 Values.Save(stream, version);
             }
@@ -75,6 +80,29 @@ namespace m2lib_csharp.m2
             {
                 Timestamps.LoadContent(stream, version);
                 Values.LoadContent(stream, version);
+                for (var i = 0; i < Timestamps.Count; i++)
+                {
+                    //TODO Should we check if GlobalSequence before accessing sequence flags ?
+                    if (SequenceBackRef[i].IsAlias)
+                    {
+                        var realIndex = i;
+                        while (SequenceBackRef[realIndex].IsAlias)
+                            realIndex = SequenceBackRef[realIndex].AliasNext;
+                        Timestamps[i] = Timestamps[realIndex];
+                        Values[i] = Values[realIndex];
+                        continue;
+                    }
+                    if (SequenceBackRef[i].IsExtern)
+                    {
+                        Timestamps[i].LoadContent(SequenceBackRef[i].ReadingAnimFile, version);
+                        Values[i].LoadContent(SequenceBackRef[i].ReadingAnimFile, version);
+                    }
+                    else
+                    {
+                        Timestamps[i].LoadContent(stream, version);
+                        Values[i].LoadContent(stream, version);
+                    }
+                }
             }
             else
             {
@@ -89,6 +117,29 @@ namespace m2lib_csharp.m2
             {
                 Timestamps.SaveContent(stream, version);
                 Values.SaveContent(stream, version);
+                for (var i = 0; i < Timestamps.Count; i++)
+                {
+                    //TODO Should we check if GlobalSequence before accessing sequence flags ?
+                    if (SequenceBackRef[i].IsAlias)
+                    {
+                        var realIndex = i;
+                        while (SequenceBackRef[realIndex].IsAlias)
+                            realIndex = SequenceBackRef[realIndex].AliasNext;
+                        Timestamps[i] = Timestamps[realIndex];
+                        Values[i] = Values[realIndex];
+                        continue;
+                    }
+                    if (SequenceBackRef[i].IsExtern)
+                    {
+                        Timestamps[i].SaveContent(SequenceBackRef[i].WritingAnimFile, version);
+                        Values[i].SaveContent(SequenceBackRef[i].WritingAnimFile, version);
+                    }
+                    else
+                    {
+                        Timestamps[i].SaveContent(stream, version);
+                        Values[i].SaveContent(stream, version);
+                    }
+                }
             }
             else
             {
@@ -103,6 +154,11 @@ namespace m2lib_csharp.m2
                    $"\nValues: {Values}";
         }
 
+        /// <summary>
+        /// Pre : SequenceBackRef != null
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="version"></param>
         private void LegacySave(BinaryWriter stream, M2.Format version)
         {
             if (GlobalSequence >= 0)
@@ -114,7 +170,11 @@ namespace m2lib_csharp.m2
             {
                 for (var i = 0; i < Timestamps.Count; i++)
                 {
-                    if (Timestamps[i].Count == 0) continue;
+                    if (Timestamps[i].Count == 0) {
+                        _legacyTimestamps.Add(SequenceBackRef[i].TimeStart);
+                        _legacyValues.Add(!_defaultValueSet ? new T() : _defaultValue);
+                        continue;
+                    }
                     for (var j = 0; j < Timestamps[i].Count; j++)
                     {
                         _legacyTimestamps.Add(Timestamps[i][j] + SequenceBackRef[i].TimeStart);
@@ -136,9 +196,6 @@ namespace m2lib_csharp.m2
         private void LegacySaveContent(BinaryWriter stream, M2.Format version)
         {
 
-            _legacyRanges.SetSequences(SequenceBackRef);
-                _legacyTimestamps.SetSequences(SequenceBackRef);
-            _legacyValues.SetSequences(SequenceBackRef);
             _legacyRanges.SaveContent(stream, version);
                 _legacyTimestamps.SaveContent(stream, version);
                 _legacyValues.SaveContent(stream, version);
@@ -181,9 +238,6 @@ namespace m2lib_csharp.m2
         private void LegacyLoad(BinaryReader stream, M2.Format version)
         {
             Debug.Assert(SequenceBackRef != null, "SequenceBackRef is null in M2Track<"+typeof(T)+">");
-            _legacyRanges.SetSequences(SequenceBackRef);
-            _legacyTimestamps.SetSequences(SequenceBackRef);
-            _legacyValues.SetSequences(SequenceBackRef);
             _legacyRanges.Load(stream, version);
             _legacyTimestamps.Load(stream, version);
             _legacyValues.Load(stream, version);

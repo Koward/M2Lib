@@ -340,17 +340,16 @@ namespace m2lib_csharp.m2
 
         private void SetSequences()
         {
-            Bones.SetSequences(Sequences);
-            Colors.SetSequences(Sequences);
-            Transparencies.SetSequences(Sequences);
-            TextureTransforms.SetSequences(Sequences);
-            Attachments.SetSequences(Sequences);
-            Events.SetSequences(Sequences);
-            Lights.SetSequences(Sequences);
-            Cameras.SetSequences(Sequences);
-            Ribbons.SetSequences(Sequences);
-            Particles.SetSequences(Sequences);
-            BlendingMaps.SetSequences(Sequences);
+            Bones.PassSequences(Sequences);
+            Colors.PassSequences(Sequences);
+            Transparencies.PassSequences(Sequences);
+            TextureTransforms.PassSequences(Sequences);
+            Attachments.PassSequences(Sequences);
+            Events.PassSequences(Sequences);
+            Lights.PassSequences(Sequences);
+            Cameras.PassSequences(Sequences);
+            Ribbons.PassSequences(Sequences);
+            //Particles.PassSequences(Sequences);//TODO Once Particles are done.
         }
 
         /// <summary>

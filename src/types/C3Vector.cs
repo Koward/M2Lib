@@ -11,15 +11,13 @@ namespace m2lib_csharp.types
     {
         public float X, Y, Z;
 
+        public C3Vector() : this(0, 0, 0){}
+
         public C3Vector(float p1, float p2, float p3)
         {
             X = p1;
             Y = p2;
             Z = p3;
-        }
-
-        public C3Vector() : this(0, 0, 0)
-        {
         }
 
         public void Load(BinaryReader stream, M2.Format version)

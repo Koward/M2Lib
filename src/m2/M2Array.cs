@@ -4,11 +4,10 @@ using System.IO;
 using System.Text;
 using m2lib_csharp.interfaces;
 using m2lib_csharp.io;
-using m2lib_csharp.m2;
 
-namespace m2lib_csharp.types
+namespace m2lib_csharp.m2
 {
-    public class M2Array<T> : List<T>, IAnimated, IArrayRef where T : new()
+    public class M2Array<T> : List<T>, IMarshalable where T : new()
     {
         private uint _n; // n&ofs are only used in loading. When writing the real number is used.
         private uint _offset;
@@ -32,9 +31,6 @@ namespace m2lib_csharp.types
         {
             if (_n == 0) return;
 
-            if (ReadingAnimFile != null)
-                stream = ReadingAnimFile;
-
             stream.BaseStream.Seek(_offset, SeekOrigin.Begin);
             for (var i = 0; i < _n; i++)
             {
@@ -46,33 +42,10 @@ namespace m2lib_csharp.types
                 }
                 else Add(stream.ReadGeneric<T>(version));
             }
-            if (typeof (IArrayRef).IsAssignableFrom(typeof (T)))
-            {
-                //Replace alias arrayrefs
-                for (var i = 0; i < _n; i++)
-                {
-                    if (!_sequencesBackRef[i].IsAlias) continue;
-                    var j = i;
-                    while (_sequencesBackRef[j].IsAlias)
-                        j = _sequencesBackRef[j].AliasNext;
-                    this[i] = this[j];
-                }
-            }
             if (!typeof (IReferencer).IsAssignableFrom(typeof (T))) return;
 
             for (var i = 0; i < _n; i++)
-            {
-                if (typeof (IArrayRef).IsAssignableFrom(typeof (T)) &&
-                    version >= M2.Format.LichKing &&
-                    _sequencesBackRef[i].GetRealSequence(_sequencesBackRef).IsExtern)
-                {
-                    ((IArrayRef) this[i]).ReadingAnimFile = _sequencesBackRef[i].GetRealSequence(_sequencesBackRef).ReadingAnimFile;
-                }
-                //Do not laod content if alias
-                if (!typeof (IArrayRef).IsAssignableFrom(typeof (T)) || 
-                    !_sequencesBackRef[i].IsAlias)
                 ((IReferencer) this[i]).LoadContent(stream, version);
-            }
         }
 
         public void Save(BinaryWriter stream, M2.Format version = M2.Format.Useless)
@@ -85,48 +58,26 @@ namespace m2lib_csharp.types
         public void SaveContent(BinaryWriter stream, M2.Format version = M2.Format.Useless)
         {
             if (Count == 0) return;
-
-            var mainStream = stream;
-            if (WritingAnimFile != null)
-            {
-                stream = WritingAnimFile;
-            }
-
             _offset = (uint) stream.BaseStream.Position;
             for(var i = 0; i < Count; i++)
             {
                 if (typeof (IAnimated).IsAssignableFrom(typeof (T)))
-                {
                     ((IAnimated) this[i]).SetSequences(_sequencesBackRef);
-                }
                 stream.WriteGeneric(version, this[i]);
             }
             if (typeof (IReferencer).IsAssignableFrom(typeof (T)))
             {
                 for (var i = 0; i < Count; i++)
-                {
-                    if (typeof (IArrayRef).IsAssignableFrom(typeof (T)) &&
-                        version >= M2.Format.LichKing &&
-                        _sequencesBackRef[i].GetRealSequence(_sequencesBackRef).IsExtern)
-                    {
-                        ((IArrayRef) this[i]).WritingAnimFile = _sequencesBackRef[i].GetRealSequence(_sequencesBackRef).WritingAnimFile;
-                    }
-                    //Do NOT write content if seq[i] is an alias. Only the real should write content.
-                    if (!typeof (IArrayRef).IsAssignableFrom(typeof (T)) || 
-                        !_sequencesBackRef[i].IsAlias)
                     ((IReferencer) this[i]).SaveContent(stream, version);
-                }
             }
-            RewriteHeader(mainStream, version);
+            RewriteHeader(stream, version);
         }
 
-        public void SetSequences(IReadOnlyList<M2Sequence> sequences)
+        public void PassSequences(IReadOnlyList<M2Sequence> sequences)
         {
+            Debug.Assert(typeof(IAnimated).IsAssignableFrom(typeof(T)), "M2Array<"+typeof(T)+"> while T does not implement IAnimated");
             _sequencesBackRef = sequences;
         }
-
-        public BinaryReader ReadingAnimFile { get; set; } // .anim files handling
-        public BinaryWriter WritingAnimFile { get; set; }
 
         private void RewriteHeader(BinaryWriter stream, M2.Format version)
         {
@@ -151,15 +102,6 @@ namespace m2lib_csharp.types
             result.Append("\r\n");
             return result.ToString();
         }
-    }
-
-    /// <summary>
-    ///     Used to call non generic methods on generic M2Array.
-    /// </summary>
-    internal interface IArrayRef
-    {
-        BinaryReader ReadingAnimFile { get; set; }
-        BinaryWriter WritingAnimFile { get; set; }
     }
 
     /// <summary>

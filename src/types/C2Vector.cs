@@ -11,7 +11,9 @@ namespace m2lib_csharp.types
     {
         public float X, Y;
 
-        public C2Vector(float p1 = 0, float p2 = 0)
+        public C2Vector() : this(0, 0){}
+
+        public C2Vector(float p1, float p2)
         {
             X = p1;
             Y = p2;
@@ -27,6 +29,11 @@ namespace m2lib_csharp.types
         {
             stream.Write(X);
             stream.Write(Y);
+        }
+
+        public override string ToString()
+        {
+            return $"({X},{Y})";
         }
     }
 }
