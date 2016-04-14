@@ -1,32 +1,21 @@
-﻿using System.IO;
-using m2lib_csharp.interfaces;
-using m2lib_csharp.m2;
-
-namespace m2lib_csharp.types
+﻿namespace m2lib_csharp.types
 {
     /// <summary>
     ///     A one dimensional range defined by the bounds.
     /// </summary>
-    public class CRange : IMarshalable
+    public struct CRange
     {
-        public float Min, Max;
+        public readonly float Min, Max;
 
-        public CRange(float p1 = 0, float p2 = 0)
+        public CRange(float p1, float p2)
         {
             Min = p1;
             Max = p2;
         }
 
-        public void Load(BinaryReader stream, M2.Format version)
+        public override string ToString()
         {
-            Min = stream.ReadSingle();
-            Max = stream.ReadSingle();
-        }
-
-        public void Save(BinaryWriter stream, M2.Format version)
-        {
-            stream.Write(Min);
-            stream.Write(Max);
+            return $"({Min}->{Max})";
         }
     }
 }

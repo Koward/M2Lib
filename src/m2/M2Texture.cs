@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using m2lib_csharp.interfaces;
-using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
@@ -41,6 +40,7 @@ namespace m2lib_csharp.m2
         private readonly M2Array<byte> _name = new M2Array<byte>();
         public TextureType Type { get; set; }
         public TextureFlags Flags { get; set; }
+
         public string Name
         {
             get { return _name.ToNameString(); }

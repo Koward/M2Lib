@@ -2,7 +2,6 @@
 using System.IO;
 using System.Text;
 using m2lib_csharp.interfaces;
-using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {

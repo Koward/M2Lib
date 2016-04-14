@@ -1,15 +1,11 @@
-﻿using System.IO;
-using m2lib_csharp.interfaces;
-using m2lib_csharp.m2;
-
-namespace m2lib_csharp.types
+﻿namespace m2lib_csharp.types
 {
     /// <summary>
     ///     A four floats quaternion.
     /// </summary>
-    public class C4Quaternion : IMarshalable
+    public struct C4Quaternion
     {
-        public float X, Y, Z, W;
+        public readonly float X, Y, Z, W;
 
         public C4Quaternion(float p1, float p2, float p3, float p4)
         {
@@ -17,26 +13,6 @@ namespace m2lib_csharp.types
             Y = p2;
             Z = p3;
             W = p4;
-        }
-
-        public C4Quaternion() : this(0, 0, 0, 1)
-        {
-        }
-
-        public void Load(BinaryReader stream, M2.Format version)
-        {
-            X = stream.ReadSingle();
-            Y = stream.ReadSingle();
-            Z = stream.ReadSingle();
-            W = stream.ReadSingle();
-        }
-
-        public void Save(BinaryWriter stream, M2.Format version)
-        {
-            stream.Write(X);
-            stream.Write(Y);
-            stream.Write(Z);
-            stream.Write(W);
         }
 
         public static explicit operator CompQuat(C4Quaternion quat)
@@ -52,6 +28,11 @@ namespace m2lib_csharp.types
         private static short FloatToShort(float value)
         {
             return (short) (value > 0 ? value*32767.0 - 32768 : value*32767.0 + 32768);
+        }
+
+        public override string ToString()
+        {
+            return $"({X},{Y},{Z},{W})";
         }
     }
 }

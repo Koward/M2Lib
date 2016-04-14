@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using m2lib_csharp.interfaces;
+using m2lib_csharp.io;
 using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
@@ -22,14 +23,7 @@ namespace m2lib_csharp.m2
             HelmetAnimScaled = 0x1000 // set blend_modificator to helmetAnimScalingRec.m_amount for this bone
         }
 
-        public override string ToString()
-        {
-            return $"KeyBoneId: {KeyBoneId}, Flags: {Flags}, ParentBone: {ParentBone}, SubmeshId: {SubmeshId}, " +
-                   $"\nTranslation: {Translation}, " +
-                   $"\nRotation: {Rotation}, \n" +
-                   $"\nScale: {Scale}, " +
-                   $"\nPivot: {Pivot}";
-        }
+        private readonly M2Track<CompQuat> _compressedRotation = new M2Track<CompQuat>();
 
         private readonly ushort[] _unknown = new ushort[2];
         public int KeyBoneId { get; set; } = -1;
@@ -39,9 +33,7 @@ namespace m2lib_csharp.m2
         public M2Track<C3Vector> Translation { get; set; } = new M2Track<C3Vector>();
         public M2Track<C4Quaternion> Rotation { get; set; } = new M2Track<C4Quaternion>();
         public M2Track<C3Vector> Scale { get; set; } = new M2Track<C3Vector>();
-        public C3Vector Pivot { get; set; } = new C3Vector();
-
-        private readonly M2Track<CompQuat> _compressedRotation = new M2Track<CompQuat>(); 
+        public C3Vector Pivot { get; set; }
 
         public void Load(BinaryReader stream, M2.Format version)
         {
@@ -63,7 +55,7 @@ namespace m2lib_csharp.m2
             else
                 Rotation.Load(stream, version);
             Scale.Load(stream, version);
-            Pivot.Load(stream, version);
+            Pivot = stream.ReadC3Vector();
         }
 
         public void Save(BinaryWriter stream, M2.Format version)
@@ -87,7 +79,7 @@ namespace m2lib_csharp.m2
             else
                 Rotation.Save(stream, version);
             Scale.Save(stream, version);
-            Pivot.Save(stream, version);
+            stream.Write(Pivot);
         }
 
         public void LoadContent(BinaryReader stream, M2.Format version)
@@ -129,6 +121,15 @@ namespace m2lib_csharp.m2
             Rotation.SequenceBackRef = sequences;
             _compressedRotation.SequenceBackRef = sequences;
             Scale.SequenceBackRef = sequences;
+        }
+
+        public override string ToString()
+        {
+            return $"KeyBoneId: {KeyBoneId}, Flags: {Flags}, ParentBone: {ParentBone}, SubmeshId: {SubmeshId}, " +
+                   $"\nTranslation: {Translation}, " +
+                   $"\nRotation: {Rotation}, \n" +
+                   $"\nScale: {Scale}, " +
+                   $"\nPivot: {Pivot}";
         }
 
         public static M2Array<short> GenerateKeyBoneLookup(M2Array<M2Bone> bones)

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using m2lib_csharp.interfaces;
+using m2lib_csharp.io;
 using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
@@ -11,7 +12,7 @@ namespace m2lib_csharp.m2
         public string Identifier { get; set; }
         public int Data { get; set; }
         public int Bone { get; set; }
-        public C3Vector Position { get; set; } = new C3Vector();
+        public C3Vector Position { get; set; }
         public M2TrackBase Enabled { get; set; } = new M2TrackBase();
 
         public void Load(BinaryReader stream, M2.Format version)
@@ -19,7 +20,7 @@ namespace m2lib_csharp.m2
             Identifier = Encoding.UTF8.GetString(stream.ReadBytes(4));
             Data = stream.ReadInt32();
             Bone = stream.ReadInt32();
-            Position.Load(stream, version);
+            Position = stream.ReadC3Vector();
             Enabled.Load(stream, version);
         }
 
@@ -30,7 +31,7 @@ namespace m2lib_csharp.m2
             stream.Write(Encoding.UTF8.GetBytes(Identifier));
             stream.Write(Data);
             stream.Write(Bone);
-            Position.Save(stream, version);
+            stream.Write(Position);
             Enabled.Save(stream, version);
         }
 

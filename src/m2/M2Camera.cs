@@ -2,32 +2,34 @@
 using System.IO;
 using System.Linq;
 using m2lib_csharp.interfaces;
+using m2lib_csharp.io;
 using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
     public class M2Camera : IAnimated
     {
-        public CameraType Type { get; set; } = CameraType.UserInterface;
-        public float FarClip { get; set; }
-        public float NearClip { get; set; }
-        public M2Track<C33Matrix> Positions { get; set; } = new M2Track<C33Matrix>();
-        public C3Vector PositionBase { get; set; } = new C3Vector();
-        public M2Track<C33Matrix> TargetPositions { get; set; } = new M2Track<C33Matrix>(); 
-        public C3Vector TargetPositionBase { get; set; } = new C3Vector();
-        public M2Track<C3Vector> Roll { get; set; } = new M2Track<C3Vector>(); 
-        public M2Track<C3Vector> FieldOfView { get; set; } = new M2Track<C3Vector>(); 
-
         public enum CameraType
         {
             Portrait = 0,
             CharacterInfo = 1,
             UserInterface = -1
         }
+
+        public CameraType Type { get; set; } = CameraType.UserInterface;
+        public float FarClip { get; set; }
+        public float NearClip { get; set; }
+        public M2Track<C33Matrix> Positions { get; set; } = new M2Track<C33Matrix>();
+        public C3Vector PositionBase { get; set; }
+        public M2Track<C33Matrix> TargetPositions { get; set; } = new M2Track<C33Matrix>();
+        public C3Vector TargetPositionBase { get; set; }
+        public M2Track<C3Vector> Roll { get; set; } = new M2Track<C3Vector>();
+        public M2Track<C3Vector> FieldOfView { get; set; } = new M2Track<C3Vector>();
+
         public void Load(BinaryReader stream, M2.Format version)
         {
             Type = (CameraType) stream.ReadInt32();
-            if(version < M2.Format.Cataclysm)
+            if (version < M2.Format.Cataclysm)
             {
                 FieldOfView.Timestamps.Add(new M2Array<uint> {0});
                 FieldOfView.Values.Add(new M2Array<C3Vector> {new C3Vector(stream.ReadSingle(), 0, 0)});
@@ -35,17 +37,17 @@ namespace m2lib_csharp.m2
             FarClip = stream.ReadSingle();
             NearClip = stream.ReadSingle();
             Positions.Load(stream, version);
-            PositionBase.Load(stream, version);
+            PositionBase = stream.ReadC3Vector();
             TargetPositions.Load(stream, version);
-            TargetPositionBase.Load(stream, version);
+            TargetPositionBase = stream.ReadC3Vector();
             Roll.Load(stream, version);
-            if(version >= M2.Format.Cataclysm) FieldOfView.Load(stream, version);
+            if (version >= M2.Format.Cataclysm) FieldOfView.Load(stream, version);
         }
 
         public void Save(BinaryWriter stream, M2.Format version)
         {
             stream.Write((int) Type);
-            if(version < M2.Format.Cataclysm)
+            if (version < M2.Format.Cataclysm)
             {
                 if (FieldOfView.Values.Count == 1) stream.Write(FieldOfView.Values[0][0].X);
                 else stream.Write(Type == CameraType.Portrait ? 0.7F : 0.97F);
@@ -53,11 +55,11 @@ namespace m2lib_csharp.m2
             stream.Write(FarClip);
             stream.Write(NearClip);
             Positions.Save(stream, version);
-            PositionBase.Save(stream, version);
+            stream.Write(PositionBase);
             TargetPositions.Save(stream, version);
-            TargetPositionBase.Save(stream, version);
+            stream.Write(TargetPositionBase);
             Roll.Save(stream, version);
-            if(version >= M2.Format.Cataclysm) FieldOfView.Save(stream, version);
+            if (version >= M2.Format.Cataclysm) FieldOfView.Save(stream, version);
         }
 
         public void LoadContent(BinaryReader stream, M2.Format version)
@@ -65,7 +67,7 @@ namespace m2lib_csharp.m2
             Positions.LoadContent(stream, version);
             TargetPositions.LoadContent(stream, version);
             Roll.LoadContent(stream, version);
-            if(version >= M2.Format.Cataclysm) FieldOfView.LoadContent(stream, version);
+            if (version >= M2.Format.Cataclysm) FieldOfView.LoadContent(stream, version);
         }
 
         public void SaveContent(BinaryWriter stream, M2.Format version)
@@ -73,7 +75,7 @@ namespace m2lib_csharp.m2
             Positions.SaveContent(stream, version);
             TargetPositions.SaveContent(stream, version);
             Roll.SaveContent(stream, version);
-            if(version >= M2.Format.Cataclysm) FieldOfView.SaveContent(stream, version);
+            if (version >= M2.Format.Cataclysm) FieldOfView.SaveContent(stream, version);
         }
 
         public void SetSequences(IReadOnlyList<M2Sequence> sequences)
@@ -94,9 +96,9 @@ namespace m2lib_csharp.m2
             {
                 var id = (short) cameras[i].Type;
                 if (id > 0 && lookup[id] == -1) lookup[id] = i;
-                else//id -1
+                else //id -1
                 {
-                    if (maxId == 0) lookup.Add(-1);//Let space for [1](CharacterInfo) and go to end
+                    if (maxId == 0) lookup.Add(-1); //Let space for [1](CharacterInfo) and go to end
                     lookup.Add(i);
                 }
             }

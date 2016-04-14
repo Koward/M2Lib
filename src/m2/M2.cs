@@ -74,15 +74,15 @@ namespace m2lib_csharp.m2
         public M2Array<short> TransLookup { get; } = new M2Array<short>();
         public M2Array<short> UvAnimLookup { get; } = new M2Array<short>();
 
-        public CAaBox BoundingBox { get; set; } = new CAaBox();
+        public CAaBox BoundingBox { get; set; }
         public float BoundingSphereRadius { get; set; }
-        public CAaBox CollisionBox { get; set; } = new CAaBox();
+        public CAaBox CollisionBox { get; set; }
         public float CollisionSphereRadius { get; set; }
         public M2Array<ushort> BoundingTriangles { get; } = new M2Array<ushort>();
         public M2Array<C3Vector> BoundingVertices { get; } = new M2Array<C3Vector>();
         public M2Array<C3Vector> BoundingNormals { get; } = new M2Array<C3Vector>();
         public M2Array<M2Ribbon> Ribbons { get; } = new M2Array<M2Ribbon>();
-        public M2Array<ushort> Particles { get; } = new M2Array<ushort>();//TODO Replace by real struct
+        public M2Array<ushort> Particles { get; } = new M2Array<ushort>(); //TODO Replace by real struct
         public M2Array<ushort> BlendingMaps { get; } = new M2Array<ushort>();
 
         public void Load(BinaryReader stream, Format version = Format.Useless)
@@ -117,7 +117,7 @@ namespace m2lib_csharp.m2
             Colors.Load(stream, version);
             Textures.Load(stream, version);
             Transparencies.Load(stream, version);
-            if(version < Format.LichKing) SkipArrayParsing(stream, version);//Unknown Ref
+            if (version < Format.LichKing) SkipArrayParsing(stream, version); //Unknown Ref
             TextureTransforms.Load(stream, version);
             SkipArrayParsing(stream, version);
             Materials.Load(stream, version);
@@ -126,9 +126,9 @@ namespace m2lib_csharp.m2
             TexUnitLookup.Load(stream, version);
             TransLookup.Load(stream, version);
             UvAnimLookup.Load(stream, version);
-            BoundingBox.Load(stream, version);
+            BoundingBox = stream.ReadCAaBox();
             BoundingSphereRadius = stream.ReadSingle();
-            CollisionBox.Load(stream, version);
+            CollisionBox = stream.ReadCAaBox();
             CollisionSphereRadius = stream.ReadSingle();
             BoundingTriangles.Load(stream, version);
             BoundingVertices.Load(stream, version);
@@ -141,7 +141,7 @@ namespace m2lib_csharp.m2
             SkipArrayParsing(stream, version);
             Ribbons.Load(stream, version);
             Particles.Load(stream, version);
-            if(GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.Load(stream, version);
+            if (GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.Load(stream, version);
 
             // LOAD REFERENCED CONTENT
             _name.LoadContent(stream);
@@ -149,7 +149,7 @@ namespace m2lib_csharp.m2
             Sequences.LoadContent(stream, version);
             if (version >= Format.LichKing)
             {
-                foreach (var seq in Sequences.Where(seq => (!seq.IsAlias) &&
+                foreach (var seq in Sequences.Where(seq => !seq.IsAlias &&
                                                            seq.IsExtern))
                 {
                     seq.ReadingAnimFile =
@@ -197,7 +197,7 @@ namespace m2lib_csharp.m2
             Cameras.LoadContent(stream, version);
             Ribbons.LoadContent(stream, version);
             Particles.LoadContent(stream, version);
-            if(GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.LoadContent(stream, version);
+            if (GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.LoadContent(stream, version);
             foreach (var seq in Sequences)
                 seq.ReadingAnimFile?.Close();
         }
@@ -233,7 +233,7 @@ namespace m2lib_csharp.m2
             Colors.Save(stream, version);
             Textures.Save(stream, version);
             Transparencies.Save(stream, version);
-            if(version < Format.LichKing) stream.Write((long) 0);//Unknown Ref
+            if (version < Format.LichKing) stream.Write((long) 0); //Unknown Ref
             TextureTransforms.Save(stream, version);
             var texReplaceLookup = M2Texture.GenerateTexReplaceLookup(Textures);
             texReplaceLookup.Save(stream, version);
@@ -243,9 +243,9 @@ namespace m2lib_csharp.m2
             TexUnitLookup.Save(stream, version);
             TransLookup.Save(stream, version);
             UvAnimLookup.Save(stream, version);
-            BoundingBox.Save(stream, version);
+            stream.Write(BoundingBox);
             stream.Write(BoundingSphereRadius);
-            CollisionBox.Save(stream, version);
+            stream.Write(CollisionBox);
             stream.Write(CollisionSphereRadius);
             BoundingTriangles.Save(stream, version);
             BoundingVertices.Save(stream, version);
@@ -260,7 +260,8 @@ namespace m2lib_csharp.m2
             cameraLookup.Save(stream, version);
             Ribbons.Save(stream, version);
             Particles.Save(stream, version);
-            if(version >= Format.LichKing && GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.Save(stream, version);
+            if (version >= Format.LichKing && GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields))
+                BlendingMaps.Save(stream, version);
 
             // SAVE REFERENCED CONTENT
             _name.SaveContent(stream);
@@ -282,7 +283,7 @@ namespace m2lib_csharp.m2
             Sequences.SaveContent(stream, version);
             if (version >= Format.LichKing)
             {
-                foreach (var seq in Sequences.Where(seq => (!seq.IsAlias) &&
+                foreach (var seq in Sequences.Where(seq => !seq.IsAlias &&
                                                            seq.IsExtern))
                 {
                     seq.WritingAnimFile =
@@ -333,7 +334,7 @@ namespace m2lib_csharp.m2
             cameraLookup.SaveContent(stream, version);
             Ribbons.SaveContent(stream, version);
             Particles.Save(stream, version);
-            if(GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.SaveContent(stream, version);
+            if (GlobalModelFlags.HasFlag(GlobalFlags.Add2Fields)) BlendingMaps.SaveContent(stream, version);
             foreach (var seq in Sequences)
                 seq.WritingAnimFile?.Close();
         }

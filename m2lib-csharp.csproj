@@ -51,6 +51,7 @@
     <Compile Include="src\io\StreamExtensions.cs" />
     <Compile Include="src\io\Substream.cs" />
     <Compile Include="src\m2\AnimationData.cs" />
+    <Compile Include="src\m2\M2Array.cs" />
     <Compile Include="src\m2\M2Attachment.cs" />
     <Compile Include="src\m2\M2Bone.cs" />
     <Compile Include="src\m2\M2Camera.cs" />
@@ -74,7 +75,6 @@
     <Compile Include="src\m2\M2Vertex.cs" />
     <Compile Include="src\m2\M2SkinProfile.cs" />
     <Compile Include="src\types\FixedPoint.cs" />
-    <Compile Include="src\types\M2Array.cs" />
     <Compile Include="src\types\C2Vector.cs" />
     <Compile Include="src\types\C33Matrix.cs" />
     <Compile Include="src\types\C3Vector.cs" />

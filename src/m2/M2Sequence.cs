@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using m2lib_csharp.interfaces;
+using m2lib_csharp.io;
 using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
@@ -18,7 +19,7 @@ namespace m2lib_csharp.m2
             Looped = 0x20,
             HasNext = 0x40,
             Blended = 0x80,
-            Stored = 0x100,
+            Stored = 0x100
         }
 
         private ushort _padding;
@@ -32,14 +33,17 @@ namespace m2lib_csharp.m2
         public uint MaximumRepetitions { get; set; }
         public ushort BlendTimeStart { get; set; } = 150;
         public ushort BlendTimeEnd { get; set; } = 150;
-        public CAaBox Bounds { get; set; } = new CAaBox();
+        public CAaBox Bounds { get; set; }
         public float BoundRadius { get; set; }
         public short NextAnimation { get; set; } = -1;
         public ushort AliasNext { get; set; }
 
         public string Name => AnimationData.IdToName[AnimationId];
-        public bool IsExtern => (Flags & (SequenceFlags.Looped | SequenceFlags.LowPriority | SequenceFlags.Stored)) == 0;
-        public bool IsAlias => (Flags & (SequenceFlags.HasNext)) != 0;
+
+        public bool IsExtern => (Flags & (SequenceFlags.Looped | SequenceFlags.LowPriority | SequenceFlags.Stored)) == 0
+            ;
+
+        public bool IsAlias => (Flags & SequenceFlags.HasNext) != 0;
 
         /// <summary>
         ///     Used to convert to one-timeline animation style
@@ -81,7 +85,7 @@ namespace m2lib_csharp.m2
                 BlendTimeStart = (ushort) blendTime;
                 BlendTimeEnd = (ushort) blendTime;
             }
-            Bounds.Load(stream, version);
+            Bounds = stream.ReadCAaBox();
             BoundRadius = stream.ReadSingle();
             NextAnimation = stream.ReadInt16();
             AliasNext = stream.ReadUInt16();
@@ -116,7 +120,7 @@ namespace m2lib_csharp.m2
             {
                 stream.Write((BlendTimeStart + BlendTimeEnd)/2);
             }
-            Bounds.Save(stream, version);
+            stream.Write(Bounds);
             stream.Write(BoundRadius);
             stream.Write(NextAnimation);
             stream.Write(AliasNext);

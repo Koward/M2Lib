@@ -1,34 +1,35 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using m2lib_csharp.interfaces;
+using m2lib_csharp.io;
 using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
     public class M2Light : IAnimated
     {
-        public LightType Type { get; set; } = LightType.Directional;
-        public short Bone { get; set; } = -1;
-        public C3Vector Position { get; set; } = new C3Vector();
-        public M2Track<C3Vector> AmbientColor { get; set; } = new M2Track<C3Vector>(); 
-        public M2Track<float> AmbientIntensity { get; set; } = new M2Track<float>(); 
-        public M2Track<C3Vector> DiffuseColor { get; set; } = new M2Track<C3Vector>(); 
-        public M2Track<float> DiffuseIntensity { get; set; } = new M2Track<float>(); 
-        public M2Track<float> AttenuationStart { get; set; } = new M2Track<float>(); 
-        public M2Track<float> AttenuationEnd { get; set; } = new M2Track<float>(); 
-        public M2Track<byte> Unknown { get; set; } = new M2Track<byte>(); 
-
         public enum LightType : ushort
         {
             Directional = 0,
             Point = 1
         }
 
+        public LightType Type { get; set; } = LightType.Directional;
+        public short Bone { get; set; } = -1;
+        public C3Vector Position { get; set; }
+        public M2Track<C3Vector> AmbientColor { get; set; } = new M2Track<C3Vector>();
+        public M2Track<float> AmbientIntensity { get; set; } = new M2Track<float>();
+        public M2Track<C3Vector> DiffuseColor { get; set; } = new M2Track<C3Vector>();
+        public M2Track<float> DiffuseIntensity { get; set; } = new M2Track<float>();
+        public M2Track<float> AttenuationStart { get; set; } = new M2Track<float>();
+        public M2Track<float> AttenuationEnd { get; set; } = new M2Track<float>();
+        public M2Track<byte> Unknown { get; set; } = new M2Track<byte>();
+
         public void Load(BinaryReader stream, M2.Format version)
         {
             Type = (LightType) stream.ReadUInt16();
             Bone = stream.ReadInt16();
-            Position.Load(stream, version);
+            Position = stream.ReadC3Vector();
             AmbientColor.Load(stream, version);
             AmbientIntensity.Load(stream, version);
             DiffuseColor.Load(stream, version);
@@ -42,7 +43,7 @@ namespace m2lib_csharp.m2
         {
             stream.Write((ushort) Type);
             stream.Write(Bone);
-            Position.Save(stream, version);
+            stream.Write(Position);
             AmbientColor.Save(stream, version);
             AmbientIntensity.Save(stream, version);
             DiffuseColor.Save(stream, version);

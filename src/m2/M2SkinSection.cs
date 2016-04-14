@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using m2lib_csharp.interfaces;
+using m2lib_csharp.io;
 using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
@@ -17,8 +18,8 @@ namespace m2lib_csharp.m2
         public ushort StartBones { get; set; }
         public ushort BoneInfluences { get; set; }
         public ushort RootBone { get; set; }
-        public C3Vector CenterMass { get; set; } = new C3Vector();
-        public C3Vector CenterBoundingBox { get; set; } = new C3Vector();
+        public C3Vector CenterMass { get; set; }
+        public C3Vector CenterBoundingBox { get; set; }
         public float Radius { get; set; }
 
         public void Load(BinaryReader stream, M2.Format version)
@@ -40,9 +41,9 @@ namespace m2lib_csharp.m2
             StartBones = stream.ReadUInt16();
             BoneInfluences = stream.ReadUInt16();
             RootBone = stream.ReadUInt16();
-            CenterMass.Load(stream, version);
+            CenterMass = stream.ReadC3Vector();
             if (version <= M2.Format.Classic) return;
-            CenterBoundingBox.Load(stream, version);
+            CenterBoundingBox = stream.ReadC3Vector();
             Radius = stream.ReadSingle();
         }
 
@@ -68,9 +69,9 @@ namespace m2lib_csharp.m2
             stream.Write(StartBones);
             stream.Write(BoneInfluences);
             stream.Write(RootBone);
-            CenterMass.Save(stream, version);
+            stream.Write(CenterMass);
             if (version <= M2.Format.Classic) return;
-            CenterBoundingBox.Save(stream, version);
+            stream.Write(CenterBoundingBox);
             stream.Write(Radius);
         }
     }

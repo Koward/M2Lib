@@ -21,9 +21,16 @@ namespace m2lib_csharp.m2
             _offset = stream.ReadUInt32();
         }
 
+        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Useless)
+        {
+            _startOffset = stream.BaseStream.Position;
+            stream.Write(Count);
+            stream.Write(_offset);
+        }
+
         //TODO A bit of optimization would be nice.
         /// <summary>
-        /// Load referenced content. Instances are created, then loaded, then each of their referenced content is loaded.
+        ///     Load referenced content. Instances are created, then loaded, then each of their referenced content is loaded.
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="version"></param>
@@ -37,8 +44,8 @@ namespace m2lib_csharp.m2
                 if (typeof (IAnimated).IsAssignableFrom(typeof (T)))
                 {
                     Add(new T());
-                    ((IAnimated)this[i]).SetSequences(_sequencesBackRef);
-                    ((IMarshalable)this[i]).Load(stream, version);
+                    ((IAnimated) this[i]).SetSequences(_sequencesBackRef);
+                    ((IMarshalable) this[i]).Load(stream, version);
                 }
                 else Add(stream.ReadGeneric<T>(version));
             }
@@ -48,22 +55,18 @@ namespace m2lib_csharp.m2
                 ((IReferencer) this[i]).LoadContent(stream, version);
         }
 
-        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Useless)
-        {
-            _startOffset = stream.BaseStream.Position;
-            stream.Write(Count);
-            stream.Write(_offset);
-        }
-
         public void SaveContent(BinaryWriter stream, M2.Format version = M2.Format.Useless)
         {
             if (Count == 0) return;
             _offset = (uint) stream.BaseStream.Position;
-            for(var i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
                 if (typeof (IAnimated).IsAssignableFrom(typeof (T)))
+                {
                     ((IAnimated) this[i]).SetSequences(_sequencesBackRef);
-                stream.WriteGeneric(version, this[i]);
+                    ((IMarshalable) this[i]).Save(stream, version);
+                }
+                else stream.WriteGeneric(version, this[i]);
             }
             if (typeof (IReferencer).IsAssignableFrom(typeof (T)))
             {
@@ -75,7 +78,8 @@ namespace m2lib_csharp.m2
 
         public void PassSequences(IReadOnlyList<M2Sequence> sequences)
         {
-            Debug.Assert(typeof(IAnimated).IsAssignableFrom(typeof(T)), "M2Array<"+typeof(T)+"> while T does not implement IAnimated");
+            Debug.Assert(typeof (IAnimated).IsAssignableFrom(typeof (T)),
+                "M2Array<" + typeof (T) + "> while T does not implement IAnimated");
             _sequencesBackRef = sequences;
         }
 
@@ -94,7 +98,7 @@ namespace m2lib_csharp.m2
             result.Append("[N: " + Count + "]");
             if (Count == 0) return result.ToString();
             result.Append("\r\n");
-            for(var i = 0; i < Count; i++)
+            for (var i = 0; i < Count; i++)
             {
                 result.Append(this[i]);
                 result.Append("\r\n");
@@ -105,7 +109,7 @@ namespace m2lib_csharp.m2
     }
 
     /// <summary>
-    /// Allows special behaviors for specific M2Arrays.
+    ///     Allows special behaviors for specific M2Arrays.
     /// </summary>
     public static class M2ArrayExtensions
     {

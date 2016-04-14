@@ -20,6 +20,8 @@ namespace m2lib_csharp.m2
         private readonly M2Array<Range> _legacyRanges = new M2Array<Range>();
         private readonly M2Array<uint> _legacyTimestamps = new M2Array<uint>();
         private readonly M2Array<T> _legacyValues = new M2Array<T>();
+        private T _defaultValue;
+        private bool _defaultValueSet;
 
         public InterpolationTypes InterpolationType { get; set; }
         public short GlobalSequence { get; set; } = -1;
@@ -34,11 +36,12 @@ namespace m2lib_csharp.m2
         // Used to add new values
         public T DefaultValue
         {
-            set { _defaultValue = value;
-                _defaultValueSet = true;}
+            set
+            {
+                _defaultValue = value;
+                _defaultValueSet = true;
+            }
         }
-        private bool _defaultValueSet;
-        private T _defaultValue;
 
 
         public void Load(BinaryReader stream, M2.Format version)
@@ -155,7 +158,7 @@ namespace m2lib_csharp.m2
         }
 
         /// <summary>
-        /// Pre : SequenceBackRef != null
+        ///     Pre : SequenceBackRef != null
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="version"></param>
@@ -170,7 +173,8 @@ namespace m2lib_csharp.m2
             {
                 for (var i = 0; i < Timestamps.Count; i++)
                 {
-                    if (Timestamps[i].Count == 0) {
+                    if (Timestamps[i].Count == 0)
+                    {
                         _legacyTimestamps.Add(SequenceBackRef[i].TimeStart);
                         _legacyValues.Add(!_defaultValueSet ? new T() : _defaultValue);
                         continue;
@@ -195,11 +199,10 @@ namespace m2lib_csharp.m2
 
         private void LegacySaveContent(BinaryWriter stream, M2.Format version)
         {
-
             _legacyRanges.SaveContent(stream, version);
-                _legacyTimestamps.SaveContent(stream, version);
-                _legacyValues.SaveContent(stream, version);
-        } 
+            _legacyTimestamps.SaveContent(stream, version);
+            _legacyValues.SaveContent(stream, version);
+        }
 
         /// <summary>
         ///     Pre : Sequences set with TimeStart, SequenceBackRef set, LegacyTimestamps computed
@@ -208,7 +211,7 @@ namespace m2lib_csharp.m2
         {
             if (_legacyTimestamps.Count < 2) return;
             // ReSharper disable once ForCanBeConvertedToForeach
-            for(var index = 0; index < SequenceBackRef.Count; index++)
+            for (var index = 0; index < SequenceBackRef.Count; index++)
             {
                 var seq = SequenceBackRef[index];
                 var indexesPrevious =
@@ -227,7 +230,7 @@ namespace m2lib_csharp.m2
 
                 if (indexesNext.Count == 0)
                     endIndex = (uint) (_legacyTimestamps.Count - 1);
-                        // We know there more than 1 element (see line 1) so it's >= 0
+                // We know there more than 1 element (see line 1) so it's >= 0
                 else endIndex = (uint) indexesNext[0]; // Minimum
 
                 _legacyRanges.Add(new Range(startIndex, endIndex));
@@ -237,7 +240,7 @@ namespace m2lib_csharp.m2
 
         private void LegacyLoad(BinaryReader stream, M2.Format version)
         {
-            Debug.Assert(SequenceBackRef != null, "SequenceBackRef is null in M2Track<"+typeof(T)+">");
+            Debug.Assert(SequenceBackRef != null, "SequenceBackRef is null in M2Track<" + typeof (T) + ">");
             _legacyRanges.Load(stream, version);
             _legacyTimestamps.Load(stream, version);
             _legacyValues.Load(stream, version);
@@ -257,7 +260,7 @@ namespace m2lib_csharp.m2
             else
             {
                 // ReSharper disable once ForCanBeConvertedToForeach
-                for(var index = 0; index < SequenceBackRef.Count; index++)
+                for (var index = 0; index < SequenceBackRef.Count; index++)
                 {
                     var seq = SequenceBackRef[index];
                     var validIndexes = Enumerable.Range(0, _legacyTimestamps.Count)
@@ -327,7 +330,7 @@ namespace m2lib_csharp.m2
                 newArray.AddRange(track.Values[i].Select(value => (CompQuat) value));
                 target.Values.Add(newArray);
             }
-        } 
+        }
 
         public static void Decompress(this M2Track<CompQuat> track, M2Track<C4Quaternion> target)
         {
@@ -343,6 +346,6 @@ namespace m2lib_csharp.m2
                 newArray.AddRange(track.Values[i].Select(value => (C4Quaternion) value));
                 target.Values.Add(newArray);
             }
-        } 
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using m2lib_csharp.interfaces;
+using m2lib_csharp.io;
 using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
@@ -9,27 +10,27 @@ namespace m2lib_csharp.m2
     {
         public int Unknown1 { get; set; } = -1;
         public uint Bone { get; set; }
-        public C3Vector Position { get; set; } = new C3Vector();
-        public M2Array<ushort> TextureRefs { get; set; } = new M2Array<ushort>(); 
-        public M2Array<ushort> BlendRefs { get; set; } = new M2Array<ushort>(); 
-        public M2Track<C3Vector> Color { get; set; } = new M2Track<C3Vector>(); 
-        public M2Track<Fixed16> Opacity { get; set; } = new M2Track<Fixed16>(); 
-        public M2Track<float> HeightAbove { get; set; } = new M2Track<float>(); 
-        public M2Track<float> HeightBelow { get; set; } = new M2Track<float>(); 
+        public C3Vector Position { get; set; }
+        public M2Array<ushort> TextureRefs { get; set; } = new M2Array<ushort>();
+        public M2Array<ushort> BlendRefs { get; set; } = new M2Array<ushort>();
+        public M2Track<C3Vector> Color { get; set; } = new M2Track<C3Vector>();
+        public M2Track<Fixed16> Opacity { get; set; } = new M2Track<Fixed16>();
+        public M2Track<float> HeightAbove { get; set; } = new M2Track<float>();
+        public M2Track<float> HeightBelow { get; set; } = new M2Track<float>();
         public float EdgesPerSec { get; set; }
         public float EdgeLifeSpanInSec { get; set; }
         public float Gravity { get; set; }
         public ushort MRows { get; set; }
         public ushort MCols { get; set; }
-        public M2Track<ushort> TexSlot { get; set; } = new M2Track<ushort>(); 
-        public M2Track<bool> DataEnabled { get; set; } = new M2Track<bool>(); 
+        public M2Track<ushort> TexSlot { get; set; } = new M2Track<ushort>();
+        public M2Track<bool> DataEnabled { get; set; } = new M2Track<bool>();
         public uint Unknown2 { get; set; }
-        
+
         public void Load(BinaryReader stream, M2.Format version)
         {
             Unknown1 = stream.ReadInt32();
             Bone = stream.ReadUInt32();
-            Position.Load(stream, version);
+            Position = stream.ReadC3Vector();
             TextureRefs.Load(stream, version);
             BlendRefs.Load(stream, version);
             Color.Load(stream, version);
@@ -51,7 +52,7 @@ namespace m2lib_csharp.m2
         {
             stream.Write(Unknown1);
             stream.Write(Bone);
-            Position.Save(stream, version);
+            stream.Write(Position);
             TextureRefs.Save(stream, version);
             BlendRefs.Save(stream, version);
             Color.Save(stream, version);

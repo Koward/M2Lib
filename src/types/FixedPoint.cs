@@ -9,26 +9,16 @@ using m2lib_csharp.m2;
 namespace m2lib_csharp.types
 {
     /// <summary>
-    /// Fixed point number. Little endian.
-    /// Exponents : -9 -8 -7 -6 -5 -4 -3 -2 -1 | 0  1  2  3  4  5
-    /// Indices   :  0  1  2  3  4  5  6  7  8 | 9  10 11 12 13 14
+    ///     Fixed point number. Little endian.
+    ///     Exponents : -9 -8 -7 -6 -5 -4 -3 -2 -1 | 0  1  2  3  4  5
+    ///     Indices   :  0  1  2  3  4  5  6  7  8 | 9  10 11 12 13 14
     /// </summary>
     public class FixedPoint : IMarshalable
     {
-        private readonly int _integerBits;
         private readonly int _decimalBits;
+        private readonly int _integerBits;
         // ReSharper disable once ConvertToConstant.Local
         private readonly int _signBits = 1;
-        public BitArray Bits { get; private set; }
-        public float Value {
-            get
-            {
-                var decimalPart = Bits.GetRange(0, _decimalBits).ToInt();
-                var integerPart = Bits.GetRange(_decimalBits, _decimalBits + _integerBits).ToInt();
-                var sign = Bits[_decimalBits + _integerBits + _signBits - 1];
-                return (sign ? -1.0f : 1.0f) * (integerPart + decimalPart / (float)(1 << _decimalBits));
-            }
-        }
 
         public FixedPoint(int integerBits, int decimalBits)
         {
@@ -37,14 +27,27 @@ namespace m2lib_csharp.types
             Bits = new BitArray(_decimalBits + _integerBits + _signBits);
         }
 
+        public BitArray Bits { get; private set; }
+
+        public float Value
+        {
+            get
+            {
+                var decimalPart = Bits.GetRange(0, _decimalBits).ToInt();
+                var integerPart = Bits.GetRange(_decimalBits, _decimalBits + _integerBits).ToInt();
+                var sign = Bits[_decimalBits + _integerBits + _signBits - 1];
+                return (sign ? -1.0f : 1.0f)*(integerPart + decimalPart/(float) (1 << _decimalBits));
+            }
+        }
+
         public void Load(BinaryReader stream, M2.Format version = M2.Format.Useless)
         {
-            Bits = new BitArray(stream.ReadBytes((_decimalBits + _integerBits + _signBits) / 8));
+            Bits = new BitArray(stream.ReadBytes((_decimalBits + _integerBits + _signBits)/8));
         }
 
         public void Save(BinaryWriter stream, M2.Format version = M2.Format.Useless)
         {
-            var content = new byte[(_decimalBits+_integerBits+_signBits)/8];
+            var content = new byte[(_decimalBits + _integerBits + _signBits)/8];
             Bits.CopyTo(content, 0);
             stream.Write(content);
         }
@@ -64,7 +67,7 @@ namespace m2lib_csharp.types
             {
                 if (bits[i])
                 {
-                    result |= (1 << i);
+                    result |= 1 << i;
                 }
             }
             result &= int.MaxValue;
@@ -72,7 +75,7 @@ namespace m2lib_csharp.types
         }
 
         /// <summary>
-        /// Returns a new BitArray composed of bits from this BitArray from fromIndex (inclusive) to toIndex (exclusive). 
+        ///     Returns a new BitArray composed of bits from this BitArray from fromIndex (inclusive) to toIndex (exclusive).
         /// </summary>
         /// <param name="bits">this</param>
         /// <param name="fromIndex">index of the first bit to include</param>
@@ -99,7 +102,7 @@ namespace m2lib_csharp.types
         }
 
         /// <summary>
-        /// Checks that fromIndex ... toIndex is a valid range of bit indices.
+        ///     Checks that fromIndex ... toIndex is a valid range of bit indices.
         /// </summary>
         /// <param name="bits">this</param>
         /// <param name="fromIndex">index of the first bit to include</param>
@@ -112,7 +115,7 @@ namespace m2lib_csharp.types
                 throw new IndexOutOfRangeException("toIndex < 0: " + toIndex);
             if (fromIndex > toIndex)
                 throw new IndexOutOfRangeException("fromIndex: " + fromIndex +
-                                                    " > toIndex: " + toIndex);
+                                                   " > toIndex: " + toIndex);
         }
 
         public static string ToBitString(this BitArray bits)
@@ -131,6 +134,8 @@ namespace m2lib_csharp.types
 
     public class Fixed16 : FixedPoint
     {
-        public Fixed16() : base(0, 15) {}
+        public Fixed16() : base(0, 15)
+        {
+        }
     }
 }

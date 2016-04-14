@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using m2lib_csharp.m2;
-using m2lib_csharp.types;
 
 namespace m2lib_csharp
 {
@@ -18,6 +17,7 @@ namespace m2lib_csharp
             var model = new M2();
             using (var reader = new BinaryReader(new FileStream(fileName, FileMode.Open)))
                 model.Load(reader);
+            Debug.WriteLine(model.Name);
             /*
             using (var writer = new BinaryWriter(new FileStream(fileName2, FileMode.Create)))
                 model.Save(writer, M2.Format.Classic);

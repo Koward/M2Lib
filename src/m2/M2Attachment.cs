@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using m2lib_csharp.interfaces;
+using m2lib_csharp.io;
 using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
@@ -10,14 +11,14 @@ namespace m2lib_csharp.m2
     {
         public uint Id { get; set; }
         public uint Bone { get; set; }
-        public C3Vector Position { get; set; } = new C3Vector();
+        public C3Vector Position { get; set; }
         public M2Track<bool> AnimateAttached { get; set; } = new M2Track<bool>();
 
         public void Load(BinaryReader stream, M2.Format version)
         {
             Id = stream.ReadUInt32();
             Bone = stream.ReadUInt32();
-            Position.Load(stream, version);
+            Position = stream.ReadC3Vector();
             AnimateAttached.Load(stream, version);
         }
 
@@ -25,7 +26,7 @@ namespace m2lib_csharp.m2
         {
             stream.Write(Id);
             stream.Write(Bone);
-            Position.Save(stream, version);
+            stream.Write(Position);
             if (version < M2.Format.LichKing && AnimateAttached.Timestamps.Count == 0)
             {
                 AnimateAttached.Timestamps.Add(new M2Array<uint> {0});
