@@ -77,13 +77,13 @@ namespace m2lib_csharp.m2
 
         public void SetSequences(IReadOnlyList<M2Sequence> sequences)
         {
-            AmbientColor.SequenceBackRef = sequences;
-            AmbientIntensity.SequenceBackRef = sequences;
-            DiffuseColor.SequenceBackRef = sequences;
-            DiffuseIntensity.SequenceBackRef = sequences;
-            AttenuationStart.SequenceBackRef = sequences;
-            AttenuationEnd.SequenceBackRef = sequences;
-            Unknown.SequenceBackRef = sequences;
+            AmbientColor.Sequences = sequences;
+            AmbientIntensity.Sequences = sequences;
+            DiffuseColor.Sequences = sequences;
+            DiffuseIntensity.Sequences = sequences;
+            AttenuationStart.Sequences = sequences;
+            AttenuationEnd.Sequences = sequences;
+            Unknown.Sequences = sequences;
         }
     }
 }

@@ -7,7 +7,7 @@ namespace m2lib_csharp.m2
 {
     public class M2TextureWeight : IAnimated
     {
-        public M2Track<Fixed16> Weight { get; set; } = new M2Track<Fixed16>();
+        public M2Track<FixedPoint_0_15> Weight { get; set; } = new M2Track<FixedPoint_0_15>(new FixedPoint_0_15(0x7FFF));
 
         public void Load(BinaryReader stream, M2.Format version)
         {
@@ -31,7 +31,7 @@ namespace m2lib_csharp.m2
 
         public void SetSequences(IReadOnlyList<M2Sequence> sequences)
         {
-            Weight.SequenceBackRef = sequences;
+            Weight.Sequences = sequences;
         }
     }
 }

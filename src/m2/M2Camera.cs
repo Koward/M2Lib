@@ -80,10 +80,10 @@ namespace m2lib_csharp.m2
 
         public void SetSequences(IReadOnlyList<M2Sequence> sequences)
         {
-            Positions.SequenceBackRef = sequences;
-            TargetPositions.SequenceBackRef = sequences;
-            Roll.SequenceBackRef = sequences;
-            FieldOfView.SequenceBackRef = sequences;
+            Positions.Sequences = sequences;
+            TargetPositions.Sequences = sequences;
+            Roll.Sequences = sequences;
+            FieldOfView.Sequences = sequences;
         }
 
         public static M2Array<short> GenerateLookup(M2Array<M2Camera> cameras)

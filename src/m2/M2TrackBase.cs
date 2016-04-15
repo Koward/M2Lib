@@ -25,7 +25,7 @@ namespace m2lib_csharp.m2
 
         // Used only to read 1 timeline formats and to open correct .anim files when needed.
         // Legacy fields are automatically converted to standard ones in methods.
-        public IReadOnlyList<M2Sequence> SequenceBackRef { set; get; }
+        public IReadOnlyList<M2Sequence> Sequences { set; get; }
 
 
         public void Load(BinaryReader stream, M2.Format version)
@@ -67,17 +67,17 @@ namespace m2lib_csharp.m2
                 for (var i = 0; i < Timestamps.Count; i++)
                 {
                     //TODO Should we check if GlobalSequence before accessing sequence flags ?
-                    if (SequenceBackRef[i].IsAlias)
+                    if (Sequences[i].IsAlias)
                     {
                         var realIndex = i;
-                        while (SequenceBackRef[realIndex].IsAlias)
-                            realIndex = SequenceBackRef[realIndex].AliasNext;
+                        while (Sequences[realIndex].IsAlias)
+                            realIndex = Sequences[realIndex].AliasNext;
                         Timestamps[i] = Timestamps[realIndex];
                         continue;
                     }
-                    if (SequenceBackRef[i].IsExtern)
+                    if (Sequences[i].IsExtern)
                     {
-                        Timestamps[i].LoadContent(SequenceBackRef[i].ReadingAnimFile, version);
+                        Timestamps[i].LoadContent(Sequences[i].ReadingAnimFile, version);
                     }
                     else
                     {
@@ -100,20 +100,20 @@ namespace m2lib_csharp.m2
                 for (var i = 0; i < Timestamps.Count; i++)
                 {
                     //TODO Should we check if GlobalSequence before accessing sequence flags ?
-                    if (SequenceBackRef[i].IsAlias)
+                    if (Sequences[i].IsAlias)
                     {
                         var realIndex = i;
-                        while (SequenceBackRef[realIndex].IsAlias)
-                            realIndex = SequenceBackRef[realIndex].AliasNext;
+                        while (Sequences[realIndex].IsAlias)
+                            realIndex = Sequences[realIndex].AliasNext;
                         Timestamps[i] = Timestamps[realIndex];
                         continue;
                     }
-                    if (SequenceBackRef[i].IsExtern)
+                    if (Sequences[i].IsExtern)
                     {
                         if (Timestamps[i].Count <= 0) continue;
-                        Timestamps[i].StoredOffset = (uint) SequenceBackRef[i].WritingAnimFile.BaseStream.Position;
+                        Timestamps[i].StoredOffset = (uint) Sequences[i].WritingAnimFile.BaseStream.Position;
                         for (var j = 0; j < Timestamps[i].Count; j++)
-                            SequenceBackRef[i].WritingAnimFile.Write(Timestamps[i][j]);
+                            Sequences[i].WritingAnimFile.Write(Timestamps[i][j]);
                         Timestamps[i].RewriteHeader(stream, version);
                     }
                     else
@@ -135,7 +135,7 @@ namespace m2lib_csharp.m2
         }
 
         /// <summary>
-        ///     Pre : SequenceBackRef != null
+        ///     Pre : Sequences != null
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="version"></param>
@@ -145,14 +145,14 @@ namespace m2lib_csharp.m2
             {
                 _legacyTimestamps.AddRange(Timestamps[0]);
             }
-            else if (Timestamps.Count == SequenceBackRef.Count)
+            else if (Timestamps.Count == Sequences.Count)
             {
                 for (var i = 0; i < Timestamps.Count; i++)
                 {
                     if (Timestamps[i].Count == 0) continue;
                     for (var j = 0; j < Timestamps[i].Count; j++)
                     {
-                        _legacyTimestamps.Add(Timestamps[i][j] + SequenceBackRef[i].TimeStart);
+                        _legacyTimestamps.Add(Timestamps[i][j] + Sequences[i].TimeStart);
                     }
                 }
             }
@@ -172,15 +172,15 @@ namespace m2lib_csharp.m2
         }
 
         /// <summary>
-        ///     Pre : Sequences set with TimeStart, SequenceBackRef set, LegacyTimestamps computed
+        ///     Pre : Sequences set with TimeStart, Sequences set, LegacyTimestamps computed
         /// </summary>
         private void GenerateLegacyRanges()
         {
             if (_legacyTimestamps.Count < 2) return;
             // ReSharper disable once ForCanBeConvertedToForeach
-            for (var index = 0; index < SequenceBackRef.Count; index++)
+            for (var index = 0; index < Sequences.Count; index++)
             {
-                var seq = SequenceBackRef[index];
+                var seq = Sequences[index];
                 var indexesPrevious =
                     Enumerable.Range(0, _legacyTimestamps.Count) // Indexes of times <= to the beginning of sequence.
                         .Where(i => _legacyTimestamps[i] <= seq.TimeStart)
@@ -207,7 +207,7 @@ namespace m2lib_csharp.m2
 
         private void LegacyLoad(BinaryReader stream, M2.Format version)
         {
-            Debug.Assert(SequenceBackRef != null, "SequenceBackRef is null in M2TrackBase");
+            Debug.Assert(Sequences != null, "Sequences is null in M2TrackBase");
             _legacyRanges.Load(stream, version);
             _legacyTimestamps.Load(stream, version);
         }
@@ -224,9 +224,9 @@ namespace m2lib_csharp.m2
             else
             {
                 // ReSharper disable once ForCanBeConvertedToForeach
-                for (var index = 0; index < SequenceBackRef.Count; index++)
+                for (var index = 0; index < Sequences.Count; index++)
                 {
-                    var seq = SequenceBackRef[index];
+                    var seq = Sequences[index];
                     var validIndexes = Enumerable.Range(0, _legacyTimestamps.Count)
                         .Where(
                             i =>

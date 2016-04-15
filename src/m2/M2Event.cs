@@ -47,7 +47,7 @@ namespace m2lib_csharp.m2
 
         public void SetSequences(IReadOnlyList<M2Sequence> sequences)
         {
-            Enabled.SequenceBackRef = sequences;
+            Enabled.Sequences = sequences;
         }
     }
 }

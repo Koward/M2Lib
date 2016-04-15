@@ -23,7 +23,8 @@ namespace m2lib_csharp.m2
             HelmetAnimScaled = 0x1000 // set blend_modificator to helmetAnimScalingRec.m_amount for this bone
         }
 
-        private readonly M2Track<CompQuat> _compressedRotation = new M2Track<CompQuat>();
+        private readonly M2Track<CompQuat> _compressedRotation =
+            new M2Track<CompQuat>(new CompQuat(32767, 32767, 32767, -1));
 
         private readonly ushort[] _unknown = new ushort[2];
         public int KeyBoneId { get; set; } = -1;
@@ -31,8 +32,8 @@ namespace m2lib_csharp.m2
         public short ParentBone { get; set; } = -1;
         public ushort SubmeshId { get; set; }
         public M2Track<C3Vector> Translation { get; set; } = new M2Track<C3Vector>();
-        public M2Track<C4Quaternion> Rotation { get; set; } = new M2Track<C4Quaternion>();
-        public M2Track<C3Vector> Scale { get; set; } = new M2Track<C3Vector>();
+        public M2Track<C4Quaternion> Rotation { get; set; } = new M2Track<C4Quaternion>(new C4Quaternion(0,0,0,1));
+        public M2Track<C3Vector> Scale { get; set; } = new M2Track<C3Vector>(new C3Vector(1, 1, 1));
         public C3Vector Pivot { get; set; }
 
         public void Load(BinaryReader stream, M2.Format version)
@@ -117,10 +118,10 @@ namespace m2lib_csharp.m2
         public void SetSequences(IReadOnlyList<M2Sequence> sequences)
         {
             Debug.Assert(sequences != null, "Tried to set null sequences.");
-            Translation.SequenceBackRef = sequences;
-            Rotation.SequenceBackRef = sequences;
-            _compressedRotation.SequenceBackRef = sequences;
-            Scale.SequenceBackRef = sequences;
+            Translation.Sequences = sequences;
+            Rotation.Sequences = sequences;
+            _compressedRotation.Sequences = sequences;
+            Scale.Sequences = sequences;
         }
 
         public override string ToString()

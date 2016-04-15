@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{6508665A-54DE-41D7-919C-D1DAFBAB9D54}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>m2lib_csharp</RootNamespace>
     <AssemblyName>m2lib-csharp</AssemblyName>
@@ -31,6 +31,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
@@ -62,7 +65,6 @@
     <Compile Include="src\m2\PlayableRecord.cs" />
     <Compile Include="src\m2\M2.cs" />
     <Compile Include="src\m2\M2Sequence.cs" />
-    <Compile Include="src\DebugProgram.cs" />
     <Compile Include="src\m2\M2ShadowBatch.cs" />
     <Compile Include="src\m2\M2SkinSection.cs" />
     <Compile Include="src\m2\M2Color.cs" />
@@ -74,7 +76,6 @@
     <Compile Include="src\m2\M2TextureWeight.cs" />
     <Compile Include="src\m2\M2Vertex.cs" />
     <Compile Include="src\m2\M2SkinProfile.cs" />
-    <Compile Include="src\types\FixedPoint.cs" />
     <Compile Include="src\types\C2Vector.cs" />
     <Compile Include="src\types\C33Matrix.cs" />
     <Compile Include="src\types\C3Vector.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="src\types\CArgb.cs" />
     <Compile Include="src\types\CompQuat.cs" />
     <Compile Include="src\types\CRange.cs" />
+    <Compile Include="src\types\FixedPoint.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

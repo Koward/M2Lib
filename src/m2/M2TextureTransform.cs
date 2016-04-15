@@ -8,8 +8,8 @@ namespace m2lib_csharp.m2
     public class M2TextureTransform : IAnimated
     {
         public M2Track<C3Vector> Translation { get; set; } = new M2Track<C3Vector>();
-        public M2Track<C4Quaternion> Rotation { get; set; } = new M2Track<C4Quaternion>();
-        public M2Track<C3Vector> Scale { get; set; } = new M2Track<C3Vector>();
+        public M2Track<C4Quaternion> Rotation { get; set; } = new M2Track<C4Quaternion>(new C4Quaternion(0, 0, 0, 1));
+        public M2Track<C3Vector> Scale { get; set; } = new M2Track<C3Vector>(new C3Vector(1, 1, 1));
 
         public void Load(BinaryReader stream, M2.Format version)
         {
@@ -46,9 +46,9 @@ namespace m2lib_csharp.m2
         /// <param name="sequences"></param>
         public void SetSequences(IReadOnlyList<M2Sequence> sequences)
         {
-            Translation.SequenceBackRef = sequences;
-            Rotation.SequenceBackRef = sequences;
-            Scale.SequenceBackRef = sequences;
+            Translation.Sequences = sequences;
+            Rotation.Sequences = sequences;
+            Scale.Sequences = sequences;
         }
     }
 }

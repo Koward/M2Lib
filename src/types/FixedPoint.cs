@@ -1,65 +1,105 @@
 ﻿using System;
 using System.Collections;
-using System.Globalization;
-using System.IO;
 using System.Text;
-using m2lib_csharp.interfaces;
-using m2lib_csharp.m2;
 
 namespace m2lib_csharp.types
 {
-    /// <summary>
-    ///     Fixed point number. Little endian.
-    ///     Exponents : -9 -8 -7 -6 -5 -4 -3 -2 -1 | 0  1  2  3  4  5
-    ///     Indices   :  0  1  2  3  4  5  6  7  8 | 9  10 11 12 13 14
-    /// </summary>
-    public class FixedPoint : IMarshalable
+    // ReSharper disable once InconsistentNaming
+    public struct FixedPoint_0_15
     {
-        private readonly int _decimalBits;
-        private readonly int _integerBits;
-        // ReSharper disable once ConvertToConstant.Local
-        private readonly int _signBits = 1;
+        public float Value => _bits.ToFloat(0, 15);
+        private readonly BitArray _bits;
 
-        public FixedPoint(int integerBits, int decimalBits)
+        public FixedPoint_0_15(short p1)
         {
-            _decimalBits = decimalBits;
-            _integerBits = integerBits;
-            Bits = new BitArray(_decimalBits + _integerBits + _signBits);
+            _bits = new BitArray(BitConverter.GetBytes(p1));
         }
 
-        public BitArray Bits { get; private set; }
-
-        public float Value
+        public FixedPoint_0_15(BitArray bits)
         {
-            get
-            {
-                var decimalPart = Bits.GetRange(0, _decimalBits).ToInt();
-                var integerPart = Bits.GetRange(_decimalBits, _decimalBits + _integerBits).ToInt();
-                var sign = Bits[_decimalBits + _integerBits + _signBits - 1];
-                return (sign ? -1.0f : 1.0f)*(integerPart + decimalPart/(float) (1 << _decimalBits));
-            }
+            _bits = bits;
         }
 
-        public void Load(BinaryReader stream, M2.Format version = M2.Format.Useless)
+        public short ToShort() => _bits.ToShort();
+    }
+
+    // ReSharper disable once InconsistentNaming
+    public struct FixedPoint_6_9
+    {
+        public float Value => _bits.ToFloat(6, 9);
+        private readonly BitArray _bits;
+
+        public FixedPoint_6_9(short p1)
         {
-            Bits = new BitArray(stream.ReadBytes((_decimalBits + _integerBits + _signBits)/8));
+            _bits = new BitArray(BitConverter.GetBytes(p1));
         }
 
-        public void Save(BinaryWriter stream, M2.Format version = M2.Format.Useless)
+        public FixedPoint_6_9(BitArray bits)
         {
-            var content = new byte[(_decimalBits + _integerBits + _signBits)/8];
-            Bits.CopyTo(content, 0);
-            stream.Write(content);
+            _bits = bits;
         }
 
-        public override string ToString()
+        public short ToShort() => _bits.ToShort();
+    }
+
+    // ReSharper disable once InconsistentNaming
+    public struct FixedPoint_2_5
+    {
+        public float Value => _bits.ToFloat(2, 5);
+        private readonly BitArray _bits;
+
+        public FixedPoint_2_5(byte p1)
         {
-            return Value.ToString(CultureInfo.CurrentCulture);
+            _bits = new BitArray(BitConverter.GetBytes(p1));
         }
+
+        public FixedPoint_2_5(BitArray bits)
+        {
+            _bits = bits;
+        }
+
+        public byte ToByte() => _bits.ToByte();
     }
 
     public static class BitArrayExtensions
     {
+        public static float ToFloat(this BitArray bits, int integerBits, int decimalBits)
+        {
+            const int signBits = 1;
+            var decimalPart = bits.GetRange(0, decimalBits).ToInt();
+            var integerPart = bits.GetRange(decimalBits, decimalBits + integerBits).ToInt();
+            var sign = bits[decimalBits + integerBits + signBits - 1];
+            return (sign ? -1.0f : 1.0f)*(integerPart + decimalPart/(float) (1 << decimalBits));
+        }
+
+        public static short ToShort(this BitArray bits)
+        {
+            var result = 0;
+            for (var i = 0; i < bits.Count; i++)
+            {
+                if (bits[i])
+                {
+                    result |= 1 << i;
+                }
+            }
+            result &= short.MaxValue;
+            return (short) result;
+        }
+
+        public static byte ToByte(this BitArray bits)
+        {
+            var result = 0;
+            for (var i = 0; i < bits.Count; i++)
+            {
+                if (bits[i])
+                {
+                    result |= 1 << i;
+                }
+            }
+            result &= byte.MaxValue;
+            return (byte) result;
+        }
+
         public static int ToInt(this BitArray bits)
         {
             var result = 0;
@@ -129,13 +169,6 @@ namespace m2lib_csharp.types
             }
 
             return sb.ToString();
-        }
-    }
-
-    public class Fixed16 : FixedPoint
-    {
-        public Fixed16() : base(0, 15)
-        {
         }
     }
 }

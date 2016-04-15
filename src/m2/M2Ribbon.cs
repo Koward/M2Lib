@@ -13,8 +13,8 @@ namespace m2lib_csharp.m2
         public C3Vector Position { get; set; }
         public M2Array<ushort> TextureRefs { get; set; } = new M2Array<ushort>();
         public M2Array<ushort> BlendRefs { get; set; } = new M2Array<ushort>();
-        public M2Track<C3Vector> Color { get; set; } = new M2Track<C3Vector>();
-        public M2Track<Fixed16> Opacity { get; set; } = new M2Track<Fixed16>();
+        public M2Track<C3Vector> Color { get; set; } = new M2Track<C3Vector>(); //TODO check default values here
+        public M2Track<FixedPoint_0_15> Opacity { get; set; } = new M2Track<FixedPoint_0_15>(new FixedPoint_0_15(0x7FFF));
         public M2Track<float> HeightAbove { get; set; } = new M2Track<float>();
         public M2Track<float> HeightBelow { get; set; } = new M2Track<float>();
         public float EdgesPerSec { get; set; }
@@ -23,7 +23,7 @@ namespace m2lib_csharp.m2
         public ushort MRows { get; set; }
         public ushort MCols { get; set; }
         public M2Track<ushort> TexSlot { get; set; } = new M2Track<ushort>();
-        public M2Track<bool> DataEnabled { get; set; } = new M2Track<bool>();
+        public M2Track<bool> DataEnabled { get; set; } = new M2Track<bool>(true);
         public uint Unknown2 { get; set; }
 
         public void Load(BinaryReader stream, M2.Format version)
@@ -101,12 +101,12 @@ namespace m2lib_csharp.m2
 
         public void SetSequences(IReadOnlyList<M2Sequence> sequences)
         {
-            Color.SequenceBackRef = sequences;
-            Opacity.SequenceBackRef = sequences;
-            HeightAbove.SequenceBackRef = sequences;
-            HeightBelow.SequenceBackRef = sequences;
-            TexSlot.SequenceBackRef = sequences;
-            DataEnabled.SequenceBackRef = sequences;
+            Color.Sequences = sequences;
+            Opacity.Sequences = sequences;
+            HeightAbove.Sequences = sequences;
+            HeightBelow.Sequences = sequences;
+            TexSlot.Sequences = sequences;
+            DataEnabled.Sequences = sequences;
         }
     }
 }

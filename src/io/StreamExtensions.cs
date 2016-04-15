@@ -38,6 +38,9 @@ namespace m2lib_csharp.io
             ReadFunctions[typeof (CArgb)] = s => s.ReadCArgb();
             ReadFunctions[typeof (CompQuat)] = s => s.ReadCompQuat();
             ReadFunctions[typeof (CRange)] = s => s.ReadCRange();
+            ReadFunctions[typeof (FixedPoint_0_15)] = s => s.ReadFixedPoint_0_15();
+            ReadFunctions[typeof (FixedPoint_6_9)] = s => s.ReadFixedPoint_6_9();
+            ReadFunctions[typeof (FixedPoint_2_5)] = s => s.ReadFixedPoint_2_5();
 
             WriteFunctions[typeof (bool)] = (s, t) => s.Write((bool) t);
             WriteFunctions[typeof (byte)] = (s, t) => s.Write((byte) t);
@@ -57,6 +60,9 @@ namespace m2lib_csharp.io
             WriteFunctions[typeof (CArgb)] = (s, t) => s.Write((CArgb) t);
             WriteFunctions[typeof (CompQuat)] = (s, t) => s.Write((CompQuat) t);
             WriteFunctions[typeof (CRange)] = (s, t) => s.Write((CRange) t);
+            WriteFunctions[typeof (FixedPoint_0_15)] = (s, t) => s.Write((FixedPoint_0_15) t);
+            WriteFunctions[typeof (FixedPoint_6_9)] = (s, t) => s.Write((FixedPoint_6_9) t);
+            WriteFunctions[typeof (FixedPoint_2_5)] = (s, t) => s.Write((FixedPoint_2_5) t);
         }
 
         public static T ReadGeneric<T>(this BinaryReader stream, M2.Format version)
@@ -78,65 +84,50 @@ namespace m2lib_csharp.io
 
         //READING OF STRUCTS
         public static C2Vector ReadC2Vector(this BinaryReader stream)
-        {
-            return new C2Vector(stream.ReadSingle(), stream.ReadSingle());
-        }
+            => new C2Vector(stream.ReadSingle(), stream.ReadSingle());
 
         public static C33Matrix ReadC33Matrix(this BinaryReader stream)
-        {
-            return new C33Matrix(stream.ReadC3Vector(), stream.ReadC3Vector(), stream.ReadC3Vector());
-        }
+            => new C33Matrix(stream.ReadC3Vector(), stream.ReadC3Vector(), stream.ReadC3Vector());
 
         public static C3Vector ReadC3Vector(this BinaryReader stream)
-        {
-            return new C3Vector(stream.ReadSingle(), stream.ReadSingle(), stream.ReadSingle());
-        }
+            => new C3Vector(stream.ReadSingle(), stream.ReadSingle(), stream.ReadSingle());
 
         public static C44Matrix ReadC44Matrix(this BinaryReader stream)
-        {
-            return new C44Matrix(stream.ReadC3Vector(), stream.ReadC3Vector(), stream.ReadC3Vector(),
+            => new C44Matrix(stream.ReadC3Vector(), stream.ReadC3Vector(), stream.ReadC3Vector(),
                 stream.ReadC3Vector());
-        }
 
         public static C4Plane ReadC4Plane(this BinaryReader stream)
-        {
-            return new C4Plane(stream.ReadC3Vector(), stream.ReadSingle());
-        }
+            => new C4Plane(stream.ReadC3Vector(), stream.ReadSingle());
 
         public static C4Quaternion ReadC4Quaternion(this BinaryReader stream)
-        {
-            return new C4Quaternion(stream.ReadSingle(), stream.ReadSingle(), stream.ReadSingle(), stream.ReadSingle());
-        }
+            => new C4Quaternion(stream.ReadSingle(), stream.ReadSingle(), stream.ReadSingle(), stream.ReadSingle());
 
         public static C4Vector ReadC4Vector(this BinaryReader stream)
-        {
-            return new C4Vector(stream.ReadSingle(), stream.ReadSingle(), stream.ReadSingle(), stream.ReadSingle());
-        }
+            => new C4Vector(stream.ReadSingle(), stream.ReadSingle(), stream.ReadSingle(), stream.ReadSingle());
 
         public static CAaBox ReadCAaBox(this BinaryReader stream)
-        {
-            return new CAaBox(stream.ReadC3Vector(), stream.ReadC3Vector());
-        }
+            => new CAaBox(stream.ReadC3Vector(), stream.ReadC3Vector());
 
         public static CAaSphere ReadCAaSphere(this BinaryReader stream)
-        {
-            return new CAaSphere(stream.ReadC3Vector(), stream.ReadSingle());
-        }
+            => new CAaSphere(stream.ReadC3Vector(), stream.ReadSingle());
 
         public static CArgb ReadCArgb(this BinaryReader stream)
-        {
-            return new CArgb(stream.ReadByte(), stream.ReadByte(), stream.ReadByte(), stream.ReadByte());
-        }
+            => new CArgb(stream.ReadByte(), stream.ReadByte(), stream.ReadByte(), stream.ReadByte());
 
         public static CompQuat ReadCompQuat(this BinaryReader stream)
-        {
-            return new CompQuat(stream.ReadInt16(), stream.ReadInt16(), stream.ReadInt16(), stream.ReadInt16());
-        }
+            => new CompQuat(stream.ReadInt16(), stream.ReadInt16(), stream.ReadInt16(), stream.ReadInt16());
 
         public static CRange ReadCRange(this BinaryReader stream)
-        {
-            return new CRange(stream.ReadSingle(), stream.ReadSingle());
-        }
+            => new CRange(stream.ReadSingle(), stream.ReadSingle());
+
+        public static FixedPoint_0_15 ReadFixedPoint_0_15(this BinaryReader stream)
+            => new FixedPoint_0_15(stream.ReadInt16());
+
+        public static FixedPoint_6_9 ReadFixedPoint_6_9(this BinaryReader stream)
+            => new FixedPoint_6_9(stream.ReadInt16());
+
+        public static FixedPoint_2_5 ReadFixedPoint_2_5(this BinaryReader stream)
+            => new FixedPoint_2_5(stream.ReadByte());
 
         //WRITING OF STRUCTS
         public static void Write(this BinaryWriter stream, C2Vector item)
@@ -225,5 +216,12 @@ namespace m2lib_csharp.io
             stream.Write(item.Min);
             stream.Write(item.Max);
         }
+
+        public static void Write(this BinaryWriter stream, FixedPoint_0_15 item)
+            => stream.Write(item.ToShort());
+        public static void Write(this BinaryWriter stream, FixedPoint_6_9 item)
+            => stream.Write(item.ToShort());
+        public static void Write(this BinaryWriter stream, FixedPoint_2_5 item)
+            => stream.Write(item.ToByte());
     }
 }

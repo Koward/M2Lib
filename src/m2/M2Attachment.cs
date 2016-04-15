@@ -12,7 +12,7 @@ namespace m2lib_csharp.m2
         public uint Id { get; set; }
         public uint Bone { get; set; }
         public C3Vector Position { get; set; }
-        public M2Track<bool> AnimateAttached { get; set; } = new M2Track<bool>();
+        public M2Track<bool> AnimateAttached { get; set; } = new M2Track<bool>(true);
 
         public void Load(BinaryReader stream, M2.Format version)
         {
@@ -47,7 +47,7 @@ namespace m2lib_csharp.m2
 
         public void SetSequences(IReadOnlyList<M2Sequence> sequences)
         {
-            AnimateAttached.SequenceBackRef = sequences;
+            AnimateAttached.Sequences = sequences;
         }
 
         public static M2Array<short> GenerateLookup(M2Array<M2Attachment> attachments)
