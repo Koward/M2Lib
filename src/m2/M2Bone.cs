@@ -23,11 +23,11 @@ namespace m2lib_csharp.m2
             HelmetAnimScaled = 0x1000 // set blend_modificator to helmetAnimScalingRec.m_amount for this bone
         }
 
-        private readonly M2Track<CompQuat> _compressedRotation =
-            new M2Track<CompQuat>(new CompQuat(32767, 32767, 32767, -1));
+        private readonly M2Track<M2CompQuat> _compressedRotation =
+            new M2Track<M2CompQuat>(new M2CompQuat(32767, 32767, 32767, -1));
 
         private readonly ushort[] _unknown = new ushort[2];
-        public int KeyBoneId { get; set; } = -1;
+        public KeyBone KeyBoneId { get; set; } = (KeyBone) (-1);
         public BoneFlags Flags { get; set; } = 0;
         public short ParentBone { get; set; } = -1;
         public ushort SubmeshId { get; set; }
@@ -39,7 +39,7 @@ namespace m2lib_csharp.m2
         public void Load(BinaryReader stream, M2.Format version)
         {
             Debug.Assert(version != M2.Format.Useless);
-            KeyBoneId = stream.ReadInt32();
+            KeyBoneId = (KeyBone) stream.ReadInt32();
             Flags = (BoneFlags) stream.ReadUInt32();
             ParentBone = stream.ReadInt16();
             SubmeshId = stream.ReadUInt16();
@@ -62,7 +62,7 @@ namespace m2lib_csharp.m2
         public void Save(BinaryWriter stream, M2.Format version)
         {
             Debug.Assert(version != M2.Format.Useless);
-            stream.Write(KeyBoneId);
+            stream.Write((int) KeyBoneId);
             stream.Write((uint) Flags);
             stream.Write(ParentBone);
             stream.Write(SubmeshId);
@@ -126,24 +126,64 @@ namespace m2lib_csharp.m2
 
         public override string ToString()
         {
-            return $"KeyBoneId: {KeyBoneId}, Flags: {Flags}, ParentBone: {ParentBone}, SubmeshId: {SubmeshId}, " +
+            return $"KeyBoneId: {KeyBoneId}, Flags: {Flags}, ParentBone: {ParentBone}, SubmeshId: {SubmeshId}"/* +
                    $"\nTranslation: {Translation}, " +
                    $"\nRotation: {Rotation}, \n" +
                    $"\nScale: {Scale}, " +
-                   $"\nPivot: {Pivot}";
+                   $"\nPivot: {Pivot}"*/;
         }
 
         public static M2Array<short> GenerateKeyBoneLookup(M2Array<M2Bone> bones)
         {
             var lookup = new M2Array<short>();
-            var maxId = bones.Max(x => x.KeyBoneId);
+            var maxId = (int) bones.Max(x => x.KeyBoneId);
             for (short i = 0; i < maxId + 1; i++) lookup.Add(-1);
             for (short i = 0; i < bones.Count; i++)
             {
-                var id = bones[i].KeyBoneId;
+                var id = (int) bones[i].KeyBoneId;
                 if (id >= 0 && lookup[id] == -1) lookup[id] = i;
             }
             return lookup;
+        }
+
+        public enum KeyBone
+        {
+            Other = -1,
+            ArmL = 0,
+            ArmR,
+            ShoulderL,
+            ShoulderR,
+            SpineLow,
+            Waist,
+            Head,
+            Jaw,
+            IndexFingerR,
+            MiddleFingerR,
+            PinkyFingerR,
+            RingFingerR,
+            ThumbR,
+            IndexFingerL,
+            MiddleFingerL,
+            PinkyFingerL,
+            RingFingerL,
+            ThumbL,
+            Bth,
+            Csr,
+            Csl,
+            Breath,
+            Name,
+            NameMount,
+            Chd,
+            Cch,
+            Root,
+            Wheel1,
+            Wheel2,
+            Wheel3,
+            Wheel4,
+            Wheel5,
+            Wheel6,
+            Wheel7,
+            Wheel8
         }
     }
 }

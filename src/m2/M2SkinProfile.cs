@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using m2lib_csharp.interfaces;
+using m2lib_csharp.types;
 
 namespace m2lib_csharp.m2
 {
@@ -9,7 +10,7 @@ namespace m2lib_csharp.m2
     {
         public M2Array<ushort> Indices { get; set; } = new M2Array<ushort>();
         public M2Array<ushort> Triangles { get; set; } = new M2Array<ushort>();
-        public M2Array<uint> Properties { get; set; } = new M2Array<uint>();
+        public M2Array<VertexProperty> Properties { get; set; } = new M2Array<VertexProperty>();
         public M2Array<M2SkinSection> Submeshes { get; set; } = new M2Array<M2SkinSection>();
         public M2Array<M2Batch> TextureUnits { get; set; } = new M2Array<M2Batch>();
         public uint Bones { get; set; }

@@ -82,7 +82,7 @@ namespace m2lib_csharp.m2
         public M2Array<C3Vector> BoundingVertices { get; } = new M2Array<C3Vector>();
         public M2Array<C3Vector> BoundingNormals { get; } = new M2Array<C3Vector>();
         public M2Array<M2Ribbon> Ribbons { get; } = new M2Array<M2Ribbon>();
-        public M2Array<ushort> Particles { get; } = new M2Array<ushort>(); //TODO Replace by real struct
+        public M2Array<M2Particle> Particles { get; } = new M2Array<M2Particle>();
         public M2Array<ushort> BlendingMaps { get; } = new M2Array<ushort>();
 
         public void Load(BinaryReader stream, Format version = Format.Useless)

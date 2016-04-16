@@ -126,7 +126,7 @@ namespace m2lib_csharp.m2
             result.Append("\r\n");
             for (var i = 0; i < Count; i++)
             {
-                result.Append(this[i]);
+                result.Append("["+i+"] " + this[i]);
                 result.Append("\r\n");
             }
             result.Append("\r\n");

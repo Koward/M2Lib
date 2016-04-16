@@ -36,11 +36,12 @@ namespace m2lib_csharp.io
             ReadFunctions[typeof (CAaBox)] = s => s.ReadCAaBox();
             ReadFunctions[typeof (CAaSphere)] = s => s.ReadCAaSphere();
             ReadFunctions[typeof (CArgb)] = s => s.ReadCArgb();
-            ReadFunctions[typeof (CompQuat)] = s => s.ReadCompQuat();
+            ReadFunctions[typeof (M2CompQuat)] = s => s.ReadCompQuat();
             ReadFunctions[typeof (CRange)] = s => s.ReadCRange();
             ReadFunctions[typeof (FixedPoint_0_15)] = s => s.ReadFixedPoint_0_15();
             ReadFunctions[typeof (FixedPoint_6_9)] = s => s.ReadFixedPoint_6_9();
             ReadFunctions[typeof (FixedPoint_2_5)] = s => s.ReadFixedPoint_2_5();
+            ReadFunctions[typeof (VertexProperty)] = s => s.ReadVertexProperty();
 
             WriteFunctions[typeof (bool)] = (s, t) => s.Write((bool) t);
             WriteFunctions[typeof (byte)] = (s, t) => s.Write((byte) t);
@@ -58,11 +59,12 @@ namespace m2lib_csharp.io
             WriteFunctions[typeof (CAaBox)] = (s, t) => s.Write((CAaBox) t);
             WriteFunctions[typeof (CAaSphere)] = (s, t) => s.Write((CAaSphere) t);
             WriteFunctions[typeof (CArgb)] = (s, t) => s.Write((CArgb) t);
-            WriteFunctions[typeof (CompQuat)] = (s, t) => s.Write((CompQuat) t);
+            WriteFunctions[typeof (M2CompQuat)] = (s, t) => s.Write((M2CompQuat) t);
             WriteFunctions[typeof (CRange)] = (s, t) => s.Write((CRange) t);
             WriteFunctions[typeof (FixedPoint_0_15)] = (s, t) => s.Write((FixedPoint_0_15) t);
             WriteFunctions[typeof (FixedPoint_6_9)] = (s, t) => s.Write((FixedPoint_6_9) t);
             WriteFunctions[typeof (FixedPoint_2_5)] = (s, t) => s.Write((FixedPoint_2_5) t);
+            WriteFunctions[typeof (VertexProperty)] = (s, t) => s.Write((VertexProperty) t);
         }
 
         public static T ReadGeneric<T>(this BinaryReader stream, M2.Format version)
@@ -114,8 +116,8 @@ namespace m2lib_csharp.io
         public static CArgb ReadCArgb(this BinaryReader stream)
             => new CArgb(stream.ReadByte(), stream.ReadByte(), stream.ReadByte(), stream.ReadByte());
 
-        public static CompQuat ReadCompQuat(this BinaryReader stream)
-            => new CompQuat(stream.ReadInt16(), stream.ReadInt16(), stream.ReadInt16(), stream.ReadInt16());
+        public static M2CompQuat ReadCompQuat(this BinaryReader stream)
+            => new M2CompQuat(stream.ReadInt16(), stream.ReadInt16(), stream.ReadInt16(), stream.ReadInt16());
 
         public static CRange ReadCRange(this BinaryReader stream)
             => new CRange(stream.ReadSingle(), stream.ReadSingle());
@@ -128,6 +130,9 @@ namespace m2lib_csharp.io
 
         public static FixedPoint_2_5 ReadFixedPoint_2_5(this BinaryReader stream)
             => new FixedPoint_2_5(stream.ReadByte());
+
+        public static VertexProperty ReadVertexProperty(this BinaryReader stream)
+            => new VertexProperty(stream.ReadByte(), stream.ReadByte(), stream.ReadByte(), stream.ReadByte());
 
         //WRITING OF STRUCTS
         public static void Write(this BinaryWriter stream, C2Vector item)
@@ -203,7 +208,7 @@ namespace m2lib_csharp.io
             stream.Write(item.A);
         }
 
-        public static void Write(this BinaryWriter stream, CompQuat item)
+        public static void Write(this BinaryWriter stream, M2CompQuat item)
         {
             stream.Write(item.X);
             stream.Write(item.Y);
@@ -223,5 +228,14 @@ namespace m2lib_csharp.io
             => stream.Write(item.ToShort());
         public static void Write(this BinaryWriter stream, FixedPoint_2_5 item)
             => stream.Write(item.ToByte());
+
+        public static void Write(this BinaryWriter stream, VertexProperty item)
+        {
+            // ReSharper disable once ForCanBeConvertedToForeach
+            for (var i = 0; i < item.Properties.Length; i++)
+            {
+                stream.Write(item.Properties[i]);
+            }
+        }
     }
 }

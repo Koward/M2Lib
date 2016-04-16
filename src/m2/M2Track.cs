@@ -329,23 +329,23 @@ namespace m2lib_csharp.m2
 
     public static class M2TrackExtensions
     {
-        public static void Compress(this M2Track<C4Quaternion> track, M2Track<CompQuat> target)
+        public static void Compress(this M2Track<C4Quaternion> track, M2Track<M2CompQuat> target)
         {
             target.Timestamps.Clear();
             target.Values.Clear();
-            target.InterpolationType = (M2Track<CompQuat>.InterpolationTypes) track.InterpolationType;
+            target.InterpolationType = (M2Track<M2CompQuat>.InterpolationTypes) track.InterpolationType;
             target.GlobalSequence = track.GlobalSequence;
             target.Sequences = track.Sequences;
             for (var i = 0; i < track.Timestamps.Count; i++) target.Timestamps.Add(track.Timestamps[i]);
             for (var i = 0; i < track.Values.Count; i++)
             {
-                var newArray = new M2Array<CompQuat>();
-                newArray.AddRange(track.Values[i].Select(value => (CompQuat) value));
+                var newArray = new M2Array<M2CompQuat>();
+                newArray.AddRange(track.Values[i].Select(value => (M2CompQuat) value));
                 target.Values.Add(newArray);
             }
         }
 
-        public static void Decompress(this M2Track<CompQuat> track, M2Track<C4Quaternion> target)
+        public static void Decompress(this M2Track<M2CompQuat> track, M2Track<C4Quaternion> target)
         {
             target.Timestamps.Clear();
             target.Values.Clear();

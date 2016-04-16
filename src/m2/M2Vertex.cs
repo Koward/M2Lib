@@ -11,6 +11,13 @@ namespace m2lib_csharp.m2
         public byte[] BoneWeights { get; set; } = new byte[4];
         public byte[] BoneIndices { get; set; } = new byte[4];
         public C3Vector Normal { get; set; }
+
+        public override string ToString()
+        {
+            return $"Position: {Position}, BoneWeights: [{BoneWeights[0]},{BoneWeights[1]},{BoneWeights[2]},{BoneWeights[3]}], BoneIndices: [{BoneIndices[0]},{BoneIndices[1]},{BoneIndices[2]},{BoneIndices[3]}]\n" +
+                   $"Normal: {Normal}, TexCoords: {TexCoords[0]},{TexCoords[1]}";
+        }
+
         public C2Vector[] TexCoords { get; set; } = {new C2Vector(), new C2Vector()};
 
         public void Load(BinaryReader stream, M2.Format version)

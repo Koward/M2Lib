@@ -15,9 +15,9 @@
             W = p4;
         }
 
-        public static explicit operator CompQuat(C4Quaternion quat)
+        public static explicit operator M2CompQuat(C4Quaternion quat)
         {
-            return new CompQuat(FloatToShort(quat.X), FloatToShort(quat.Y), FloatToShort(quat.Z), FloatToShort(quat.W));
+            return new M2CompQuat(FloatToShort(quat.X), FloatToShort(quat.Y), FloatToShort(quat.Z), FloatToShort(quat.W));
         }
 
         /// <summary>
