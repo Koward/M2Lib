@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using m2lib_csharp.m2;
+using M2Lib.m2;
 
-namespace m2lib_csharp.interfaces
+namespace M2Lib.interfaces
 {
     /// <summary>
     ///     Handles the content pointed by the M2Array objects in the structure.

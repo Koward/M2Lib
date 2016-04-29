@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using m2lib_csharp.interfaces;
+using M2Lib.interfaces;
 
-namespace m2lib_csharp.m2
+namespace M2Lib.m2
 {
     /// <summary>
     ///     A playable record for a sequence.

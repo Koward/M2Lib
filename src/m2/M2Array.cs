@@ -2,10 +2,10 @@
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using m2lib_csharp.interfaces;
-using m2lib_csharp.io;
+using M2Lib.interfaces;
+using M2Lib.io;
 
-namespace m2lib_csharp.m2
+namespace M2Lib.m2
 {
     public class M2Array<T> : List<T>, IMarshalable where T : new()
     {
@@ -59,7 +59,10 @@ namespace m2lib_csharp.m2
             else
             {
                 for (var i = 0; i < _n; i++)
+                {
+                    Debug.Assert(StreamExtensions.ReadFunctions.ContainsKey(typeof (T)), "Can't read " + typeof (T));
                     Add((T) StreamExtensions.ReadFunctions[typeof (T)](stream));
+                }
             }
             if (!typeof (IReferencer).IsAssignableFrom(typeof (T))) return;
 
@@ -87,7 +90,10 @@ namespace m2lib_csharp.m2
             else
             {
                 for (var i = 0; i < Count; i++)
+                {
+                    Debug.Assert(StreamExtensions.WriteFunctions.ContainsKey(typeof (T)), "Can't write " + typeof (T));
                     StreamExtensions.WriteFunctions[typeof (T)](stream, this[i]);
+                }
             }
             if (typeof (IReferencer).IsAssignableFrom(typeof (T)))
             {

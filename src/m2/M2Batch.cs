@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using m2lib_csharp.interfaces;
+using M2Lib.interfaces;
 
-namespace m2lib_csharp.m2
+namespace M2Lib.m2
 {
     /// <summary>
     ///     Called M2Batch in the WoW source
@@ -10,7 +10,7 @@ namespace m2lib_csharp.m2
     {
         public byte Flags { get; set; }
         public byte Flags2 { get; set; }
-        public ushort ShaderId { get; set; }
+        public short ShaderId { get; set; }
         public ushort SubmeshIndex { get; set; }
         public ushort SubmeshIndex2 { get; set; }
         public short ColorIndex { get; set; } = -1;
@@ -26,7 +26,7 @@ namespace m2lib_csharp.m2
         {
             Flags = stream.ReadByte();
             Flags2 = stream.ReadByte();
-            ShaderId = stream.ReadUInt16();
+            ShaderId = stream.ReadInt16();
             SubmeshIndex = stream.ReadUInt16();
             SubmeshIndex2 = stream.ReadUInt16();
             ColorIndex = stream.ReadInt16();

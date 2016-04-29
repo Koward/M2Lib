@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using m2lib_csharp.interfaces;
+using M2Lib.interfaces;
 
-namespace m2lib_csharp.m2
+namespace M2Lib.m2
 {
     public class M2Texture : IReferencer
     {
@@ -82,6 +82,11 @@ namespace m2lib_csharp.m2
                 if (lookup[id] == -1) lookup[id] = i;
             }
             return lookup;
+        }
+
+        public override string ToString()
+        {
+            return $"Flags: {Flags}, Name: {Name}, Type: {Type}";
         }
     }
 }

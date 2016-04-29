@@ -1,4 +1,4 @@
-﻿namespace m2lib_csharp.types
+﻿namespace M2Lib.types
 {
     /// <summary>
     ///     An axis aligned sphere described by position and radius.

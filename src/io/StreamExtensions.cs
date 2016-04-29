@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using m2lib_csharp.interfaces;
-using m2lib_csharp.m2;
-using m2lib_csharp.types;
+using M2Lib.interfaces;
+using M2Lib.m2;
+using M2Lib.types;
 
-namespace m2lib_csharp.io
+namespace M2Lib.io
 {
     /// <summary>
     ///     Extensions to BinaryReader and BinaryWriter to hide the generic type identification done during IO.
@@ -26,6 +26,7 @@ namespace m2lib_csharp.io
             ReadFunctions[typeof (ushort)] = s => s.ReadUInt16();
             ReadFunctions[typeof (int)] = s => s.ReadInt32();
             ReadFunctions[typeof (uint)] = s => s.ReadUInt32();
+            ReadFunctions[typeof (float)] = s => s.ReadSingle();
             ReadFunctions[typeof (C2Vector)] = s => s.ReadC2Vector();
             ReadFunctions[typeof (C33Matrix)] = s => s.ReadC33Matrix();
             ReadFunctions[typeof (C3Vector)] = s => s.ReadC3Vector();
@@ -49,6 +50,7 @@ namespace m2lib_csharp.io
             WriteFunctions[typeof (ushort)] = (s, t) => s.Write((ushort) t);
             WriteFunctions[typeof (int)] = (s, t) => s.Write((int) t);
             WriteFunctions[typeof (uint)] = (s, t) => s.Write((uint) t);
+            WriteFunctions[typeof (float)] = (s, t) => s.Write((float) t);
             WriteFunctions[typeof (C2Vector)] = (s, t) => s.Write((C2Vector) t);
             WriteFunctions[typeof (C33Matrix)] = (s, t) => s.Write((C33Matrix) t);
             WriteFunctions[typeof (C3Vector)] = (s, t) => s.Write((C3Vector) t);
@@ -95,8 +97,8 @@ namespace m2lib_csharp.io
             => new C3Vector(stream.ReadSingle(), stream.ReadSingle(), stream.ReadSingle());
 
         public static C44Matrix ReadC44Matrix(this BinaryReader stream)
-            => new C44Matrix(stream.ReadC3Vector(), stream.ReadC3Vector(), stream.ReadC3Vector(),
-                stream.ReadC3Vector());
+            => new C44Matrix(stream.ReadC4Vector(), stream.ReadC4Vector(), stream.ReadC4Vector(),
+                stream.ReadC4Vector());
 
         public static C4Plane ReadC4Plane(this BinaryReader stream)
             => new C4Plane(stream.ReadC3Vector(), stream.ReadSingle());

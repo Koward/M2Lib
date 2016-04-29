@@ -2,9 +2,10 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using m2lib_csharp.interfaces;
+using System.Text;
+using M2Lib.interfaces;
 
-namespace m2lib_csharp.m2
+namespace M2Lib.m2
 {
     public class M2TrackBase : IReferencer
     {
@@ -16,8 +17,8 @@ namespace m2lib_csharp.m2
             Bezier = 3
         }
 
-        private readonly M2Array<Range> _legacyRanges = new M2Array<Range>();
-        private readonly M2Array<uint> _legacyTimestamps = new M2Array<uint>();
+        private M2Array<Range> _legacyRanges;
+        private M2Array<uint> _legacyTimestamps;
 
         public InterpolationTypes InterpolationType { get; set; }
         public short GlobalSequence { get; set; } = -1;
@@ -39,6 +40,8 @@ namespace m2lib_csharp.m2
             }
             else
             {
+                _legacyRanges = new M2Array<Range>();
+                _legacyTimestamps = new M2Array<uint>();
                 LegacyLoad(stream, version);
             }
         }
@@ -54,6 +57,8 @@ namespace m2lib_csharp.m2
             }
             else
             {
+                _legacyRanges = new M2Array<Range>();
+                _legacyTimestamps = new M2Array<uint>();
                 LegacySave(stream, version);
             }
         }
@@ -88,6 +93,8 @@ namespace m2lib_csharp.m2
             else
             {
                 LegacyLoadContent(stream, version);
+                _legacyRanges = null;
+                _legacyTimestamps = null;
             }
         }
 
@@ -125,14 +132,29 @@ namespace m2lib_csharp.m2
             else
             {
                 LegacySaveContent(stream, version);
+                _legacyRanges = null;
+                _legacyTimestamps = null;
             }
         }
 
         public override string ToString()
         {
-            return $"InterpolationType: {InterpolationType}, GlobalSequence: {GlobalSequence}, " +
-                   $"\nTimestamps: {Timestamps}";
+            var builder = new StringBuilder();
+            builder.Append("Interpolation type : " + InterpolationType + "\n");
+            builder.Append("GlobalSequence Index : " + GlobalSequence + "\n");
+            builder.Append("\tTime\n");
+            for (var i = 0; i < Timestamps.Count; i++)
+            {
+                builder.Append("[" + i + "]\n");
+                for (var j = 0; j < Timestamps[i].Count; j++)
+                {
+                    builder.Append("\t" + Timestamps[i][j] + "\n");
+                }
+                builder.AppendLine();
+            }
+            return builder.ToString();
         }
+
 
         /// <summary>
         ///     Pre : Sequences != null
@@ -176,10 +198,14 @@ namespace m2lib_csharp.m2
         /// </summary>
         private void GenerateLegacyRanges()
         {
-            if (_legacyTimestamps.Count < 2) return;
             // ReSharper disable once ForCanBeConvertedToForeach
             for (var index = 0; index < Sequences.Count; index++)
             {
+                if (_legacyTimestamps.Count < 2)
+                {
+                    _legacyRanges.Add(new Range());
+                    continue;
+                }
                 var seq = Sequences[index];
                 var indexesPrevious =
                     Enumerable.Range(0, _legacyTimestamps.Count) // Indexes of times <= to the beginning of sequence.

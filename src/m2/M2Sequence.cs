@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using m2lib_csharp.interfaces;
-using m2lib_csharp.io;
-using m2lib_csharp.types;
+using M2Lib.interfaces;
+using M2Lib.io;
+using M2Lib.types;
 
-namespace m2lib_csharp.m2
+namespace M2Lib.m2
 {
     public class M2Sequence : IMarshalable
     {
@@ -39,6 +39,7 @@ namespace m2lib_csharp.m2
         public ushort AliasNext { get; set; }
 
         public string Name => AnimationData.IdToName[AnimationId];
+        public uint TimeEnd => TimeStart + Length;
 
         public bool IsExtern => (Flags & (SequenceFlags.Looped | SequenceFlags.LowPriority | SequenceFlags.Stored)) == 0
             ;
@@ -147,7 +148,7 @@ namespace m2lib_csharp.m2
 
         // ANIMATION LOOKUP
 
-        public static M2Array<short> GenerateAnimationLookup(M2Array<M2Sequence> sequences)
+        public static M2Array<short> GenerateLookup(M2Array<M2Sequence> sequences)
         {
             var lookup = new M2Array<short>();
             var maxId = sequences.Max(x => x.AnimationId);
@@ -164,12 +165,13 @@ namespace m2lib_csharp.m2
 
         private static ushort GetRealId(ushort id, IReadOnlyList<short> animLookup)
         {
+            /* Original tail recursive version :
+            if (id < animLookup.Count && (animLookup[id] > -1)) return id;
+            return GetRealId(AnimationData.Fallback[id], animLookup);
+            */
             while (true)
             {
-                if (id < animLookup.Count && (animLookup[id] > -1))
-                {
-                    return id;
-                }
+                if (id < animLookup.Count && (animLookup[id] > -1)) return id;
                 id = AnimationData.Fallback[id];
             }
         }

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Text;
 
-namespace m2lib_csharp.types
+namespace M2Lib.types
 {
     // ReSharper disable once InconsistentNaming
     public struct FixedPoint_0_15

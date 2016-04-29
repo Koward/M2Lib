@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using m2lib_csharp.interfaces;
+using M2Lib.interfaces;
 
-namespace m2lib_csharp.m2
+namespace M2Lib.m2
 {
     public class M2Material : IMarshalable
     {
@@ -33,18 +33,18 @@ namespace m2lib_csharp.m2
         }
 
         public RenderFlags Flags { get; set; }
-        public BlendingMode Mode { get; set; }
+        public BlendingMode blendMode { get; set; }
 
         public void Load(BinaryReader stream, M2.Format version)
         {
             Flags = (RenderFlags) stream.ReadUInt16();
-            Mode = (BlendingMode) stream.ReadUInt16();
+            blendMode = (BlendingMode) stream.ReadUInt16();
         }
 
         public void Save(BinaryWriter stream, M2.Format version)
         {
             stream.Write((ushort) Flags);
-            stream.Write((ushort) Mode);
+            stream.Write((ushort) blendMode);
         }
     }
 }

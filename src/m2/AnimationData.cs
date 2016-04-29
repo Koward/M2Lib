@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Microsoft.VisualBasic.FileIO;
 
-namespace m2lib_csharp.m2
+namespace M2Lib.m2
 {
     /// <summary>
     ///     Static class providing friendly access to AnimationData.dbc
@@ -62,6 +62,10 @@ namespace m2lib_csharp.m2
                 NameToId["LootUp"]
             };
             foreach (var value in playBackwardsValues) PlayBackwards.Add(value);
+
+            //TODO FIXME There a loops by following the fallbacks in AnimationData.dbc. Happens with Close and FlyClose.
+            Fallback[146] = 0;//Close
+            Fallback[375] = 0;//FlyClose
         }
     }
 }

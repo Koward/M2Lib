@@ -1,4 +1,4 @@
-﻿namespace m2lib_csharp.types
+﻿namespace M2Lib.types
 {
     /// <summary>
     ///     A color given in values of red, green, blue and alpha.

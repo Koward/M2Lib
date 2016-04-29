@@ -2,11 +2,12 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using m2lib_csharp.interfaces;
-using m2lib_csharp.io;
-using m2lib_csharp.types;
+using System.Text;
+using M2Lib.interfaces;
+using M2Lib.io;
+using M2Lib.types;
 
-namespace m2lib_csharp.m2
+namespace M2Lib.m2
 {
     public class M2Track<T> : IReferencer where T : new()
     {
@@ -21,9 +22,10 @@ namespace m2lib_csharp.m2
         private readonly T _defaultValue;
         private readonly bool _defaultValueSet;
 
-        private readonly M2Array<Range> _legacyRanges = new M2Array<Range>();
-        private readonly M2Array<uint> _legacyTimestamps = new M2Array<uint>();
-        private readonly M2Array<T> _legacyValues = new M2Array<T>();
+        private M2Array<Range> _legacyRanges;
+        private M2Array<uint> _legacyTimestamps;
+        private M2Array<T> _legacyValues;
+        public bool IsGlobalSequence => GlobalSequence >= 0;
 
         public M2Track()
         {
@@ -57,6 +59,9 @@ namespace m2lib_csharp.m2
             }
             else
             {
+                _legacyRanges = new M2Array<Range>();
+                _legacyTimestamps = new M2Array<uint>();
+                _legacyValues = new M2Array<T>();
                 LegacyLoad(stream, version);
             }
         }
@@ -73,6 +78,9 @@ namespace m2lib_csharp.m2
             }
             else
             {
+                _legacyRanges = new M2Array<Range>();
+                _legacyTimestamps = new M2Array<uint>();
+                _legacyValues = new M2Array<T>();
                 LegacySave(stream, version);
             }
         }
@@ -111,6 +119,9 @@ namespace m2lib_csharp.m2
             else
             {
                 LegacyLoadContent(stream, version);
+                _legacyRanges = null;
+                _legacyTimestamps = null;
+                _legacyValues = null;
             }
         }
 
@@ -135,7 +146,7 @@ namespace m2lib_csharp.m2
                     }
                     if (Sequences[i].IsExtern)
                     {
-                        //Cannot use SaveContent() as it Rewrites header
+                        //Cannot use SaveContent() as it Rewrites header only in the same stream
                         if (Timestamps[i].Count <= 0) continue;
                         Timestamps[i].StoredOffset = (uint) Sequences[i].WritingAnimFile.BaseStream.Position;
                         for (var j = 0; j < Timestamps[i].Count; j++)
@@ -156,14 +167,33 @@ namespace m2lib_csharp.m2
             else
             {
                 LegacySaveContent(stream, version);
+                _legacyRanges = null;
+                _legacyTimestamps = null;
+                _legacyValues = null;
             }
         }
 
         public override string ToString()
         {
-            return $"InterpolationType: {InterpolationType}, GlobalSequence: {GlobalSequence}, " +
-                   $"\nTimestamps: {Timestamps}, " +
-                   $"\nValues: {Values}";
+            var builder = new StringBuilder();
+            builder.Append("Interpolation type : " + InterpolationType+"\n");
+            builder.Append("GlobalSequence Index : " + GlobalSequence+"\n");
+            if (Timestamps.Count == 0)
+            {
+                builder.Append("<No keyframe>\n");
+                return builder.ToString();
+            }
+            builder.Append("\tTime\tValue\n");
+            for (var i = 0; i < Timestamps.Count; i++)
+            {
+                builder.Append("[" + i + "]\n");
+                for (var j = 0; j < Timestamps[i].Count; j++)
+                {
+                    builder.Append("\t" + Timestamps[i][j] + "\t" + Values[i][j]+"\n");
+                }
+                builder.AppendLine();
+            }
+            return builder.ToString();
         }
 
         /// <summary>
@@ -173,7 +203,11 @@ namespace m2lib_csharp.m2
         /// <param name="version"></param>
         private void LegacySave(BinaryWriter stream, M2.Format version)
         {
-            if (GlobalSequence >= 0)
+            if (Timestamps.Count == 0)
+            {
+                /*TODO*/
+            }
+            else if (IsGlobalSequence)
             {
                 _legacyTimestamps.AddRange(Timestamps[0]);
                 _legacyValues.AddRange(Values[0]);
@@ -182,20 +216,29 @@ namespace m2lib_csharp.m2
             {
                 for (var i = 0; i < Timestamps.Count; i++)
                 {
-                    if (Timestamps[i].Count == 0)
+                    if (Timestamps[i].Count == 1)// Constant for animation i
+                    {
+                        _legacyTimestamps.Add(Timestamps[i][0] + Sequences[i].TimeStart);
+                        _legacyValues.Add(Values[i][0]);
+                        _legacyTimestamps.Add(Timestamps[i][0] + Sequences[i].TimeEnd);
+                        _legacyValues.Add(Values[i][0]);
+                    }
+                    else if (Timestamps[i].Count > 1)// Standard case
+                    {
+                        for (var j = 0; j < Timestamps[i].Count; j++)
+                        {
+                            _legacyTimestamps.Add(Timestamps[i][j] + Sequences[i].TimeStart);
+                            _legacyValues.Add(Values[i][j]);
+                        }
+                    }
+                    else // No value for animation i
                     {
                         //Purpose : Not adding (1,1,1) as default scaling value, f.e., would lead older clients to believe it's (0,0,0). 
                         //It would result in disappearing parts of the model. Try with Jaina.m2 to make her jawless.
                         _legacyTimestamps.Add(Sequences[i].TimeStart);
                         _legacyValues.Add(_defaultValueSet ? _defaultValue : new T());
-                        _legacyTimestamps.Add(Sequences[i].TimeStart + Sequences[i].Length);
+                        _legacyTimestamps.Add(Sequences[i].TimeEnd);
                         _legacyValues.Add(_defaultValueSet ? _defaultValue : new T());
-                        continue;
-                    }
-                    for (var j = 0; j < Timestamps[i].Count; j++)
-                    {
-                        _legacyTimestamps.Add(Timestamps[i][j] + Sequences[i].TimeStart);
-                        _legacyValues.Add(Values[i][j]);
                     }
                 }
             }
@@ -204,7 +247,7 @@ namespace m2lib_csharp.m2
                 _legacyTimestamps.AddRange(Timestamps[0]);
                 _legacyValues.AddRange(Values[0]);
             }
-            GenerateLegacyRanges();
+            OldGenerateLegacyRanges();
             _legacyRanges.Save(stream, version);
             _legacyTimestamps.Save(stream, version);
             _legacyValues.Save(stream, version);
@@ -233,7 +276,7 @@ namespace m2lib_csharp.m2
                         .ToList();
                 var indexesNext =
                     Enumerable.Range(0, _legacyTimestamps.Count) // Indexes of times >= to the end of sequence.
-                        .Where(i => _legacyTimestamps[i] >= seq.TimeStart + seq.Length)
+                        .Where(i => _legacyTimestamps[i] >= seq.TimeEnd)
                         .ToList();
 
                 uint startIndex;
@@ -270,21 +313,20 @@ namespace m2lib_csharp.m2
                 Timestamps.Add(_legacyTimestamps);
                 Values.Add(_legacyValues);
             }
-            else
+            else 
             {
                 // ReSharper disable once ForCanBeConvertedToForeach
                 for (var index = 0; index < Sequences.Count; index++)
                 {
+                    var animTimes = new M2Array<uint>();
+                    var animValues = new M2Array<T>();
                     var seq = Sequences[index];
                     var validIndexes = Enumerable.Range(0, _legacyTimestamps.Count)
                         .Where(
                             i =>
                                 _legacyTimestamps[i] >= seq.TimeStart &&
-                                _legacyTimestamps[i] <= seq.TimeStart + seq.Length)
+                                _legacyTimestamps[i] <= seq.TimeEnd)
                         .ToList();
-
-                    var animTimes = new M2Array<uint>();
-                    var animValues = new M2Array<T>();
                     if (validIndexes.Count > 0)
                     {
                         var firstIndex = validIndexes[0];
@@ -296,6 +338,39 @@ namespace m2lib_csharp.m2
                     Values.Add(animValues);
                 }
             }
+        }
+
+        /// <summary>
+        /// This version dates back to the Java and even to the C converters.
+        /// </summary>
+        private void OldGenerateLegacyRanges()
+        {
+            if (IsGlobalSequence || Timestamps.Count == 0 || Timestamps.Count != Sequences.Count)
+            {
+                return;
+            }
+            Debug.Assert(Timestamps.Count == Sequences.Count);
+            uint rangeTime = 0;
+            foreach(var times in Timestamps)
+            {
+                var x = rangeTime;
+                if (times.Count == 1)
+                {
+                    rangeTime++;
+                }
+                else if (times.Count > 1)
+                {
+                    rangeTime += (uint) times.Count - 1;
+                }
+                else
+                {
+                    rangeTime++;
+                }
+                var y = rangeTime;
+                _legacyRanges.Add(new Range(x, y));
+                rangeTime++;
+            }
+            _legacyRanges.Add(new Range());
         }
     }
 

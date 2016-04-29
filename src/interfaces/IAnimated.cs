@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using m2lib_csharp.m2;
+using M2Lib.m2;
 
-namespace m2lib_csharp.interfaces
+namespace M2Lib.interfaces
 {
     public interface IAnimated : IReferencer
     {

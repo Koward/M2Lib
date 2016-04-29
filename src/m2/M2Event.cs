@@ -1,17 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using m2lib_csharp.interfaces;
-using m2lib_csharp.io;
-using m2lib_csharp.types;
+using M2Lib.interfaces;
+using M2Lib.io;
+using M2Lib.types;
 
-namespace m2lib_csharp.m2
+namespace M2Lib.m2
 {
     public class M2Event : IAnimated
     {
         public string Identifier { get; set; }
+
+        public override string ToString()
+        {
+            return $"Identifier: {Identifier}, Data: {Data}, Bone: {Bone}, Position: {Position}";
+        }
+
         public int Data { get; set; }
-        public int Bone { get; set; }
+        public ushort Bone { get; set; }
+        public ushort Unknown { get; set; }//Only use in early vanilla models. See BogBeast.m2 from model.MPQ
         public C3Vector Position { get; set; }
         public M2TrackBase Enabled { get; set; } = new M2TrackBase();
 
@@ -19,7 +26,8 @@ namespace m2lib_csharp.m2
         {
             Identifier = Encoding.UTF8.GetString(stream.ReadBytes(4));
             Data = stream.ReadInt32();
-            Bone = stream.ReadInt32();
+            Bone = stream.ReadUInt16();
+            Unknown = stream.ReadUInt16();
             Position = stream.ReadC3Vector();
             Enabled.Load(stream, version);
         }
@@ -31,6 +39,7 @@ namespace m2lib_csharp.m2
             stream.Write(Encoding.UTF8.GetBytes(Identifier));
             stream.Write(Data);
             stream.Write(Bone);
+            stream.Write(Unknown);
             stream.Write(Position);
             Enabled.Save(stream, version);
         }

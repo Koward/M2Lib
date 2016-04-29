@@ -7,8 +7,8 @@
     <ProjectGuid>{6508665A-54DE-41D7-919C-D1DAFBAB9D54}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>m2lib_csharp</RootNamespace>
-    <AssemblyName>m2lib-csharp</AssemblyName>
+    <RootNamespace>M2Lib</RootNamespace>
+    <AssemblyName>M2Lib</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -59,8 +59,10 @@
     <Compile Include="src\m2\M2Bone.cs" />
     <Compile Include="src\m2\M2Camera.cs" />
     <Compile Include="src\m2\M2Event.cs" />
+    <Compile Include="src\m2\M2FakeTrack.cs" />
     <Compile Include="src\m2\M2Light.cs" />
     <Compile Include="src\m2\M2Material.cs" />
+    <Compile Include="src\m2\M2Particle.cs" />
     <Compile Include="src\m2\M2Ribbon.cs" />
     <Compile Include="src\m2\PlayableRecord.cs" />
     <Compile Include="src\m2\M2.cs" />
@@ -86,9 +88,10 @@
     <Compile Include="src\types\CAaBox.cs" />
     <Compile Include="src\types\CAaSphere.cs" />
     <Compile Include="src\types\CArgb.cs" />
-    <Compile Include="src\types\CompQuat.cs" />
+    <Compile Include="src\types\M2CompQuat.cs" />
     <Compile Include="src\types\CRange.cs" />
     <Compile Include="src\types\FixedPoint.cs" />
+    <Compile Include="src\types\VertexProperty.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

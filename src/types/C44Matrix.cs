@@ -1,15 +1,16 @@
-﻿namespace m2lib_csharp.types
+﻿namespace M2Lib.types
 {
     /// <summary>
     ///     A four by four matrix.
     /// </summary>
-    public struct C44Matrix
+    public class C44Matrix
     {
-        public readonly C3Vector[] Columns;
+        public readonly C4Vector[] Columns = new C4Vector[4];
 
-        public C44Matrix(C3Vector col0, C3Vector col1, C3Vector col2, C3Vector col3)
+        public C44Matrix() : this(new C4Vector(), new C4Vector(), new C4Vector(), new C4Vector()) { }
+
+        public C44Matrix(C4Vector col0, C4Vector col1, C4Vector col2, C4Vector col3)
         {
-            Columns = new C3Vector[4];
             Columns[0] = col0;
             Columns[1] = col1;
             Columns[2] = col2;

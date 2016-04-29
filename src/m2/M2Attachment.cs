@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using m2lib_csharp.interfaces;
-using m2lib_csharp.io;
-using m2lib_csharp.types;
+using M2Lib.interfaces;
+using M2Lib.io;
+using M2Lib.types;
 
-namespace m2lib_csharp.m2
+namespace M2Lib.m2
 {
     public class M2Attachment : IAnimated
     {

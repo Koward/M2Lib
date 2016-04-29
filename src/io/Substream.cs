@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace m2lib_csharp.io
+namespace M2Lib.io
 {
     /// <summary>
     ///     View a part of a stream. All offsets and lengths will be relative to this part.
@@ -12,6 +12,11 @@ namespace m2lib_csharp.io
     {
         private readonly long _beginning;
         private readonly Stream _innerStream;
+
+        public Stream GetInnerStream()
+        {
+            return _innerStream;
+        }
 
         public Substream(Stream inner)
         {
