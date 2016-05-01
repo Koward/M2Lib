@@ -74,6 +74,7 @@ namespace M2Lib.m2
         public static M2Array<short> GenerateTexReplaceLookup(M2Array<M2Texture> textures)
         {
             var lookup = new M2Array<short>();
+            if (textures.Count == 0) return lookup;
             var maxId = (short) textures.Max(x => x.Type);
             for (short i = 0; i <= maxId; i++) lookup.Add(-1);
             for (short i = 0; i < textures.Count; i++)
