@@ -25,7 +25,7 @@ namespace M2Lib.m2
             PlayThenStop = new HashSet<ushort>();
             PlayBackwards = new HashSet<ushort>();
             var assembly = Assembly.GetExecutingAssembly();
-            var embeddedStream = assembly.GetManifestResourceStream("m2lib_csharp.src.csv.AnimationData.csv");
+            var embeddedStream = assembly.GetManifestResourceStream("M2Lib.src.csv.AnimationData.csv");
             Debug.Assert(embeddedStream != null, "Could not open embedded ressource AnimationData");
             var csvParser = new TextFieldParser(embeddedStream) {CommentTokens = new[] {"#"}};
             csvParser.SetDelimiters(",");
