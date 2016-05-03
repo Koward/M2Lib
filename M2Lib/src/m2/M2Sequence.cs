@@ -27,7 +27,7 @@ namespace M2Lib.m2
         public ushort SubAnimationId { get; set; }
         public uint Length { get; set; }
         public float MovingSpeed { get; set; }
-        public SequenceFlags Flags { get; set; } = 0;
+        public SequenceFlags Flags { get; set; } = SequenceFlags.Looped;
         public short Probability { get; set; } = short.MaxValue;
         public uint MinimumRepetitions { get; set; }
         public uint MaximumRepetitions { get; set; }

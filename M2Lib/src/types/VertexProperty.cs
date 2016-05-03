@@ -1,4 +1,6 @@
-﻿namespace M2Lib.types
+﻿using System.Diagnostics;
+
+namespace M2Lib.types
 {
     public struct VertexProperty
     {
@@ -11,6 +13,12 @@
             Properties[1] = p2;
             Properties[2] = p3;
             Properties[3] = p4;
+        }
+
+        public VertexProperty(byte[] properties)
+        {
+            Debug.Assert(properties.Length == 4);
+            Properties = properties;
         }
 
         public override string ToString()
