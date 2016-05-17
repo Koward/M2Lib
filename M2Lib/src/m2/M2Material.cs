@@ -33,18 +33,18 @@ namespace M2Lib.m2
         }
 
         public RenderFlags Flags { get; set; }
-        public BlendingMode blendMode { get; set; }
+        public BlendingMode BlendMode { get; set; } = BlendingMode.Opaque;
 
         public void Load(BinaryReader stream, M2.Format version)
         {
             Flags = (RenderFlags) stream.ReadUInt16();
-            blendMode = (BlendingMode) stream.ReadUInt16();
+            BlendMode = (BlendingMode) stream.ReadUInt16();
         }
 
         public void Save(BinaryWriter stream, M2.Format version)
         {
             stream.Write((ushort) Flags);
-            stream.Write((ushort) blendMode);
+            stream.Write((ushort) BlendMode);
         }
     }
 }

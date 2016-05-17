@@ -7,10 +7,10 @@
     {
         public readonly C3Vector Min, Max;
 
-        public CAaBox(C3Vector vec1, C3Vector vec2)
+        public CAaBox(C3Vector min, C3Vector max)
         {
-            Min = vec1;
-            Max = vec2;
+            Min = min;
+            Max = max;
         }
 
         public override string ToString()

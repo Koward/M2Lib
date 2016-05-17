@@ -25,7 +25,7 @@ namespace M2Lib.m2
         private ushort _padding;
         public ushort AnimationId { get; set; }
         public ushort SubAnimationId { get; set; }
-        public uint Length { get; set; }
+        public uint Length { get; set; } = 3333;
         public float MovingSpeed { get; set; }
         public SequenceFlags Flags { get; set; } = SequenceFlags.Looped;
         public short Probability { get; set; } = short.MaxValue;

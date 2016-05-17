@@ -194,7 +194,7 @@ namespace M2Lib.m2
                     // Flags fix
                     mat.Flags = mat.Flags & (M2Material.RenderFlags) 0x1F;
                     // Blending mode fix
-                    if(mat.blendMode > M2Material.BlendingMode.DeeprunTram) mat.blendMode = M2Material.BlendingMode.Mod2X;
+                    if(mat.BlendMode > M2Material.BlendingMode.DeeprunTram) mat.BlendMode = M2Material.BlendingMode.Mod2X;
                 }
             }
 

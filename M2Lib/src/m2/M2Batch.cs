@@ -8,7 +8,7 @@ namespace M2Lib.m2
     /// </summary>
     public class M2Batch : IMarshalable
     {
-        public byte Flags { get; set; }
+        public byte Flags { get; set; } = 0x10;
         public byte Flags2 { get; set; }
         public short ShaderId { get; set; }
         public ushort SubmeshIndex { get; set; }
@@ -16,7 +16,7 @@ namespace M2Lib.m2
         public short ColorIndex { get; set; } = -1;
         public ushort RenderFlags { get; set; }
         public ushort Layer { get; set; }
-        public ushort OpCount { get; set; }
+        public ushort OpCount { get; set; } = 1;
         public ushort Texture { get; set; }
         public ushort TexUnitNumber2 { get; set; }
         public ushort Transparency { get; set; }

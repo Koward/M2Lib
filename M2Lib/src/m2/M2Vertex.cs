@@ -1,16 +1,19 @@
-﻿using System.IO;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using M2Lib.interfaces;
 using M2Lib.io;
 using M2Lib.types;
 
 namespace M2Lib.m2
 {
-    public class M2Vertex : IMarshalable
+    public class M2Vertex : IMarshalable, IEquatable<M2Vertex>
     {
         public C3Vector Position { get; set; }
         public byte[] BoneWeights { get; set; } = new byte[4];
         public byte[] BoneIndices { get; set; } = new byte[4];
         public C3Vector Normal { get; set; }
+        public C2Vector[] TexCoords { get; set; } = {new C2Vector(), new C2Vector()};
 
         public override string ToString()
         {
@@ -18,7 +21,40 @@ namespace M2Lib.m2
                    $"Normal: {Normal}, TexCoords: {TexCoords[0]},{TexCoords[1]}";
         }
 
-        public C2Vector[] TexCoords { get; set; } = {new C2Vector(), new C2Vector()};
+        public override bool Equals(object obj)
+        {
+            return obj != null && Equals(obj as M2Vertex);
+        }
+
+        public bool Equals(M2Vertex other)
+        {
+            return other != null 
+                && Position.Equals(other.Position) 
+                && Normal.Equals(other.Normal) 
+                && Equals(TexCoords[0], other.TexCoords[0]) 
+                && Equals(TexCoords[1], other.TexCoords[1]);
+        }
+
+        public static bool operator ==(M2Vertex left, M2Vertex right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(M2Vertex left, M2Vertex right)
+        {
+            return !Equals(left, right);
+        }
+
+        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
+        public override int GetHashCode()
+        {
+            var hashCode = Position.GetHashCode();
+            hashCode = (hashCode*397) ^ (BoneWeights?.GetHashCode() ?? 0);
+            hashCode = (hashCode*397) ^ (BoneIndices?.GetHashCode() ?? 0);
+            hashCode = (hashCode*397) ^ Normal.GetHashCode();
+            hashCode = (hashCode*397) ^ (TexCoords?.GetHashCode() ?? 0);
+            return hashCode;
+        }
 
         public void Load(BinaryReader stream, M2.Format version)
         {
