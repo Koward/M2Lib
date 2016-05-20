@@ -78,9 +78,9 @@ namespace M2Lib.m2
         public float BoundingSphereRadius { get; set; }
         public CAaBox CollisionBox { get; set; }
         public float CollisionSphereRadius { get; set; }
-        public M2Array<ushort> BoundingTriangles { get; } = new M2Array<ushort>();
-        public M2Array<C3Vector> BoundingVertices { get; } = new M2Array<C3Vector>();
-        public M2Array<C3Vector> BoundingNormals { get; } = new M2Array<C3Vector>();
+        public M2Array<ushort> CollisionTriangles { get; } = new M2Array<ushort>();
+        public M2Array<C3Vector> CollisionVertices { get; } = new M2Array<C3Vector>();
+        public M2Array<C3Vector> CollisionNormals { get; } = new M2Array<C3Vector>();
         public M2Array<M2Ribbon> Ribbons { get; } = new M2Array<M2Ribbon>();
         public M2Array<M2Particle> Particles { get; } = new M2Array<M2Particle>();
         public M2Array<ushort> BlendingMaps { get; } = new M2Array<ushort>();
@@ -130,9 +130,9 @@ namespace M2Lib.m2
             BoundingSphereRadius = stream.ReadSingle();
             CollisionBox = stream.ReadCAaBox();
             CollisionSphereRadius = stream.ReadSingle();
-            BoundingTriangles.Load(stream, version);
-            BoundingVertices.Load(stream, version);
-            BoundingNormals.Load(stream, version);
+            CollisionTriangles.Load(stream, version);
+            CollisionVertices.Load(stream, version);
+            CollisionNormals.Load(stream, version);
             Attachments.Load(stream, version);
             SkipArrayParsing(stream, version);
             Events.Load(stream, version);
@@ -204,9 +204,9 @@ namespace M2Lib.m2
             TexUnitLookup.LoadContent(stream, version);
             TransLookup.LoadContent(stream, version);
             UvAnimLookup.LoadContent(stream, version);
-            BoundingTriangles.LoadContent(stream, version);
-            BoundingVertices.LoadContent(stream, version);
-            BoundingNormals.LoadContent(stream, version);
+            CollisionTriangles.LoadContent(stream, version);
+            CollisionVertices.LoadContent(stream, version);
+            CollisionNormals.LoadContent(stream, version);
             Attachments.LoadContent(stream, version);
             Events.LoadContent(stream, version);
             Lights.LoadContent(stream, version);
@@ -264,9 +264,9 @@ namespace M2Lib.m2
             stream.Write(BoundingSphereRadius);
             stream.Write(CollisionBox);
             stream.Write(CollisionSphereRadius);
-            BoundingTriangles.Save(stream, version);
-            BoundingVertices.Save(stream, version);
-            BoundingNormals.Save(stream, version);
+            CollisionTriangles.Save(stream, version);
+            CollisionVertices.Save(stream, version);
+            CollisionNormals.Save(stream, version);
             Attachments.Save(stream, version);
             var attachmentLookup = M2Attachment.GenerateLookup(Attachments);
             attachmentLookup.Save(stream, version);
@@ -346,9 +346,9 @@ namespace M2Lib.m2
             TexUnitLookup.SaveContent(stream, version);
             TransLookup.SaveContent(stream, version);
             UvAnimLookup.SaveContent(stream, version);
-            BoundingTriangles.SaveContent(stream, version);
-            BoundingVertices.SaveContent(stream, version);
-            BoundingNormals.SaveContent(stream, version);
+            CollisionTriangles.SaveContent(stream, version);
+            CollisionVertices.SaveContent(stream, version);
+            CollisionNormals.SaveContent(stream, version);
             Attachments.SaveContent(stream, version);
             attachmentLookup.SaveContent(stream, version);
             Events.SaveContent(stream, version);
